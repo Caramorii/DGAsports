@@ -23,4 +23,4 @@ Feito em HTML, CSS e JavaScript.
 Clone o repositório:
 ```bash
 git clone https://github.com/Caramorii/DGAsports.git
-cd meu-site-esportes
+cd DGAsports
