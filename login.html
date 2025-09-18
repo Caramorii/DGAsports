@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #2563eb 0%, #5fe405 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #1f2937; /* cinza escuro */
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(37, 99, 235, 0.15);
+            backdrop-filter: blur(4px);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-container h1 {
+            margin-bottom: 1.3rem;
+            font-size: 2rem;
+            color: #2563eb; /* azul neon */
+            font-weight: bold;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 0.2rem;
+            margin: 0.5rem 0;
+            border: 2px solid #e5e7eb; /* cinza claro */
+            border-radius: 8px;
+            outline: none;
+            font-size: 1.8rem;
+            background: #f8fafc; /* branco suave */
+            color: #1f2937; /* cinza escuro */
+            transition: border-color 0.3s;
+        }
+        .login-container input:focus {
+            border-color: #2563eb; /* azul neon */
+        }
+        .login-container input[type="submit"] {
+            background: #5fe405; /* verde neon */
+            color: #111827; /* quase preto */
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: background 0.3s, color 0.3s;
+        }
+        .login-container input[type="submit"]:hover {
+            background: #2563eb; /* azul neon */
+            color: #fff;
+        }
+        .login-container a {
+            color: #2563eb; /* azul neon */
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+        .login-container a:hover {
+            color: #5fe405; /* verde neon */
+            text-decoration: underline;
+        }
+        .login-container p {
+            color: #374151; /* cinza escuro */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login</h1>
+        <form action="/login" method="POST">
+            <input type="text" name="username" placeholder="Usuário" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <input type="submit" value="Entrar">
+        </form>
+        <p>Não tem uma conta? <a href="register.html">Cadastre-se</a></p>
+    </div>
+</body>
+</html>

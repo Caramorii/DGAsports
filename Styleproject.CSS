@@ -1,0 +1,295 @@
+/* === ESTILOS GERAIS DO SITE === */
+/* (Afetam o <body> que está logo na abertura do HTML, linha 10 aprox.) */
+body {
+  background-color: #e5e7eb; /* fundo cinza claro */
+  font-family: sans-serif;
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* === HEADER (linha ~17 do HTML) === */
+header {
+  background-color: #cdd6e2; /* fundo cinza escuro */
+  box-shadow: 0 2px 10px rgba(36, 46, 39, 0.5);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Logo DGA (linha ~19) */
+header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+}
+
+/* Parte azul neon do logo (span.text-blue dentro do h1, linha ~19) */
+.text-blue {
+  color: #5fe405;
+}
+
+/* Links do menu (nav > a, linha ~21) */
+nav a {
+  color: #d1d5db;
+  margin: 0 1rem;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: white;
+}
+
+/* Botões Entrar e Cadastrar (linha ~25) */
+header button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.3s;
+}
+
+.btn-entrar { /* botão "Entrar" */
+  background-color: #5fe405;
+  color: white;
+}
+.btn-entrar:hover {
+  background-color: #ffffff;
+}
+
+.btn-cadastrar { /* botão "Cadastrar" */
+  background-color: #374151;
+  color: white;
+}
+.btn-cadastrar:hover {
+  background-color: #4b5563;
+}
+
+/* === HERO SECTION (linha ~34) === */
+.hero-gradient {
+  background: linear-gradient(to right, #f5b4dc4b, #5fe405);
+  border-radius: 2rem;
+  padding: 5rem 2rem;
+  text-align: center;
+  margin: 2rem 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* Título "Junte-se à Comunidade." (linha ~36) */
+.hero-gradient h2 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  animation: pulse 2s infinite;
+}
+
+/* Texto de apoio "A maior plataforma..." (linha ~38) */
+.hero-gradient p {
+  font-size: 1.25rem;
+  color: #282923;
+  margin-bottom: 2rem;
+}
+
+/* Botões "Procurar partidas" e "Assinar Premium" (linha ~40) */
+.hero-gradient button {
+  border: 2px solid white;
+  background: transparent;
+  color: rgb(248, 249, 246);
+  font-weight: bold;
+  padding: 1rem 2.5rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  margin: 0 0.5rem;
+  transition: 0.3s;
+  box-shadow: 0 4px 10px rgba(17, 17, 10, 0.605);
+}
+
+/* MANTENHA ESTE BLOCO DEPOIS! */
+.hero-gradient button.btn-premium {
+  border: 2px solid #facc15 !important;
+  color: #facc15 !important;
+  background: #fff !important; /* fundo branco */
+}
+.hero-gradient button.btn-premium:hover {
+  background-color: #facc15 !important;
+  color: #111827 !important;
+}
+
+/* Novos estilos para o botão branco */
+.hero-gradient button.btn-branco {
+  border: 2px solid #fff !important;
+  color: #060505 !important;
+  background: #fff !important; /* fundo branco */
+} 
+
+ .hero-gradient button.btn-branco:hover {
+  background-color: #111827 !important; /* cinza claro no hover */
+  color: #ffffffcc !important;
+}
+
+/* Animação usada no título */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes pulse-color {
+  0%, 100% {
+    opacity: 1;
+    color: #5fe405; /* verde neon */
+  }
+  50% {
+    opacity: 0.8;
+    color: #2563eb; /* azul, ou outra cor desejada */
+  }
+}
+
+.hero-gradient button.btn-branco:hover {
+  animation: pulse-color 0.8s infinite;
+  background-color: rgb(248, 248, 242);
+}
+
+@keyframes pulse-color-branco {
+  0%, 100% {
+    opacity: 1;
+    color: #000000; /* verde neon */
+  }
+  50% {
+    opacity: 0.8;
+    color: #2563eb; /* azul */
+  }
+}
+
+.hero-gradient button.btn-branco:hover {
+  animation: pulse-color-branco 0.8s infinite;
+  background-color: rgb(0, 0, 0);
+}
+
+/* === SEÇÃO ESPORTES EM DESTAQUE (linha ~49) === */
+section {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 4rem;
+  color: #1f2937
+}
+
+h3 { /* Títulos das seções */
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  color: #1f2937
+}
+
+.grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.grid-4 { /* usado na lista de esportes (linha ~51) */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Cards de esportes (linha ~53 até ~76) */
+.card-bg {
+  background-color: #1f2937;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transition: transform 0.3s;
+}
+.card-bg:hover {
+  transform: scale(1.05);
+}
+.card-bg img {
+  width: 100%;
+  display: block;
+}
+.card-bg .p-6 {
+  padding: 1.5rem;
+}
+.card-bg h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #2563eb; /* azul */
+}
+.card-bg p {
+  color: #374151; /* cinza escuro */
+}
+
+.card-shadow { /* aplicado nos 3 cards de recursos */
+  box-shadow: 0 4px 6px -1px rgba(246, 25, 5, 0.1),
+              0 2px 4px -1px rgba(216, 223, 12, 0.06);
+}
+
+.card-shadow h4 {
+  color: #ffffff; /* azul */
+}
+.card-shadow p {
+  color: #596880; /* cinza escuro */
+}
+
+.p-8 {
+  padding: 2rem;
+}
+
+.rounded-lg {
+  border-radius: 0.75rem;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.flex svg { /* ícones dentro dos cards */
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: 1rem;
+  color: #5fe405;
+}
+
+.flex h4 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.card-shadow p {
+  color: #9ca3af;
+}
+
+@keyframes pulse-color-branco {
+  0%, 100% {
+    opacity: 1;
+    color: #fff;      /* branco */
+  }
+  50% {
+    opacity: 0.8;
+    color: #ffffff !important;   /* verde neon */
+  }
+}
+
+.hero-gradient button.btn-branco {
+  color: #000000 !important; /* força branco padrão */
+}
+
+.hero-gradient button.btn-branco:hover {
+  animation: pulse-color-branco 0.8s infinite;
+  background-color: rgb(248, 248, 242);
+  color: #fff !important; /* força branco durante hover */
+}
+
+
+
