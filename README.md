@@ -1,2 +1,7 @@
-# DGAsports
-Site para marcar jogos de vários esportes, na quadra onde preferir e o horário que for melhor. 
+# DGAsports 🏀⚽
+
+Site para marcar jogos, escolher quadras e cidades.
+
+## Como rodar
+Basta abrir o arquivo `index.html` no navegador.
+
