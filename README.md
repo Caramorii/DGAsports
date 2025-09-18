@@ -14,7 +14,7 @@ Feito em HTML, CSS e JavaScript.
 - JavaScript
 
 ## 📂 Estrutura
-- `DGAsports`: página principal
+- `DGAsports.html`: página principal
 - `styleproject.css`: estilos
 - `interaction_DGA.js`: lógica do site
 - `assets/`: imagens e ícones
