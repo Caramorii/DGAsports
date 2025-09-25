@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encontre Quadras de Futebol</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        header {
+            background-color: #2ecc71;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #27ae60;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .field-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .field-card h3 {
+            margin-top: 0;
+            color: #2ecc71;
+        }
+
+        .field-card p {
+            margin: 5px 0;
+        }
+
+        .attendance {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .attendance-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #3498db;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .attendance-count {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .distance {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Encontre Quadras de Futebol Próximas</h1>
+        <p>Marque sua intenção de jogar e encontre companheiros para pelada!</p>
+    </header>
+
+    <div class="container">
+        <div class="search-box">
+            <h2>Buscar quadras próximas</h2>
+            <input type="text" id="location" placeholder="Digite seu endereço ou use minha localização">
+            <button onclick="findFields()">Buscar Quadras</button>
+            <button onclick="useMyLocation()">Usar Minha Localização</button>
+        </div>
+
+        <div class="results" id="results">
+            <!-- Os resultados serão inseridos aqui pelo JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Função para simular a busca de quadras (em uma aplicação real, isso viria de uma API)
+        function findFields() {
+            const location = document.getElementById('location').value;
+
+            // Limpar resultados anteriores
+            document.getElementById('results').innerHTML = '';
+
+            // Simular loading
+            document.getElementById('results').innerHTML = '<p>Buscando quadras próximas...</p>';
+
+            // Simular uma resposta após 1 segundo
+            setTimeout(() => {
+                // Dados simulados - em uma aplicação real, esses dados viriam de uma API
+                const fields = [
+                    {
+                        name: "Quadra do Zé",
+                        address: "Rua das Acácias, 123",
+                        distance: "0.8 km",
+                        price: "R$ 100/hora",
+                        players: 3
+                    },
+                    {
+                        name: "Campo do Bairro",
+                        address: "Av. Principal, 456",
+                        distance: "1.2 km",
+                        price: "R$ 80/hora",
+                        players: 5
+                    },
+                    {
+                        name: "Arena Esportiva",
+                        address: "Rua dos Esportes, 789",
+                        distance: "2.5 km",
+                        price: "R$ 120/hora",
+                        players: 8
+                    }
+                ];
+
+                // Exibir os resultados
+                displayResults(fields);
+            }, 1000);
+        }
+
+        // Função para usar a localização do usuário
+        function useMyLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        document.getElementById('location').value = "Minha localização atual";
+                        findFields();
+                    },
+                    (error) => {
+                        alert("Não foi possível obter sua localização: " + error.message);
+                    }
+                );
+            } else {
+                alert("Geolocalização não é suportada por este navegador.");
+            }
+        }
+
+        // Função para exibir os resultados na página
+        function displayResults(fields) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+
+            if (fields.length === 0) {
+                resultsContainer.innerHTML = '<p>Nenhuma quadra encontrada na sua região.</p>';
+                return;
+            }
+
+            fields.forEach(field => {
+                const fieldCard = document.createElement('div');
+                fieldCard.className = 'field-card';
+
+                fieldCard.innerHTML = `
+                    <h3>${field.name}</h3>
+                    <p>${field.address}</p>
+                    <p>Preço: ${field.price}</p>
+                    <div class="distance">${field.distance}</div>
+                    <div class="attendance">
+                        <div class="attendance-icon" onclick="addAttendance(this)">👤</div>
+                        <span class="attendance-count">${field.players} pessoas confirmadas</span>
+                    </div>
+                `;
+
+                resultsContainer.appendChild(fieldCard);
+            });
+        }
+
+        // Função para adicionar intenção de comparecimento
+        function addAttendance(element) {
+            const countElement = element.nextElementSibling;
+            let count = parseInt(countElement.textContent);
+            count++;
+            countElement.textContent = `${count} pessoas confirmadas`;
+            element.style.backgroundColor = '#2ecc71'; // Mudar cor para confirmado
+            element.onclick = null; // Remover a função de clique para evitar múltiplos cliques
+        }
+    </script>
+</body>
+
+</html>

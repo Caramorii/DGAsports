@@ -1,37 +1,29 @@
 // Botão "Entrar"
-document.querySelectorAll('.btn-entrar').forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Redireciona para a página de login
-        window.location.href = 'login.html';
-    });
-});
+function entrar() {
+    // Redireciona para a página de login
+    window.open("login.html", "_blank");
+}
 
 // Botão "Cadastrar"
-document.querySelectorAll('.btn-cadastrar').forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Redireciona para a página de cadastro
-        window.location.href = 'register.html';
-    });
-});
+function cadastrar() {
+    // Redireciona para a página de cadastro
+    window.open('register.html', "_blank");
+}
 
 // Botão "Procurar partidas"
-document.querySelectorAll('.btn-procurar').forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Redireciona para a página de busca de partidas
-        window.location.href = 'partidas.html';
-    });
-});
+function futebol() {
+    // Redireciona para a página de busca de partidas
+    window.open('futebol.html', '_black');
+}
 
 // Botão "Assinar Premium"
-document.querySelectorAll('.btn-premium').forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Redireciona para a página de assinatura premium
-        window.location.href = 'premium.html';
-    });
+document.querySelector('.hero div button:last-of-type').addEventListener('click', () => {
+    // Redireciona para a página de assinatura premium
+    window.location.href = 'premium.html';
 });
 
 // Cards de esportes - efeito de clique
-document.querySelectorAll('.card-bg, .card-shadow').forEach(card => {
+document.querySelectorAll('.card').forEach(card => {
     card.addEventListener('click', () => {
         card.classList.toggle('ativo');
         // Você pode mostrar mais informações ou destacar o card
@@ -49,8 +41,8 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
     });
 });
 
-// Exemplo: animação no título "Junte-se à Comunidade" ao clicar
-const titulo = document.querySelector('.hero-gradient h2');
+// Animação no título "Junte-se à Comunidade" ao clicar
+const titulo = document.querySelector('.hero h2');
 if (titulo) {
     titulo.addEventListener('click', () => {
         titulo.style.animation = 'pulse 0.3s 3';
