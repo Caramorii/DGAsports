@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crie sua conta</title>
+    <style>
+        /* =================================
+           Reset e Estilos Base
+        ==================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2563eb 0%, #5fe405 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #1f2937;
+        }
+
+        /* =================================
+           Container Principal
+        ==================================== */
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(6px);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+            color: #2563eb;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* =================================
+           Seleção de Tipo de Usuário
+        ==================================== */
+        .user-type-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-type-btn {
+            flex: 1;
+            padding: 0.8rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            background-color: #f1f5f9;
+            color: #374151;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .user-type-btn:hover {
+            border-color: #d1d5db;
+        }
+        
+        /* Estilo do botão ativo */
+        .user-type-btn.active {
+            background-color: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        /* =================================
+           Campos de Input
+        ==================================== */
+        .input-field {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 0.6rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            outline: none;
+            font-size: 1rem;
+            background: #f1f5f9;
+            color: #1f2937;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        /* =================================
+           Botão de Envio e Links
+        ==================================== */
+        .submit-btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(90deg, #5fe405, #2563eb);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(90deg, #2563eb, #5fe405);
+        }
+
+        .login-link {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        .login-link a {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: #5fe405;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Crie sua conta</h1>
+
+        <!-- Seletor de Perfil -->
+        <div class="user-type-selector">
+            <button class="user-type-btn active" data-type="aluno">Sou aluno</button>
+            <button class="user-type-btn" data-type="professor">Sou professor</button>
+        </div>
+
+        <form action="/register" method="POST">
+            <!-- Input oculto para enviar o tipo de usuário -->
+            <input type="hidden" id="user-type" name="user_type" value="aluno">
+            
+            <input type="text" id="full_name" name="full_name" class="input-field" placeholder="Nome Completo" required>
+            <input type="email" id="email" name="email" class="input-field" placeholder="Endereço de e-mail" required>
+            <input type="password" id="password" name="password" class="input-field" placeholder="Senha" required>
+
+            <button type="submit" class="submit-btn">Criar conta</button>
+        </form>
+
+        <p class="login-link">
+            Já tem uma conta? <a href="/login">Faça login</a>
+        </p>
+    </div>
+
+    <script>
+        // JavaScript para alternar o botão ativo (aluno/professor)
+        const userTypeButtons = document.querySelectorAll('.user-type-btn');
+        const hiddenInput = document.getElementById('user-type');
+
+        userTypeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                userTypeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                hiddenInput.value = button.dataset.type;
+            });
+        });
+    </script>
+</body>
+
+</html>

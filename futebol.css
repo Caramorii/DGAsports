@@ -1,0 +1,157 @@
+/* --- Configurações Globais --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden; /* CORRIGIDO: Esconde apenas o scroll horizontal */
+    padding: 2rem;
+}
+
+/* --- Fundo Animado e Estilizado --- */
+.background-shapes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(26, 180, 128, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 70%, rgba(74, 144, 226, 0.15) 0%, transparent 40%);
+    animation: animateBackground 15s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes animateBackground {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+    50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+}
+
+/* --- Conteúdo Principal --- */
+.content-container {
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
+}
+
+.explorar-header {
+    margin-bottom: 4rem;
+    animation: fadeInDown 1s ease-out;
+}
+
+.explorar-logo {
+    width: 80px;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 15px rgba(26, 180, 128, 0.5));
+}
+
+.explorar-header h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+}
+
+.explorar-header p {
+    font-size: 1.2rem;
+    color: #a0a0a0;
+    margin-top: 0.5rem;
+}
+
+/* --- Grid de Esportes --- */
+.sports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    perspective: 1000px; /* Necessário para o efeito 3D */
+    animation: fadeInUp 1s ease-out 0.5s backwards;
+}
+
+/* --- Card de Esporte Individual --- */
+.sport-card {
+    height: 350px;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+
+    background-image: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%), var(--bg-image);
+    background-size: cover;
+    background-position: center;
+
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.sport-card:hover {
+    box-shadow: 0 25px 50px rgba(26, 180, 128, 0.3);
+    transform: translateZ(40px) scale(1.05);
+}
+
+.card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 1.5rem;
+    width: 100%;
+    transform: translateZ(50px); /* Traz o conteúdo para frente */
+}
+
+.card-content h3 {
+    font-size: 2rem;
+    font-weight: 600;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+}
+
+/* --- Animações de Entrada --- */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+        align-items: flex-start; /* Alinha o conteúdo ao topo em telas menores */
+    }
+    .explorar-header h1 {
+        font-size: 2.5rem;
+    }
+    .sports-grid {
+        gap: 1.5rem;
+    }
+    .sport-card {
+        height: 300px;
+    }
+}
+

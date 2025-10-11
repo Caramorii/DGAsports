@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/logo.png" type="image/x-png">
+    <title>Encontre Quadras Esportivas Próximas</title>
+
+    <link rel="stylesheet" href="futebol.css">
+
+    <script src="futebol.js" defer></script>
+
+    <script type="module"
+        src="https://ajax.googleapis.com/ajax/libs/@googlemaps/extended-component-library/0.6.11/index.min.js">
+        </script>
+
+    <gmpx-api-loader key="AIzaSyC_zG3TfiyNleAz8dM8ALJIUjqhE_k5g7g"
+        solution-channel="GMP_GE_mapsandplacesautocomplete_v2">
+    </gmpx-api-loader>
+</head>
+
+<body>
+    <header>
+        <h1>⚽ Encontre a sua Quadra!</h1>
+        <p>Busca rápida e interativa por quadras de futebol, basquete e outros esportes perto de você.</p>
+    </header>
+
+    <div id="app-container">
+
+        <div class="controls-panel">
+            <h2>Localização Atual</h2>
+
+            <gmpx-place-picker id="place-picker"
+                placeholder="Centralize o mapa digitando um endereço"></gmpx-place-picker>
+
+            <button id="use-location-btn" onclick="useMyLocation()">📍 Usar Minha Localização Atual</button>
+            <p id="status-message" class="status"></p>
+
+            <button id="search-btn" onclick="findNearbyFields()" disabled>🔎 Buscar Quadras ao Redor</button>
+
+            <div class="results-panel">
+                <h3>Quadras Próximas (<span id="results-count">0</span>)</h3>
+                <div id="results-list" class="results-list">
+                    <p class="placeholder">Use o botão de localização ou o campo de busca para começar!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="map-panel">
+            <gmp-map id="main-map" center="-20.5352,-47.3879" zoom="13" map-id="DEMO_MAP_ID">
+                <gmp-advanced-marker id="main-marker"></gmp-advanced-marker>
+            </gmp-map>
+        </div>
+
+    </div>
+</body>
+
+</html>
