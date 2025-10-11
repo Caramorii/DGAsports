@@ -714,6 +714,6 @@ h3::after {
 
 /* Regra para aumentar o tamanho da logo */
 .header-logo {
-    width: 250px; /* <<-- Altere este valor para a largura que você desejar */
+    width: 15px; /* <<-- Altere este valor para a largura que você desejar */
     height: auto;  /* Mantém a proporção da imagem para não distorcer */
 }
