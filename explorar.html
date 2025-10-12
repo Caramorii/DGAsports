@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escolha seu Esporte - DGA Sports</title>
+    <title>Encontre sua Quadra - DGA Sports</title>
     <link rel="icon" href="assets/logo.png" type="image/x-png">
-    <!-- NOME DO ARQUIVO CSS CORRIGIDO AQUI -->
     <link rel="stylesheet" href="explorar_fullscreen.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,72 +17,97 @@
 
     <div class="content-container">
         <header class="explorar-header">
-            <img src="assets/logo.png" alt="Logo DGASports" class="explorar-logo">
-            <h1>Escolha seu Esporte</h1>
-            <p>A partida perfeita está a apenas um clique de distância.</p>
+            <a href="DGASports.html"><img src="assets/logo2.png" alt="Logo DGASports" class="explorar-logo"></a>
+            <h1>Encontre sua Quadra</h1>
+            <p>Use os filtros para achar o lugar perfeito para sua próxima partida.</p>
         </header>
 
-        <!-- ...existing code... -->
-<main class="sports-grid">
-    <a href="futebol.html" class="sport-card" style="--bg-image: url('assets/1(1).jpg');">
-        <div class="card-content">
-            <h3>Futebol</h3>
-        </div>
-    </a>
+        <form class="filter-panel">
+            <div class="filter-group">
+                <label for="filtro-estado">Estado</label>
+                <select id="filtro-estado">
+                    <option value="">Selecione o Estado</option>
+                    <option value="SP">São Paulo</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="MG">Minas Gerais</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filtro-cidade">Cidade</label>
+                <select id="filtro-cidade" disabled>
+                    <option>Escolha um estado</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filtro-esporte">Esporte</label>
+                <select id="filtro-esporte">
+                    <option value="Qualquer">Qualquer</option>
+                    <option value="Futebol">Futebol</option>
+                    <option value="Basquete">Basquete</option>
+                    <option value="Vôlei">Vôlei</option>
+                    <option value="Tênis">Tênis</option>
+                </select>
+            </div>
+            <button class="filter-button" type="submit">Buscar</button>
+        </form>
+        <p id="status-busca" class="status-busca"></p>
 
-    <a href="#" class="sport-card" style="--bg-image: url('assets/foto_basquete.jpeg');">
-        <div class="card-content">
-            <h3>Basquete</h3>
-        </div>
-    </a>
 
-    <a href="#" class="sport-card" style="--bg-image: url('assets/volei_foto.jpeg');">
-        <div class="card-content">
-            <h3>Vôlei</h3>
-        </div>
-    </a>
+        <main class="results-grid">
+            
+            <div class="court-card">
+                <img src="https://images.unsplash.com/photo-1589551296833-25980850c99f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8c29jY2VyLGNvdXJ0LGFyZW5hfHx8fHx8fDE3Mjg2NDg3NTE&ixlib=rb-4.0.3&q=80&w=1080" alt="Quadra de Futebol">
+                <div class="card-details">
+                    <h3>Arena DGA - Morumbi</h3>
+                    <p class="location">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+                        São Paulo, SP
+                    </p>
+                    <div class="sports-icons">
+                        <span title="Futebol">⚽</span>
+                        <span title="Vôlei">🏐</span>
+                    </div>
+                    <div class="schedule-info">
+                        <strong>Próximos horários livres:</strong>
+                        <div class="time-slots">
+                            <span class="time-slot">18:00</span>
+                            <span class="time-slot">19:00</span>
+                            <span class="time-slot disabled">20:00</span>
+                        </div>
+                    </div>
+                    <button class="details-btn">Ver Detalhes</button>
+                </div>
+            </div>
 
-    <a href="#" class="sport-card" style="--bg-image: url('assets/bitch_tennis.jpeg');">
-        <div class="card-content">
-            <h3>Beach Tennis</h3>
-        </div>
-    </a>
+            <div class="court-card">
+                <img src="https://images.unsplash.com/photo-1594420310375-9b5709a3693e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8YmFza2V0YmFsbCxjb3VydHx8fHx8fDE3Mjg2NDg3OTA&ixlib-rb-4.0.3&q=80&w=1080" alt="Quadra de Basquete">
+                <div class="card-details">
+                    <h3>Complexo Esportivo Franca</h3>
+                    <p class="location">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+                        Franca, SP
+                    </p>
+                    <div class="sports-icons">
+                        <span title="Basquete">🏀</span>
+                        <span title="Futevôlei">🥅</span>
+                        <span title="Tênis">🎾</span>
+                    </div>
+                    <div class="schedule-info">
+                        <strong>Próximos horários livres:</strong>
+                        <div class="time-slots">
+                            <span class="time-slot disabled">19:30</span>
+                            <span class="time-slot">20:30</span>
+                            <span class="time-slot">21:30</span>
+                        </div>
+                    </div>
+                    <button class="details-btn">Ver Detalhes</button>
+                </div>
+            </div>
 
-    <a href="#" class="sport-card" style="--bg-image: url('assets/futevolei.jpg');">
-        <div class="card-content">
-            <h3>Futevôlei</h3>
-        </div>
-    </a>
+        </main>
+    </div>
 
-    <a href="#" class="sport-card" style="--bg-image: url('assets/tenis.jpeg');">
-        <div class="card-content">
-            <h3>Tênis</h3>
-        </div>
-    </a>
-    
-    <a href="#" class="sport-card" style="--bg-image: url('assets/tenisdemesa.jpeg');">
-        <div class="card-content">
-            <h3>Tênis de Mesa</h3>
-        </div>
-    </a>
-    
-    <a href="#" class="sport-card" style="--bg-image: url('assets/sinuca.jpeg');">
-        <div class="card-content">
-            <h3>Sinuca</h3>
-        </div>
-    </a>
+    <script src="explorar.js"></script>
+</body>
 
-    <a href="#" class="sport-card" style="--bg-image: url('assets/skate.jpeg');">
-        <div class="card-content">
-            <h3>Skate</h3>
-        </div>
-    </a>
-</main>
-        </div>
-
-    <script>
-        // Adiciona a classe 'loaded' ao body quando a página estiver completamente carregada
-        window.addEventListener('load', function() {
-            document.body.classList.add('loaded');
-        });
-    </script>
+</html>
