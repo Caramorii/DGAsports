@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <title>Crie sua conta</title>
     <style>
         /* =================================
@@ -15,6 +16,10 @@
             box-sizing: border-box;
         }
 
+=======
+    <title>Cadastro</title>
+    <style>
+>>>>>>> fb990a3f426fa4fdad5e4cb726bd40c520940d37
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #2563eb 0%, #5fe405 100%);
@@ -22,6 +27,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+<<<<<<< HEAD
             min-height: 100vh;
             color: #1f2937;
         }
@@ -31,10 +37,19 @@
         ==================================== */
         .container {
             background: rgba(255, 255, 255, 0.9);
+=======
+            height: 100vh;
+            color: #1f2937;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+>>>>>>> fb990a3f426fa4fdad5e4cb726bd40c520940d37
             padding: 2.5rem;
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(6px);
+<<<<<<< HEAD
             width: 100%;
             max-width: 420px;
             text-align: center;
@@ -48,11 +63,27 @@
         h1 {
             margin-bottom: 1.5rem;
             font-size: 2.2rem;
+=======
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            transition: transform 0.3s ease;
+        }
+
+        .login-container:hover {
+            transform: scale(1.02);
+        }
+
+        .login-container h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.4rem;
+>>>>>>> fb990a3f426fa4fdad5e4cb726bd40c520940d37
             color: #2563eb;
             font-weight: 700;
             letter-spacing: 1px;
         }
 
+<<<<<<< HEAD
         /* =================================
            Seleção de Tipo de Usuário
         ==================================== */
@@ -93,6 +124,12 @@
             width: 100%;
             padding: 0.8rem;
             margin-bottom: 0.6rem;
+=======
+        .login-container input {
+            width: 100%;
+            padding: 0.9rem;
+            margin: 0.6rem 0;
+>>>>>>> fb990a3f426fa4fdad5e4cb726bd40c520940d37
             border: 2px solid #e5e7eb;
             border-radius: 10px;
             outline: none;
@@ -102,11 +139,16 @@
             transition: border-color 0.3s, box-shadow 0.3s;
         }
 
+<<<<<<< HEAD
         .input-field:focus {
+=======
+        .login-container input:focus {
+>>>>>>> fb990a3f426fa4fdad5e4cb726bd40c520940d37
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
 
+<<<<<<< HEAD
         /* =================================
            Botão de Envio e Links
         ==================================== */
@@ -145,10 +187,49 @@
             color: #5fe405;
             text-decoration: underline;
         }
+=======
+        .login-container input[type="submit"] {
+            background: linear-gradient(90deg, #5fe405, #2563eb);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+            padding: 0.9rem;
+            margin-top: 1rem;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .login-container input[type="submit"]:hover {
+            background: linear-gradient(90deg, #2563eb, #5fe405);
+        }
+
+        .login-container a {
+            display: block;
+            margin-top: 1rem;
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .login-container a:hover {
+            color: #5fe405;
+            text-decoration: underline;
+        }
+
+        .login-container p {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+>>>>>>> fb990a3f426fa4fdad5e4cb726bd40c520940d37
     </style>
 </head>
 
 <body>
+<<<<<<< HEAD
     <div class="container">
         <h1>Crie sua conta</h1>
 
@@ -187,6 +268,20 @@
             });
         });
     </script>
+=======
+    <div class="login-container">
+        <h1>Cadastro</h1>
+        <form action="/register" method="POST">
+            <input type="text" name="full_name" placeholder="Nome Completo" required>
+            <input type="date" name="dob" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="tel" name="phone" placeholder="Telefone" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <input type="submit" value="Cadastrar">
+        </form>
+        <p>Já tem uma conta? <a href="/login">Faça login</a></p>
+    </div>
+>>>>>>> fb990a3f426fa4fdad5e4cb726bd40c520940d37
 </body>
 
 </html>
