@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/x-png">
+    <title>Crie sua conta</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: rgba(29, 42, 52); background-image: linear-gradient(135deg, #192e22 0%, #2c2a4a 100%); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #f0f0f0; }
+        .container { background: rgba(35, 38, 49, 0.85); padding: 2.5rem; border-radius: 20px; border: 1px solid rgba(0, 212, 255, 0.3); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 25px rgba(255, 0, 170, 0.1); backdrop-filter: blur(8px); width: 100%; max-width: 420px; text-align: center; transition: transform 0.3s ease; }
+        .container:hover { transform: scale(1.02); }
+        h1 { margin-bottom: 1.5rem; font-size: 2.2rem; color: rgb(252, 254, 255); font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255, 255, 255, 0.832); }
+        .user-type-selector { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+        .user-type-btn { flex: 1; padding: 0.8rem; font-size: 0.95rem; font-weight: 600; border-radius: 10px; cursor: pointer; background-color: transparent; border: 2px solid #4f5b70; color: #b0bec5; transition: all 0.2s ease-in-out; }
+        .user-type-btn:hover { border-color: #00d4ff; color: #00d4ff; }
+        .user-type-btn.active { background-image: linear-gradient(90deg, rgba(47, 162, 32) 20%, rgba(14, 87, 163) 100%); color: #fff; border-color: #ffffff; }
+        .input-field { width: 100%; padding: 0.8rem; margin-bottom: 0.6rem; background: rgba(28, 37, 48); border: 2px solid rgba(32, 46, 49); border-radius: 10px; outline: none; font-size: 1rem; color: #f0f0f0; transition: border-color 0.3s, box-shadow 0.3s; }
+        .input-field:focus { border-color: rgba(255, 255, 255, 0.874); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.632); }
+        .submit-btn { width: 100%; padding: 0.9rem; background: linear-gradient(90deg, rgb(110, 203, 74), rgba(14, 87, 163)); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgb(216, 226, 236); }
+        .login-link { margin-top: 1.5rem; font-size: 0.9rem; color: #b0bec5; }
+        .login-link a { color: #00d4ff; font-weight: 600; text-decoration: none; transition: color 0.3s ease, text-shadow 0.3s ease; }
+        .login-link a:hover { color: #40ff63; text-decoration: none; text-shadow: 0 0 5px rgba(64, 255, 77, 0.7); }
+        .flash-messages { color: #ff4081; margin-bottom: 1rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Crie sua conta</h1>
+
+        <div class="user-type-selector">
+            <button class="user-type-btn active" data-type="aluno">Sou aluno</button>
+            <button class="user-type-btn" data-type="professor">Sou professor</button>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('register') }}" method="POST">
+            <input type="hidden" id="user-type" name="user_type" value="aluno">
+            <input type="text" id="full_name" name="nome" class="input-field" placeholder="Nome Completo" required>
+            <input type="email" id="email" name="email" class="input-field" placeholder="Endereço de e-mail" required>
+            <input type="password" id="password" name="senha" class="input-field" placeholder="Senha" required>
+            <button type="submit" class="submit-btn">Criar conta</button>
+        </form>
+
+        <p class="login-link">
+            Já tem uma conta? <a href="{{ url_for('login') }}">Faça login</a>
+        </p>
+    </div>
+
+    <script>
+        const userTypeButtons = document.querySelectorAll('.user-type-btn');
+        const hiddenInput = document.getElementById('user-type');
+        userTypeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                userTypeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                hiddenInput.value = button.dataset.type;
+            });
+        });
+    </script>
+</body>
+</html>
