@@ -4,18 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DGA Social - Comunidade</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8f4f8 100%); color: #1a202c; min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #1ab480 0%, #4A90E2 100%); box-shadow: 0 10px 40px rgba(26, 180, 128, 0.3); padding: 1.5rem 2rem; position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); border-radius: 0 0 24px 24px; margin-bottom: 2rem; }
-        .header::before { content: ''; position: absolute; inset: 0; border-radius: 0 0 24px 24px; padding: 2px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
-        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
-        .logo { font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, #70d155 0%, #2fe61b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.02em; filter: drop-shadow(0 2px 8px rgba(112, 209, 85, 0.3)); text-decoration: none; }
-        .logo span { background: linear-gradient(135deg, #ffffff 0%, #e0f2ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        /* ... (resto do seu CSS interno) ... */
-        .container { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 320px 1fr 320px; gap: 2rem; padding: 0 2rem 2rem; }
-        /* ... etc ... */
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dga.social.css') }}">
 </head>
 <body>
     <div class="header">
@@ -23,16 +12,84 @@
             <a href="{{ url_for('home') }}" class="logo">DGA<span>Social</span></a>
             <div class="search-bar"><input type="text" placeholder="Buscar atletas, times, posts..."></div>
             <div class="header-icons">
-                <a href="{{ url_for('home') }}"><button class="icon-btn" title="Início">🏠</button></a>
-                <button class="icon-btn" title="Mensagens">💬<span class="notification-badge">5</span></button>
-                <button class="icon-btn" title="Notificações">🔔<span class="notification-badge">3</span></button>
-                <button class="icon-btn" title="Perfil">👤</button>
+                <a href="{{ url_for('home') }}">
+                    <button class="icon-btn" title="Início" aria-label="Início">
+                        <!-- Home SVG -->
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
+                    </button>
+                </a>
+                <button class="icon-btn" title="Mensagens" aria-label="Mensagens">
+                    <!-- Chat SVG -->
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="notification-badge">5</span>
+                </button>
+                <button class="icon-btn" title="Notificações" aria-label="Notificações">
+                    <!-- Bell SVG -->
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notification-badge">3</span>
+                </button>
+                <button class="icon-btn" title="Perfil" aria-label="Perfil">
+                    <!-- User SVG -->
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>
+                </button>
             </div>
         </div>
     </div>
     <div class="container">
         <div class="sidebar-left"> </div>
-        <div class="feed"> </div>
+        <div class="feed">
+            <!-- Formulário de novo post -->
+<!-- ...existing code... -->
+<form class="post-form" enctype="multipart/form-data" method="post" action="/postar">
+    <textarea name="texto" placeholder="Compartilhe algo com a comunidade..."></textarea>
+    <label for="imagem" style="display:inline-block; margin-bottom:1rem; cursor:pointer;">
+        <!-- Ícone SVG de upload -->
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;" viewBox="0 0 24 24"><path d="M16 16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><polyline points="8 6 12 2 16 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <span style="vertical-align:middle;">Escolher arquivo</span>
+        <input id="imagem" type="file" name="imagem" accept="image/*" style="display:none;">
+    </label>
+    <div class="actions">
+        <button type="submit">
+            <!-- Send/Post SVG -->
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Postar
+        </button>
+        <button type="button" class="live-btn" onclick="alert('Funcionalidade de live em breve!')">
+            <!-- Live SVG (dot + waves) -->
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="#ff5e62"/><path d="M19.4 15a7 7 0 0 0 0-6"/><path d="M4.6 9a7 7 0 0 1 0 6"/></svg>
+            Iniciar Live
+        </button>
+    </div>
+</form>
+<!-- ...existing code... -->
+            <!-- Exemplo de post (substitua por loop do backend depois) -->
+            <div class="post">
+                <div class="post-header">
+                    <div class="avatar"></div>
+                    <span class="username">Atleta Exemplo</span>
+                    <span class="timestamp">Agora mesmo</span>
+                </div>
+                <div class="post-content">
+                    Olá, comunidade! Pronto para o treino de hoje?
+                    <img src="https://placehold.co/600x300/1ab480/fff?text=Foto+do+Post" alt="Foto do post">
+                </div>
+                <div class="comments">
+                    <div class="comment">
+                        <div class="avatar"></div>
+                        <div class="comment-body">Muito bom!</div>
+                    </div>
+                    <form class="comment-form">
+                        <input type="text" placeholder="Comente aqui...">
+                        <button type="submit">
+                            <!-- Comment SVG -->
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            Comentar
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <!-- Fim do exemplo de post -->
+        </div>
         <div class="sidebar-right"> </div>
     </div>
 </body>
