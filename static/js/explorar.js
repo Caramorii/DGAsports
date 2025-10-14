@@ -1,11 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // --- ELEMENTOS DO DOM ---
+    // --- ELEMENTOS DO DOM (ORIGINAIS) ---
     const filtroEstado = document.getElementById('filtro-estado');
     const filtroCidade = document.getElementById('filtro-cidade');
+    const filtroEsporte = document.getElementById('filtro-esporte');
     const searchForm = document.querySelector('.filter-panel');
     const statusBusca = document.getElementById('status-busca');
-    const detailsButtons = document.querySelectorAll('.details-btn');
+    const quadras = document.querySelectorAll('.court-card');
+    const semResultados = document.getElementById('sem-resultados');
+
+    // --- ELEMENTOS DO DOM (NOVOS FILTROS) ---
+    const filtrosTipoQuadra = document.querySelectorAll('input[name="tipo_quadra"]');
+    const filtrosOcupacao = document.querySelectorAll('input[name="ocupacao"]');
+    const filtroSeguindo = document.getElementById('filtro-seguindo');
 
     // --- DADOS PARA OS FILTROS DINÂMICOS ---
     const cidadesPorEstado = {
@@ -16,84 +22,88 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FUNÇÕES ---
 
-    /**
-     * Atualiza o dropdown de cidades com base no estado selecionado.
-     */
     function atualizarCidades() {
         const estadoSelecionado = filtroEstado.value;
-
-        // Limpa as opções atuais
         filtroCidade.innerHTML = '';
-
         if (estadoSelecionado && cidadesPorEstado[estadoSelecionado]) {
             filtroCidade.disabled = false;
-
-            // Adiciona uma opção padrão
-            const defaultOption = document.createElement('option');
-            defaultOption.textContent = 'Selecione a Cidade';
-            defaultOption.value = '';
-            filtroCidade.appendChild(defaultOption);
-
-            // Adiciona as cidades do estado selecionado
+            let optionsHtml = '<option value="">Todas</option>';
             cidadesPorEstado[estadoSelecionado].forEach(cidade => {
-                const option = document.createElement('option');
-                option.textContent = cidade;
-                option.value = cidade;
-                filtroCidade.appendChild(option);
+                optionsHtml += `<option value="${cidade}">${cidade}</option>`;
             });
+            filtroCidade.innerHTML = optionsHtml;
         } else {
-            // Se nenhum estado for selecionado, desabilita o campo de cidade
-            const defaultOption = document.createElement('option');
-            defaultOption.textContent = 'Escolha um estado';
-            filtroCidade.appendChild(defaultOption);
+            filtroCidade.innerHTML = '<option value="">Escolha um estado</option>';
             filtroCidade.disabled = true;
         }
     }
 
-    /**
-     * Simula a ação de busca ao clicar no botão.
-     */
-    function simularBusca(event) {
-        event.preventDefault(); // Impede o recarregamento da página
-
-        const cidade = filtroCidade.value;
-        const esporte = document.getElementById('filtro-esporte').value;
-
-        if (!cidade) {
-            statusBusca.textContent = "Por favor, selecione uma cidade para buscar.";
-            statusBusca.style.color = "#ffc107"; // Amarelo para alerta
-            return;
+    function filtrarQuadras(event) {
+        if (event) {
+            event.preventDefault();
         }
 
-        statusBusca.textContent = `Buscando quadras de ${esporte} em ${cidade}...`;
-        statusBusca.style.color = "#1CB5E0"; // Azul claro para informação
+        const estadoSelecionado = filtroEstado.value;
+        const cidadeSelecionada = filtroCidade.value;
+        const esporteSelecionado = filtroEsporte.value;
+        const tipoSelecionado = document.querySelector('input[name="tipo_quadra"]:checked').value;
+        const ocupacaoSelecionada = document.querySelector('input[name="ocupacao"]:checked').value;
+        const seguindoSelecionado = filtroSeguindo.checked;
 
-        // Simula um tempo de espera (como uma busca em um servidor)
-        setTimeout(() => {
-            statusBusca.textContent = `Exibindo resultados para ${cidade}.`;
-            statusBusca.style.color = "#1ab480"; // Verde para sucesso
-        }, 1500); // 1.5 segundos
-    }
+        let quadrasVisiveis = 0;
+        statusBusca.textContent = "Filtrando resultados...";
+        statusBusca.style.color = "#1CB5E0";
 
-    /**
-     * Adiciona funcionalidade aos botões "Ver Detalhes".
-     */
-    function adicionarInteracaoCards() {
-        detailsButtons.forEach(button => {
-            button.addEventListener('click', (event) => {
-                // Pega o nome da quadra do elemento H3 mais próximo
-                const card = event.target.closest('.court-card');
-                const courtName = card.querySelector('h3').textContent;
+        quadras.forEach(quadra => {
+            const estadoDaQuadra = quadra.dataset.estado;
+            const cidadeDaQuadra = quadra.dataset.cidade;
+            const esportesDaQuadra = quadra.dataset.esportes || "";
+            const tipoDaQuadra = quadra.dataset.tipo;
+            const ocupacaoDaQuadra = parseInt(quadra.dataset.ocupacao, 10);
+            const seguindoNaQuadra = quadra.dataset.seguindo === 'true';
 
-                alert(`Função "Ver Detalhes" para a quadra: ${courtName}\n\nEm uma aplicação real, isso abriria uma nova página com mais informações.`);
-            });
+            const correspondeEstado = !estadoSelecionado || estadoDaQuadra === estadoSelecionado;
+            const correspondeCidade = !cidadeSelecionada || cidadeDaQuadra === cidadeSelecionada;
+            const correspondeEsporte = esporteSelecionado === 'Qualquer' || esportesDaQuadra.includes(esporteSelecionado);
+            const correspondeTipo = tipoSelecionado === 'qualquer' || tipoDaQuadra === tipoSelecionado;
+            let correspondeOcupacao = false;
+            if (ocupacaoSelecionada === 'qualquer') { correspondeOcupacao = true; }
+            else if (ocupacaoSelecionada === 'vazia' && ocupacaoDaQuadra === 0) { correspondeOcupacao = true; }
+            else if (ocupacaoSelecionada === 'poucos' && ocupacaoDaQuadra >= 1 && ocupacaoDaQuadra <= 5) { correspondeOcupacao = true; }
+            else if (ocupacaoSelecionada === 'cheia' && ocupacaoDaQuadra > 5) { correspondeOcupacao = true; }
+            const correspondeSeguindo = !seguindoSelecionado || seguindoNaQuadra;
+
+            if (correspondeEstado && correspondeCidade && correspondeEsporte && correspondeTipo && correspondeOcupacao && correspondeSeguindo) {
+                quadra.style.display = 'block';
+                quadrasVisiveis++;
+            } else {
+                quadra.style.display = 'none';
+            }
         });
-    }
 
+        setTimeout(() => {
+            if (quadrasVisiveis > 0) {
+                statusBusca.textContent = `Exibindo ${quadrasVisiveis} resultado(s).`;
+                statusBusca.style.color = "#1ab480";
+                semResultados.style.display = 'none';
+            } else {
+                statusBusca.textContent = "";
+                semResultados.style.display = 'block';
+            }
+        }, 300);
+    }
 
     // --- INICIALIZAÇÃO E EVENT LISTENERS ---
 
-    filtroEstado.addEventListener('change', atualizarCidades);
-    searchForm.addEventListener('submit', simularBusca);
-    adicionarInteracaoCards();
+    searchForm.addEventListener('submit', filtrarQuadras);
+    filtrosTipoQuadra.forEach(radio => radio.addEventListener('change', filtrarQuadras));
+    filtrosOcupacao.forEach(radio => radio.addEventListener('change', filtrarQuadras));
+    filtroSeguindo.addEventListener('change', filtrarQuadras);
+    filtroEstado.addEventListener('change', () => { atualizarCidades(); filtrarQuadras(); });
+    filtroCidade.addEventListener('change', filtrarQuadras);
+    filtroEsporte.addEventListener('change', filtrarQuadras);
+
+    // Inicializa os componentes da página na ordem correta
+    atualizarCidades(); // CORREÇÃO: Adiciona esta chamada para configurar o campo de cidade
+    filtrarQuadras();   // Mantém esta chamada para aplicar o filtro inicial
 });

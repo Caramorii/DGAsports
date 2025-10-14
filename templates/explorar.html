@@ -20,35 +20,55 @@
         </header>
 
         <form class="filter-panel">
-            <div class="filter-group"><label for="filtro-estado">Estado</label><select id="filtro-estado"><option value="">Selecione o Estado</option><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option><option value="MG">Minas Gerais</option></select></div>
+            <div class="filter-group"><label for="filtro-estado">Estado</label><select id="filtro-estado"><option value="">Todos</option><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option><option value="MG">Minas Gerais</option></select></div>
             <div class="filter-group"><label for="filtro-cidade">Cidade</label><select id="filtro-cidade" disabled><option>Escolha um estado</option></select></div>
             <div class="filter-group"><label for="filtro-esporte">Esporte</label><select id="filtro-esporte"><option value="Qualquer">Qualquer</option><option value="Futebol">Futebol</option><option value="Basquete">Basquete</option><option value="Vôlei">Vôlei</option><option value="Tênis">Tênis</option></select></div>
             <button class="filter-button" type="submit">Buscar</button>
         </form>
-        <p id="status-busca" class="status-busca"></p>
 
-        <main class="results-grid">
-            <div class="court-card">
-                <img src="https://images.unsplash.com/photo-1589551296833-25980850c99f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8c29jY2VyLGNvdXJ0LGFyZW5hfHx8fHx8fDE3Mjg2NDg3NTE&ixlib=rb-4.0.3&q=80&w=1080" alt="Quadra de Futebol">
-                <div class="card-details">
-                    <h3>Arena DGA - Morumbi</h3>
-                    <p class="location"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> São Paulo, SP</p>
-                    <div class="sports-icons"><span title="Futebol">⚽</span><span title="Vôlei">🏐</span></div>
-                    <div class="schedule-info"><strong>Próximos horários livres:</strong><div class="time-slots"><span class="time-slot">18:00</span><span class="time-slot">19:00</span><span class="time-slot disabled">20:00</span></div></div>
-                    <button class="details-btn">Ver Detalhes</button>
+        <div class="explorar-container">
+            <aside class="sidebar">
+                <div class="sidebar-filters">
+                    <h3>Filtros Adicionais</h3>
+                    <div class="filter-section"><h4>Tipo de Quadra</h4><div class="custom-radio"><input type="radio" id="tipo-qualquer" name="tipo_quadra" value="qualquer" checked><label for="tipo-qualquer">Qualquer</label></div><div class="custom-radio"><input type="radio" id="tipo-publica" name="tipo_quadra" value="publica"><label for="tipo-publica">Pública</label></div><div class="custom-radio"><input type="radio" id="tipo-privada" name="tipo_quadra" value="privada"><label for="tipo-privada">Privada</label></div></div>
+                    <div class="filter-section"><h4>Ocupação</h4><div class="custom-radio"><input type="radio" id="ocup-qualquer" name="ocupacao" value="qualquer" checked><label for="ocup-qualquer">Qualquer</label></div><div class="custom-radio"><input type="radio" id="ocup-vazia" name="ocupacao" value="vazia"><label for="ocup-vazia">Vazia (0 pessoas)</label></div><div class="custom-radio"><input type="radio" id="ocup-poucos" name="ocupacao" value="poucos"><label for="ocup-poucos">Poucos (1-5 pessoas)</label></div><div class="custom-radio"><input type="radio" id="ocup-cheia" name="ocupacao" value="cheia"><label for="ocup-cheia">Cheia (+5 pessoas)</label></div></div>
+                    <div class="filter-section"><h4>Comunidade</h4><div class="custom-checkbox"><input type="checkbox" id="filtro-seguindo"><label for="filtro-seguindo">Com pessoas que sigo</label></div></div>
                 </div>
-            </div>
-            <div class="court-card">
-                <img src="https://images.unsplash.com/photo-1594420310375-9b5709a3693e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8YmFza2V0YmFsbCxjb3VydHx8fHx8fDE3Mjg2NDg3OTA&ixlib=rb-4.0.3&q=80&w=1080" alt="Quadra de Basquete">
-                <div class="card-details">
-                    <h3>Complexo Esportivo Franca</h3>
-                    <p class="location"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> Franca, SP</p>
-                    <div class="sports-icons"><span title="Basquete">🏀</span><span title="Futevôlei">🥅</span><span title="Tênis">🎾</span></div>
-                    <div class="schedule-info"><strong>Próximos horários livres:</strong><div class="time-slots"><span class="time-slot disabled">19:30</span><span class="time-slot">20:30</span><span class="time-slot">21:30</span></div></div>
-                    <button class="details-btn">Ver Detalhes</button>
+            </aside>
+
+            <main class="main-content">
+                <p id="status-busca" class="status-busca"></p>
+                <div class="results-grid">
+                    
+                    {% for quadra in quadras %}
+                    <div class="court-card" 
+                         data-estado="{{ quadra.estado }}" 
+                         data-cidade="{{ quadra.cidade }}" 
+                         data-esportes="{{ quadra.esportes|join(',') }}" 
+                         data-tipo="{{ quadra.tipo }}" 
+                         data-ocupacao="{{ quadra.horarios[0].jogadores_atuais }}"
+                         data-seguindo="{{ 'true' if quadra.seguindo else 'false' }}">
+                        
+                        <img src="{{ url_for('static', filename=quadra.imagem) }}" alt="{{ quadra.nome }}">
+                        <div class="card-details">
+                            <h3>{{ quadra.nome }}</h3>
+                            <p class="location"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> {{ quadra.cidade }}, {{ quadra.estado }}</p>
+                            <div class="sports-icons">
+                                {% if 'Futebol' in quadra.esportes %}<span title="Futebol">⚽</span>{% endif %}
+                                {% if 'Basquete' in quadra.esportes %}<span title="Basquete">🏀</span>{% endif %}
+                            </div>
+                            <div class="schedule-info"><strong>Jogadores agora:</strong><div class="time-slots"><span class="time-slot">{{ quadra.horarios[0].jogadores_atuais }}</span></div></div>
+                            <a href="{{ url_for('detalhes_quadra', id_da_quadra=quadra.id) }}" class="details-btn">Ver Horários</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    </div>
+                <div id="sem-resultados" style="display: none; text-align: center; margin-top: 3rem;">
+                    <h2>Nenhuma quadra encontrada</h2>
+                    <p>Tente ajustar os filtros para encontrar mais resultados.</p>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
     <script src="{{ url_for('static', filename='js/explorar.js') }}" defer></script>
 </body>

@@ -14,33 +14,37 @@
     <div id="root">
         <header>
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='assets/logo2.png') }}" alt="Logo DGASports" class="header-logo">
+                <img src="{{ url_for('static', filename='assets/logo2.png') }}" alt="Logo DGASports"
+                    class="header-logo">
                 <h1>DGA<span>Sports</span></h1>
             </div>
             <nav>
                 <a href="{{ url_for('explorar') }}">Explorar</a>
+                <a href="{{ url_for('social') }}">Comunidade</a>
                 <a href="#">Campeonatos</a>
                 <a href="#">Suporte</a>
             </nav>
             <div class="header-actions">
                 {% if session['usuario_logado'] %}
-                    <span style="color: white; font-weight: 600; margin-right: 15px;">Olá, {{ session['nome_usuario'] }}!</span>
-                    <a href="{{ url_for('logout') }}"><button class="btn btn-login">Sair</button></a>
+                <span style="color: white; font-weight: 600; margin-right: 15px;">Olá, {{ session['nome_usuario']
+                    }}!</span>
+                <a href="{{ url_for('logout') }}"><button class="btn btn-login">Sair</button></a>
                 {% else %}
-                    <a href="{{ url_for('login') }}"><button class="btn btn-login">Entrar</button></a>
-                    <a href="{{ url_for('register') }}"><button class="btn btn-register">Cadastrar</button></a>
+                <a href="{{ url_for('login') }}"><button class="btn btn-login">Entrar</button></a>
+                <a href="{{ url_for('register') }}"><button class="btn btn-register">Cadastrar</button></a>
                 {% endif %}
             </div>
         </header>
-        
+
         {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-messages-main" style="background-color: #5fe405; color: #1f2937; text-align: center; padding: 10px; font-weight: bold; margin-bottom: 1rem; border-radius: 8px;">
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        {% if messages %}
+        <div class="flash-messages-main"
+            style="background-color: #5fe405; color: #1f2937; text-align: center; padding: 10px; font-weight: bold; margin-bottom: 1rem; border-radius: 8px;">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endwith %}
 
         <main>
@@ -48,14 +52,18 @@
                 <h2>Encontre a partida ideal para você</h2>
                 <form class="search-form">
                     <div class="input-group">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24"
+                            height="24">
+                            <path
+                                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z">
+                            </path>
                         </svg>
                         <input type="text" placeholder="Digite a cidade, estado ou localização">
                     </div>
                     <div class="input-group">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24" viewBox="0 0 24 24">
-                            <path d="M7 10l5 5 5-5z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24"
+                            viewBox="0 0 24 24">
+                            <path d="M7 10l5 5 5-5z" />
                         </svg>
                         <input type="text" name="esporte" placeholder="Digite o esporte desejado" required>
                     </div>
@@ -104,24 +112,32 @@
                 <h3>Recursos para a comunidade.</h3>
                 <div class="features-container">
                     <div class="feature-card">
-                        <a href="{{ url_for('social') }}" style="text-decoration: none; color: inherit;">
+                       <a <style="text-decoration: none; color: inherit;">>
                             <div>
-                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM6 10a4 4 0 118 0 4 4 0 01-8 0z"></path></svg>
+                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM6 10a4 4 0 118 0 4 4 0 01-8 0z"></path>
+                                </svg>
                                 <h4>Fórum da comunidade</h4>
                             </div>
                             <p>Converse com outros atletas e times.</p>
-                        </a>
+                        </style=>
                     </div>
                     <div class="feature-card">
                         <div>
-                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20"><path d="M12 2a10 10 0 00-9.9 8.24l-2.1 2.1a1 1 0 000 1.41l2.1 2.1a10 10 0 0015.6-11.89l-2.1-2.1a1 1 0 00-1.41 0l-2.1 2.1a8 8 0 01-11.28-11.28z"></path></svg>
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M12 2a10 10 0 00-9.9 8.24l-2.1 2.1a1 1 0 000 1.41l2.1 2.1a10 10 0 0015.6-11.89l-2.1-2.1a1 1 0 00-1.41 0l-2.1 2.1a8 8 0 01-11.28-11.28z">
+                                </path>
+                            </svg>
                             <h4>Aulas e Dicas</h4>
                         </div>
                         <p>Aprenda com aulas de profissionais e domine as táticas do seu esporte favorito.</p>
                     </div>
                     <div class="feature-card">
                         <div>
-                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM6 10a4 4 0 118 0 4 4 0 01-8 0z"></path></svg>
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM6 10a4 4 0 118 0 4 4 0 01-8 0z"></path>
+                            </svg>
                             <h4>Ligas e Premiações</h4>
                         </div>
                         <p>Participe de campeonatos diários e ganhe prêmios exclusivos para o seu time.</p>
@@ -132,20 +148,56 @@
     </div>
     <footer class="site-footer">
         <div class="footer-container">
-            <div class="footer-top"><h2>DGAsports</h2><a href="#">Acesse a Central de Ajuda</a></div>
+            <div class="footer-top">
+                <h2>DGAsports</h2><a href="#">Acesse a Central de Ajuda</a>
+            </div>
             <div class="footer-main">
-                <div class="footer-column"><h3>Institucional</h3><ul><li><a href="#">Quem Somos</a></li><li><a href="#">Nossas Lojas</a></li><li><a href="#">Blog</a></li><li><a href="#">Trabalhe Conosco</a></li></ul></div>
-                <div class="footer-column"><h3>Plataforma</h3><ul><li><a href="#">Futebol</a></li><li><a href="#">Basquete</a></li><li><a href="#">Vôlei</a></li><li><a href="#">Beach Tennis</a></li><li><a href="#">Campeonatos</a></li></ul></div>
-                <div class="footer-column"><h3>Suporte</h3><ul><li><a href="#">Fale Conosco</a></li><li><a href="#">Dúvidas Frequentes</a></li><li><a href="#">Segurança da Conta</a></li></ul></div>
-                <div class="footer-column"><h3>Legal</h3><ul><li><a href="#">Termos de Uso</a></li><li><a href="#">Política de Privacidade</a></li><li><a href="#">Regras da Comunidade</a></li></ul></div>
+                <div class="footer-column">
+                    <h3>Institucional</h3>
+                    <ul>
+                        <li><a href="#">Quem Somos</a></li>
+                        <li><a href="#">Nossas Lojas</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Trabalhe Conosco</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Plataforma</h3>
+                    <ul>
+                        <li><a href="#">Futebol</a></li>
+                        <li><a href="#">Basquete</a></li>
+                        <li><a href="#">Vôlei</a></li>
+                        <li><a href="#">Beach Tennis</a></li>
+                        <li><a href="#">Campeonatos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Suporte</h3>
+                    <ul>
+                        <li><a href="#">Fale Conosco</a></li>
+                        <li><a href="#">Dúvidas Frequentes</a></li>
+                        <li><a href="#">Segurança da Conta</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                        <li><a href="#">Regras da Comunidade</a></li>
+                    </ul>
+                </div>
             </div>
             <hr class="footer-divider">
             <div class="footer-bottom">
-                <div class="footer-legal-info"><p>&copy; 2025 DGAsports Plataforma Esportiva Ltda.</p><p>Avenida Esportiva, nº 123, Centro, São Paulo/SP - CEP: 01234-567 | CNPJ: 12.345.678/0001-90</p></div>
+                <div class="footer-legal-info">
+                    <p>&copy; 2025 DGAsports Plataforma Esportiva Ltda.</p>
+                    <p>Avenida Esportiva, nº 123, Centro, São Paulo/SP - CEP: 01234-567 | CNPJ: 12.345.678/0001-90</p>
+                </div>
                 <div class="footer-social-media"></div>
             </div>
         </div>
     </footer>
-    
-    </body>
+</body>
+
 </html>

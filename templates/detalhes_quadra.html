@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ quadra.nome }} - DGA Sports</title>
+    <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/x-png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/explorar_fullscreen.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleproject.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-shapes"></div>
+    <div id="root">
+        <header>
+            <div class="logo-container">
+                <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='assets/logo2.png') }}" alt="Logo DGASports" class="header-logo"></a>
+                <h1>DGA<span>Sports</span></h1>
+            </div>
+            <nav>
+                <a href="{{ url_for('explorar') }}">Explorar</a>
+                <a href="{{ url_for('social') }}">Comunidade</a>
+                <a href="#">Campeonatos</a>
+                <a href="#">Suporte</a>
+            </nav>
+            </header>
+
+        <main class="detalhes-container">
+            <div class="detalhes-header">
+                <img src="{{ url_for('static', filename=quadra.imagem) }}" alt="{{ quadra.nome }}" class="quadra-imagem-principal">
+                <div class="detalhes-info">
+                    <h1>{{ quadra.nome }}</h1>
+                    <p class="localizacao"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> {{ quadra.cidade }}, {{ quadra.estado }}</p>
+                    <div class="esportes-disponiveis">
+                        {% for esporte in quadra.esportes %}
+                            <span>{{ esporte }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="titulo-horarios">Horários Disponíveis</h2>
+            <div class="horarios-grid">
+                {% for horario in quadra.horarios %}
+                <div class="horario-card">
+                    <h3>{{ horario.hora }}</h3>
+                    <div class="ocupacao">
+                        <span>Ocupação: {{ horario.jogadores_atuais }} / {{ horario.max_jogadores }}</span>
+                        <progress value="{{ horario.jogadores_atuais }}" max="{{ horario.max_jogadores }}"></progress>
+                    </div>
+
+                    <h4>Jogadores na Sala:</h4>
+                    {% if horario.jogadores %}
+                    <div class="jogadores-lista">
+                        {% for jogador in horario.jogadores %}
+                        <div class="jogador-perfil">
+                            <img src="{{ jogador.avatar }}" alt="{{ jogador.nome }}">
+                            <span>{{ jogador.nome }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="sem-jogadores">Seja o primeiro a entrar!</p>
+                    {% endif %}
+                    
+                    <button class="btn-participar">Participar</button>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

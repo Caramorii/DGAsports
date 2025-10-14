@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGA Social - Mensagens</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dga.mensagem.css') }}">
+    <style>
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary-green, #70d155);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 6px 16px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            text-decoration: none;
+            margin-right: 8px;
+            display: inline-block;
+        }
+        .back-btn:hover {
+            background: rgba(112,209,85,0.08);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Sidebar de conversas -->
+        <aside class="chat-sidebar">
+            <div class="chat-sidebar-header" style="display: flex; align-items: center;">
+                <a href="{{ url_for('social') }}" class="back-btn">&#8592; Voltar</a>
+                <span>Conversas</span>
+            </div>
+            <div class="chat-list">
+                <div class="chat-list-item active">
+                    <div class="chat-avatar">A</div>
+                    <div class="chat-info">
+                        <div class="chat-name">Ana Paula</div>
+                        <div class="chat-last-message">Oi! Tudo bem?</div>
+                    </div>
+                </div>
+                <div class="chat-list-item">
+                    <div class="chat-avatar">B</div>
+                    <div class="chat-info">
+                        <div class="chat-name">Bruno Silva</div>
+                        <div class="chat-last-message">Vamos treinar amanhã?</div>
+                    </div>
+                </div>
+                <!-- Adicione mais contatos conforme necessário -->
+            </div>
+        </aside>
+        <!-- Área principal do chat -->
+        <section class="chat-main">
+            <div class="chat-header">
+                <div class="chat-avatar">A</div>
+                <div class="chat-name">Ana Paula</div>
+            </div>
+            <div class="chat-messages">
+                <div class="message-row received">
+                    <div class="message-bubble">Oi! Tudo bem?</div>
+                    <span class="message-time">09:00</span>
+                </div>
+                <div class="message-row sent">
+                    <div class="message-bubble">Oi Ana! Tudo sim e você?</div>
+                    <span class="message-time">09:01</span>
+                </div>
+                <div class="message-row received">
+                    <div class="message-bubble">Estou bem também! Pronta para o treino?</div>
+                    <span class="message-time">09:02</span>
+                </div>
+                <div class="message-row sent">
+                    <div class="message-bubble">Sempre pronta! 💪</div>
+                    <span class="message-time">09:03</span>
+                </div>
+                <!-- Adicione mais mensagens conforme necessário -->
+            </div>
+            <form class="chat-input-area">
+                <input type="text" placeholder="Digite uma mensagem..." autocomplete="off">
+                <button type="submit" title="Enviar">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                </button>
+            </form>
+        </section>
+    </div>
+</body>
+</html>
