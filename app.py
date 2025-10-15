@@ -121,6 +121,10 @@ def social():
 def mensagem():
     return render_template('DGAmensagem.html')
 
+@app.route('/perfil')
+def perfil():
+    return render_template('DGAusuario.html')
+
 if __name__ == '__main__':
     criar_tabela_usuarios()
     app.run(debug=True)

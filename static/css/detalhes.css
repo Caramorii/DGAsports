@@ -1,0 +1,356 @@
+/* --- CONFIGURAÇÕES GLOBAIS --- */
+:root {
+    --bg-color: #121212;
+    --card-bg-color: #1E1E1E;
+    --text-primary: #FFFFFF;
+    --text-secondary: #B0B0B0;
+    --accent-color: #00A3FF;
+    --font-family: 'Roboto', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+}
+
+.app-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 80px; /* Espaço para o footer fixo */
+}
+
+/* --- CABEÇALHO DA PÁGINA --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.back-button, .icon-button {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.page-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+/* --- INFORMAÇÕES DA QUADRA (detalhes_quadra.html) --- */
+.quadra-info {
+    text-align: center;
+    padding: 1rem 2rem;
+}
+
+.quadra-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 2px solid var(--text-secondary);
+}
+
+.rating {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 0.5rem;
+    color: #FFD700;
+}
+.rating-value {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+.quadra-info h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.quadra-info .endereco {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+/* --- ABAS DE NAVEGAÇÃO --- */
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    padding: 0 1rem;
+    border-bottom: 1px solid var(--card-bg-color);
+    margin-bottom: 1.5rem;
+}
+
+.tab {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 1rem 0;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.tab.active, .tab:hover {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-color);
+}
+
+/* --- LISTA DE PARTIDAS --- */
+.partidas-lista {
+    padding: 0 1rem;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--card-bg-color);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+.search-bar svg {
+    color: var(--text-secondary);
+    margin-right: 0.5rem;
+}
+.search-bar input {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+}
+.search-bar input::placeholder {
+    color: var(--text-secondary);
+}
+
+.partida-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.partida-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+}
+
+.partida-detalhes {
+    flex-grow: 1;
+}
+.partida-detalhes h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+.partida-detalhes .preco-tempo {
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+.partida-detalhes .preco-tempo span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.partida-detalhes .preco-tempo span:first-child {
+    color: #4CAF50;
+    font-weight: 700;
+}
+
+.btn-agendar {
+    background-color: var(--accent-color);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.btn-agendar:hover {
+    background-color: #008fdb;
+}
+
+/* ========================================= */
+/* --- PÁGINA DE AGENDAMENTO (agendar.html) --- */
+/* ========================================= */
+.agendamento-body {
+    background-color: #000;
+}
+
+.agendamento-container {
+    padding: 0 1rem;
+}
+
+/* --- CALENDÁRIO --- */
+.calendario {
+    margin-bottom: 2rem;
+}
+.mes-navegacao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.mes-navegacao h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+.nav-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.dias-semana, .dias-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    gap: 0.5rem;
+}
+.dias-semana span {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.dia {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    padding: 0.75rem 0;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+.dia:hover {
+    background-color: var(--card-bg-color);
+}
+.dia.active {
+    background-color: var(--accent-color);
+    color: var(--text-primary);
+}
+
+/* --- SELEÇÃO DE TIPO DE PARTIDA --- */
+.selecao-partida {
+    margin-bottom: 2rem;
+}
+.selecao-partida h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+.tipo-partida-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.tipo-partida-card img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-color);
+}
+.tipo-partida-card p {
+    font-weight: 500;
+}
+
+/* --- HORÁRIOS DISPONÍVEIS --- */
+.horarios-disponiveis {
+    border-top: 1px solid var(--card-bg-color);
+    padding-top: 2rem;
+}
+.periodo-titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--card-bg-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+.periodo-titulo h4 {
+    font-weight: 500;
+}
+.periodo-titulo span {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+.horario-btn {
+    background: none;
+    border: 1px solid var(--text-secondary);
+    color: var(--text-secondary);
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.horario-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+.horario-btn.active {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--text-primary);
+}
+
+/* --- FOOTER DE CONFIRMAÇÃO --- */
+.agendamento-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--card-bg-color);
+    padding: 1rem;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
+}
+
+.btn-confirmar {
+    width: 100%;
+    max-width: 580px; /* Alinha com o container principal */
+    display: block;
+    margin: 0 auto;
+    background-color: var(--accent-color);
+    color: var(--text-primary);
+    border: none;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-confirmar:hover {
+    background-color: #008fdb;
+}
+
