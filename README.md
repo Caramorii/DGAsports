@@ -1,7 +1,7 @@
 # DGAsports 🏀⚽
 
 Projeto de um site para marcar jogos de esportes, escolher quadras e cidades.  
-Feito em HTML, CSS e JavaScript.
+Feito em HTML, CSS e JavaScript. E back-end com Python Flask e sqlite.
 
 ## 🚀 Funcionalidades
 - Seleção de cidade, quadra e esporte
