@@ -63,11 +63,11 @@ header {
 .logo-container {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 30px;
 }
 
 .header-logo {
-    width: 50px;
+    width: 100px;
     height: auto;
 }
 
