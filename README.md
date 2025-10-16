@@ -12,6 +12,8 @@ Feito em HTML, CSS e JavaScript. E back-end com Python Flask e sqlite.
 - HTML5
 - CSS3
 - JavaScript
+- Python
+- sqlite
 
 ## 📂 Estrutura
 - `DGAsports.html`: página principal
