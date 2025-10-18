@@ -26,3 +26,4 @@ Clone o repositório:
 ```bash
 git clone https://github.com/Caramorii/DGAsports.git
 cd DGAsports
+git checkout master
