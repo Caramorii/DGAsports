@@ -13,7 +13,7 @@ Feito em HTML, CSS e JavaScript. E back-end com Python Flask e sqlite.
 - CSS3
 - JavaScript
 - Python
-- sqlite
+- Sqlite
 
 ## 📂 Estrutura
 - `DGAsports.html`: página principal
