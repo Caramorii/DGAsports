@@ -1,5 +1,5 @@
 # Importa as ferramentas do Flask e nossas funções do banco de dados
-from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
+from flask import Flask, render_template, request, redirect, url_for, flash, session, abort, jsonify
 from banco_de_dados import criar_tabela_usuarios, cadastrar_usuario, verificar_login
 
 # Inicializa a aplicação Flask
@@ -124,6 +124,59 @@ def mensagem():
 @app.route('/perfil')
 def perfil():
     return render_template('DGAusuario.html')
+
+@app.route('/quadra/entrar', methods=['POST'])
+
+def entrar_na_partida():
+    # 1. Verifica se o usuário está logado
+    if 'usuario_logado' not in session:
+        return jsonify({'status': 'erro', 'mensagem': 'Você precisa estar logado para entrar.'}), 401 # 401 = Não autorizado
+
+    # 2. Pega os dados enviados pelo JavaScript
+    dados = request.get_json()
+    id_quadra = dados.get('id_quadra')
+    hora_partida = dados.get('hora_partida')
+
+    # 3. Encontra a quadra e o horário no nosso "banco de dados" simulado
+    quadra_encontrada = next((q for q in DADOS_DAS_QUADRAS if q['id'] == id_quadra), None)
+    
+    if not quadra_encontrada:
+        return jsonify({'status': 'erro', 'mensagem': 'Quadra não encontrada.'}), 404
+
+    horario_encontrado = next((h for h in quadra_encontrada['horarios'] if h['hora'] == hora_partida), None)
+    
+    if not horario_encontrado:
+        return jsonify({'status': 'erro', 'mensagem': 'Horário não encontrado.'}), 404
+
+    # 4. Verifica se a partida está lotada
+    if horario_encontrado['jogadores_atuais'] >= horario_encontrado['max_jogadores']:
+        return jsonify({'status': 'erro', 'mensagem': 'Esta partida já está lotada!'})
+
+    # 5. Lógica para adicionar o jogador
+    # (O ideal seria verificar se ele já não está na lista)
+    nome_usuario = session.get('nome_usuario', 'Usuário')
+    
+    # Verifica se o usuário já está na lista
+    if any(jogador['nome'] == nome_usuario for jogador in horario_encontrado['jogadores']):
+        return jsonify({'status': 'erro', 'mensagem': 'Você já está nessa partida.'})
+
+    # TUDO CERTO! Atualiza os dados no servidor
+    horario_encontrado['jogadores_atuais'] += 1
+    
+    # Cria um objeto de jogador "simulado" para o usuário logado
+    novo_jogador = {
+        'id': session.get('usuario_logado'), # Usando o email como ID
+        'nome': nome_usuario,
+        'avatar': f'https://placehold.co/50x50/9F7AEA/FFFFFF?text={nome_usuario[0].upper()}' # Avatar roxo
+    }
+    horario_encontrado['jogadores'].append(novo_jogador)
+
+    # 6. Envia a resposta de sucesso para o JavaScript
+    return jsonify({
+        'status': 'sucesso',
+        'nova_contagem': horario_encontrado['jogadores_atuais'],
+        'novo_jogador': novo_jogador # Envia os dados do novo jogador para o JS
+    })
 
 if __name__ == '__main__':
     criar_tabela_usuarios()

@@ -1,134 +1,89 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arena DGA - Morumbi - DGA Sports</title>
-    <link rel="icon" href="assets/logo2.png" type="image/x-png">
-    <!-- CSS CORRIGIDO E CENTRALIZADO -->
+    <title>Detalhes - {{ quadra.nome }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/detalhes.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
+    
+    <nav class="navbar-placeholder">
+        <a href="{{ url_for('home') }}" style="font-weight: bold; color: #fff; text-decoration: none;">DGASports</a>
+    </nav>
 
-    <div class="app-container">
-        <!-- CABEÇALHO SUPERIOR -->
-        <header class="page-header">
-            <a href="explorar.html" class="back-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-            </a>
-            <div class="header-actions">
-                <button class="icon-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path
-                            d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                    </svg>
-                </button>
-                <button class="icon-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path
-                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                        </path>
-                    </svg>
-                </button>
+    <div class="container-detalhes" data-quadra-id="{{ quadra.id }}">
+        
+        <header class="quadra-header">
+            <img src="{{ url_for('static', filename=quadra.imagem) }}" alt="Foto da {{ quadra.nome }}" class="quadra-imagem-principal">
+            
+            <div class="quadra-info">
+                <h1>{{ quadra.nome }}</h1>
+                <p class="quadra-localizacao">
+                    {{ quadra.cidade }}, {{ quadra.estado }} 
+                    <span class="quadra-tipo quadra-tipo-{{ quadra.tipo.lower() }}">{{ quadra.tipo }}</span>
+                </p>
+                
+                {% if quadra.seguindo %}
+                    <button class="btn btn-seguir seguindo">Seguindo</button>
+                {% else %}
+                    <button class="btn btn-seguir">Seguir</button>
+                {% endif %}
             </div>
         </header>
 
-        <!-- INFORMAÇÕES DA QUADRA -->
-        <section class="quadra-info">
-            <img src="assets/logo-quadra.png" alt="Logo da Quadra" class="quadra-logo">
-            <div class="rating">
-                <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
-                <span class="rating-value">5.0</span>
-            </div>
-            <h1>Arena DGA - Morumbi</h1>
-            <p class="endereco">Avenida dos Esportes, 123 - Morumbi, São Paulo/SP</p>
-        </section>
-
-        <!-- ABAS DE NAVEGAÇÃO -->
-        <nav class="tabs">
-            <a href="#" class="tab active">PARTIDAS</a>
-            <a href="#" class="tab">DETALHES</a>
-            <a href="#" class="tab">FOTOS</a>
-            <a href="#" class="tab">AVALIAÇÕES</a>
-        </nav>
-
-        <!-- LISTA DE PARTIDAS (SERVIÇOS) -->
-        <main class="partidas-lista">
-            <div class="search-bar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" placeholder="Pesquisar partida...">
-            </div>
-
-            <div class="partida-item">
-                <img src="assets/logo-quadra.png" alt="Logo">
-                <div class="partida-detalhes">
-                    <h3>Futebol Society</h3>
-                    <p class="preco-tempo">
-                        <span>R$ 120,00</span>
-                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg> 60 min</span>
-                    </p>
-                </div>
-                <a href="agendar.html" class="btn-agendar">Agendar</a>
-            </div>
-
-            <div class="partida-item">
-                <img src="assets/logo-quadra.png" alt="Logo">
-                <div class="partida-detalhes">
-                    <h3>Vôlei de Areia</h3>
-                    <p class="preco-tempo">
-                        <span>R$ 80,00</span>
-                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg> 60 min</span>
-                    </p>
-                </div>
-                <a href="agendar.html" class="btn-agendar">Agendar</a>
-            </div>
+        <main class="quadra-conteudo">
             
-            <div class="partida-item">
-                <img src="assets/logo-quadra.png" alt="Logo">
-                <div class="partida-detalhes">
-                    <h3>Basquete 3x3</h3>
-                    <p class="preco-tempo">
-                        <span>R$ 90,00</span>
-                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg> 90 min</span>
-                    </p>
+            <section class="secao-esportes">
+                <h2>Escolha o Esporte</h2>
+                <div class="tabs-esportes">
+                    {% for esporte in quadra.esportes %}
+                        <button class="tab-esporte {% if loop.first %}ativo{% endif %}" data-esporte="{{ esporte }}">
+                            {{ esporte }}
+                        </button>
+                    {% endfor %}
                 </div>
-                <a href="agendar.html" class="btn-agendar">Agendar</a>
-            </div>
+            </section>
 
+            <section class="secao-horarios">
+                <h2>Horários Disponíveis</h2>
+                <div class="lista-horarios">
+                    
+                    {% if not quadra.horarios %}
+                        <p>Nenhum horário disponível no momento.</p>
+                    {% endif %}
+
+                    {% for horario in quadra.horarios %}
+                    <div class="card-horario" data-hora="{{ horario.hora }}">
+                        <div class="horario-info">
+                            <span class="hora">{{ horario.hora }}</span>
+                            <div class="vagas">
+                                <span class="contagem">{{ horario.jogadores_atuais }} / {{ horario.max_jogadores }}</span>
+                                <progress class="barra-vagas" value="{{ horario.jogadores_atuais }}" max="{{ horario.max_jogadores }}"></progress>
+                            </div>
+                        </div>
+                        
+                        <div class="horario-jogadores">
+                            <strong>Jogadores na partida:</strong>
+                            <div class="lista-avatares">
+                                {% for jogador in horario.jogadores %}
+                                    <img src="{{ jogador.avatar }}" alt="{{ jogador.nome }}" title="{{ jogador.nome }}">
+                                {% else %}
+                                    <span class="sem-jogadores">Ninguém agendado. Seja o primeiro!</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="horario-acao">
+                            <button class="btn btn-entrar">Entrar na Partida</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
         </main>
     </div>
 
+    <script src="{{ url_for('static', filename='js/detalhes.js') }}"></script>
 </body>
-
 </html>
-
