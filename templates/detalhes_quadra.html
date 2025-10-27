@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserva de Quadras - Arena Sports</title>
+    <title>Detalhes - {{ quadra.nome }}</title>
+    
     <style>
         :root {
             --primary-green: #70d155;
@@ -18,13 +19,7 @@
             --border-color: rgba(112, 209, 85, 0.2);
             --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: var(--font-main);
             background-color: var(--dark-bg);
@@ -32,7 +27,6 @@
             padding: 20px;
             color: var(--text-primary);
         }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -42,7 +36,6 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.4);
             border: 1px solid var(--border-color);
         }
-
         header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
             color: var(--text-dark);
@@ -50,20 +43,17 @@
             text-align: center;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
-
         header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 900;
             letter-spacing: -0.02em;
         }
-
         .tabs {
             display: flex;
             background: var(--dark-bg);
             border-bottom: 2px solid var(--border-color);
         }
-
         .tab {
             flex: 1;
             padding: 20px;
@@ -76,33 +66,27 @@
             color: var(--text-secondary);
             transition: all 0.3s;
         }
-
         .tab:hover {
             background: var(--dark-card-bg);
             color: var(--text-primary);
         }
-
         .tab.active {
             background: var(--dark-card-bg);
             color: var(--primary-green);
             border-bottom: 3px solid var(--primary-green);
         }
-
         .tab-content {
             display: none;
             padding: 30px;
             animation: fadeIn 0.5s;
         }
-
         .tab-content.active {
             display: block;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .info-card {
             background: var(--dark-bg);
             padding: 25px;
@@ -110,84 +94,53 @@
             border-left: 5px solid var(--primary-green);
             margin-bottom: 20px;
         }
-
-        .info-card h3 {
-            color: var(--primary-green);
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .info-card p {
-            color: var(--text-primary);
-            line-height: 1.8;
-            margin-bottom: 10px;
-        }
-
+        .info-card h3 { color: var(--primary-green); margin-bottom: 15px; font-size: 1.3em; }
+        .info-card p { color: var(--text-primary); line-height: 1.8; margin-bottom: 10px; }
+        
         .schedule-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
-
+        
         .time-slot {
             padding: 20px;
             border: 2px solid var(--border-color);
             border-radius: 10px;
             text-align: center;
-            cursor: pointer;
             transition: all 0.3s;
             background: var(--dark-bg);
         }
-
-        .time-slot:hover:not(.reserved):not(.paid) {
-            border-color: var(--primary-green);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(112, 209, 85, 0.2);
-        }
-
-        .time-slot.available {
-            border-color: var(--primary-green);
-            background: rgba(112, 209, 85, 0.1);
-        }
-
-        .time-slot.reserved {
-            border-color: #ffc107;
-            background: rgba(255, 193, 7, 0.1);
-            cursor: not-allowed;
-        }
-
-        .time-slot.paid {
-            border-color: #17a2b8;
-            background: rgba(23, 162, 184, 0.1);
-            cursor: not-allowed;
-        }
-
-        .time-slot.selected {
-            border-color: var(--primary-green);
-            background: var(--primary-green);
-            color: var(--text-dark);
-            transform: scale(1.05);
-        }
-
         .time-slot .time {
             font-size: 1.2em;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 15px; 
         }
-
-        .time-slot .status {
-            font-size: 0.9em;
+        
+        .time-slot .vagas {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
         }
-
-        .time-slot.reserved .join-label,
-        .time-slot.paid .join-label {
-            display: block;
-            margin-top: 8px;
-            font-size: 0.85em;
-            padding: 5px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
+        .time-slot .vagas .contagem {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        
+        .time-slot progress {
+            width: 100%;
+            height: 8px;
+            border: none;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .time-slot progress::-webkit-progress-bar {
+            background-color: var(--dark-bg);
+            border: 1px solid var(--border-color);
+        }
+        .time-slot progress::-webkit-progress-value {
+            background: linear-gradient(90deg, var(--primary-green), var(--secondary-green));
         }
 
         .map-container {
@@ -197,92 +150,6 @@
             overflow: hidden;
             margin-top: 20px;
             border: 2px solid var(--border-color);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary-green);
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px;
-            background: var(--dark-bg);
-            border-radius: 8px;
-            margin: 20px 0;
-            border: 1px solid var(--border-color);
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .payment-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .payment-option {
-            padding: 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--dark-bg);
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .payment-option:hover {
-            border-color: var(--primary-green);
-            transform: translateY(-2px);
-        }
-
-        .payment-option.selected {
-            border-color: var(--primary-green);
-            background: rgba(112, 209, 85, 0.1);
-        }
-
-        .payment-option input[type="radio"] {
-            display: none;
-        }
-
-        .payment-option .icon {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-
-        .payment-option .label {
-            font-size: 1.1em;
-            font-weight: 600;
-            color: var(--text-primary);
         }
 
         .btn {
@@ -297,195 +164,71 @@
             transition: transform 0.3s, box-shadow 0.3s;
             box-shadow: 0 4px 15px rgba(112, 209, 85, 0.2);
             width: 100%;
+            margin-top: 15px;
         }
-
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(112, 209, 85, 0.4);
         }
-
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            background: var(--text-secondary);
         }
 
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .alert.success {
-            background: rgba(112, 209, 85, 0.2);
-            color: var(--primary-green);
-            border: 1px solid var(--primary-green);
-            display: block;
-        }
-
-        .date-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .date-btn {
-            padding: 10px 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .date-btn:hover {
-            border-color: var(--primary-green);
-        }
-
-        .date-btn.active {
-            background: var(--primary-green);
-            color: var(--text-dark);
-            border-color: var(--primary-green);
-        }
-
-        .legend {
-            display: flex;
-            gap: 20px;
-            margin: 20px 0;
-            padding: 15px;
-            background: var(--dark-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }
-
-        h2 {
-            color: var(--text-primary);
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            color: var(--text-primary);
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-
-        p {
-            color: var(--text-secondary);
-        }
+        h2 { color: var(--text-primary); margin-bottom: 20px; }
+        h3 { color: var(--text-primary); margin-top: 30px; margin-bottom: 15px; }
+        p { color: var(--text-secondary); }
 
         @media (max-width: 768px) {
-            .schedule-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            }
-            
-            header h1 {
-                font-size: 2rem;
-            }
-
-            .payment-options {
-                grid-template-columns: 1fr;
-            }
+            .schedule-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+            header h1 { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" data-quadra-tipo="{{ quadra.tipo }}">
         <header>
-            <h1>⚽ Arena Sports</h1>
-            <p>Reserve sua quadra de forma rápida e fácil</p>
+            <h1>⚽ {{ quadra.nome }}</h1>
+            <p>{{ quadra.cidade }}, {{ quadra.estado }}</p>
         </header>
 
         <div class="tabs">
-            <button class="tab active" onclick="showTab('reserva')">🕐 Reservar Horário</button>
-            <button class="tab" onclick="showTab('mapa')">📍 Localização</button>
+            <button class="tab active" data-tab="reserva">🕐 Horários</button>
+            <button class="tab" data-tab="mapa">📍 Localização</button>
         </div>
 
         <div id="reserva" class="tab-content active">
-            <h2>Faça sua Reserva</h2>
+            <h2>Horários Disponíveis (Entrar na Partida)</h2>
+            <p>Escolha um horário para se juntar à partida.</p>
             
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(112, 209, 85, 0.1); border: 2px solid #70d155;"></div>
-                    <span>Disponível</span>
+            <div class="schedule-grid">
+                
+                {% for horario in quadra.horarios %}
+                
+                <div class="time-slot card-horario" data-horario-id="{{ horario.id }}">
+                    
+                    <div class="time">{{ horario.hora }}</div>
+                    
+                    <div class="vagas">
+                        <span class="contagem">{{ horario.jogadores_atuais }} / {{ horario.max_jogadores }}</span>
+                    </div>
+                    
+                    <progress class="barra-vagas" value="{{ horario.jogadores_atuais }}" max="{{ horario.max_jogadores }}"></progress>
+                    
+                    <button class="btn btn-entrar">
+                        {% if quadra.tipo == 'publica' %}
+                            Entrar na Partida
+                        {% else %}
+                            Reservar (R$ {{ "%.2f"|format(horario.preco) }})
+                        {% endif %}
+                    </button>
+                
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(255, 193, 7, 0.1); border: 2px solid #ffc107;"></div>
-                    <span>Reservado (Aguardando Pagamento)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(23, 162, 184, 0.1); border: 2px solid #17a2b8;"></div>
-                    <span>Reservado e Pago</span>
-                </div>
-            </div>
-
-            <h3>Selecione a Data:</h3>
-            <div class="date-selector" id="dateSelector"></div>
-
-            <h3>Horários:</h3>
-            <div class="schedule-grid" id="scheduleGrid"></div>
-
-            <div id="reservationForm" style="display: none; margin-top: 30px;">
-                <h3>Complete sua Reserva</h3>
-                <form onsubmit="finalizarReserva(event)">
-                    <div class="form-group">
-                        <label>Nome Completo:</label>
-                        <input type="text" id="nome" required placeholder="Digite seu nome">
-                    </div>
-                    <div class="form-group">
-                        <label>Telefone/WhatsApp:</label>
-                        <input type="tel" id="telefone" required placeholder="(00) 00000-0000">
-                    </div>
-                    <div class="form-group">
-                        <label>Email:</label>
-                        <input type="email" id="email" required placeholder="seu@email.com">
-                    </div>
-
-                    <h3>Forma de Pagamento:</h3>
-                    <div class="payment-options">
-                        <label class="payment-option" onclick="selectPayment('local', this)">
-                            <input type="radio" name="payment" value="local" required>
-                            <div class="icon">💵</div>
-                            <div class="label">Pagar no Local</div>
-                        </label>
-                        <label class="payment-option" onclick="selectPayment('pix', this)">
-                            <input type="radio" name="payment" value="pix" required>
-                            <div class="icon">📱</div>
-                            <div class="label">PIX</div>
-                        </label>
-                    </div>
-
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="allowOthers">
-                        <label for="allowOthers" style="margin: 0;">
-                            ✅ Permitir que outros jogadores desconhecidos se juntem à partida
-                        </label>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Observações (opcional):</label>
-                        <textarea id="observacoes" rows="3" placeholder="Alguma informação adicional..."></textarea>
-                    </div>
-                    <button type="submit" class="btn">Confirmar Reserva</button>
-                </form>
-            </div>
-
-            <div id="successAlert" class="alert success">
-                ✅ Reserva realizada com sucesso! Você receberá um email de confirmação.
+                {% else %}
+                    <p>Nenhum horário disponível no momento.</p>
+                {% endfor %}
+                
             </div>
         </div>
 
@@ -493,209 +236,21 @@
             <h2>📍 Como Chegar</h2>
             <div class="info-card">
                 <h3>Endereço</h3>
-                <p><strong>Arena Sports</strong></p>
+                <p><strong>{{ quadra.nome }}</strong></p>
                 <p>Rua dos Esportes, 1234 - Centro</p>
-                <p>São Joaquim da Barra - SP</p>
-                <p>CEP: 14600-000</p>
-                <p><strong>Telefone:</strong> (16) 99999-9999</p>
-                <p><strong>WhatsApp:</strong> (16) 99999-9999</p>
+                <p>{{ quadra.cidade }} - {{ quadra.estado }}</p>
             </div>
             <div class="map-container">
                 <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3736.1234567890!2d-47.8567890!3d-20.5834567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjDCsDM1JzAwLjQiUyA0N8KwNTEnMjQuNCJX!5e0!3m2!1spt-BR!2sbr!4v1234567890"
-                    width="100%" 
-                    height="100%" 
-                    style="border:0;" 
-                    allowfullscreen="" 
-                    loading="lazy">
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d119027.42080356064!2d-47.50417912192121!3d-20.52504987748408!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94b0a612d7829b37%3A0x8640c49f4f3c7131!2sFranca%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1730043285773!5m2!1spt-BR!2sbr" 
+                    width="100%" height="100%" style="border:0;" 
+                    allowfullscreen="" loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
                 </iframe>
             </div>
         </div>
     </div>
 
-    <script>
-        // Dados simulados de reservas
-        const reservas = {
-            '2025-10-20': {
-                '08:00': { status: 'disponivel' },
-                '09:00': { status: 'disponivel' },
-                '10:00': { status: 'reservado', permitirOutros: true },
-                '11:00': { status: 'disponivel' },
-                '14:00': { status: 'pago', permitirOutros: false },
-                '15:00': { status: 'disponivel' },
-                '16:00': { status: 'disponivel' },
-                '17:00': { status: 'reservado', permitirOutros: true },
-                '18:00': { status: 'pago', permitirOutros: true },
-                '19:00': { status: 'disponivel' },
-                '20:00': { status: 'disponivel' },
-                '21:00': { status: 'disponivel' },
-            }
-        };
-
-        let selectedDate = '';
-        let selectedTime = '';
-        let selectedPayment = '';
-
-        function showTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-
-            if (tabName === 'reserva') {
-                initReservas();
-            }
-        }
-
-        function initReservas() {
-            const dateSelector = document.getElementById('dateSelector');
-            dateSelector.innerHTML = '';
-
-            // Gerar próximos 7 dias
-            for (let i = 0; i < 7; i++) {
-                const date = new Date();
-                date.setDate(date.getDate() + i);
-                const dateStr = date.toISOString().split('T')[0];
-                const dayName = date.toLocaleDateString('pt-BR', { weekday: 'short' });
-                const dayNum = date.getDate();
-                const month = date.toLocaleDateString('pt-BR', { month: 'short' });
-
-                const btn = document.createElement('button');
-                btn.className = 'date-btn' + (i === 0 ? ' active' : '');
-                btn.innerHTML = `<strong>${dayName}</strong><br>${dayNum} ${month}`;
-                btn.onclick = () => selectDate(dateStr, btn);
-                dateSelector.appendChild(btn);
-            }
-
-            // Selecionar primeiro dia por padrão
-            const firstDate = new Date().toISOString().split('T')[0];
-            selectDate(firstDate, dateSelector.firstChild);
-        }
-
-        function selectDate(date, btn) {
-            selectedDate = date;
-            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            loadSchedule(date);
-        }
-
-        function loadSchedule(date) {
-            const scheduleGrid = document.getElementById('scheduleGrid');
-            scheduleGrid.innerHTML = '';
-
-            const horarios = reservas[date] || {
-                '08:00': { status: 'disponivel' },
-                '09:00': { status: 'disponivel' },
-                '10:00': { status: 'disponivel' },
-                '11:00': { status: 'disponivel' },
-                '14:00': { status: 'disponivel' },
-                '15:00': { status: 'disponivel' },
-                '16:00': { status: 'disponivel' },
-                '17:00': { status: 'disponivel' },
-                '18:00': { status: 'disponivel' },
-                '19:00': { status: 'disponivel' },
-                '20:00': { status: 'disponivel' },
-                '21:00': { status: 'disponivel' },
-            };
-
-            Object.keys(horarios).forEach(time => {
-                const slot = horarios[time];
-                const div = document.createElement('div');
-                div.className = 'time-slot';
-                
-                if (slot.status === 'disponivel') {
-                    div.classList.add('available');
-                    div.innerHTML = `
-                        <div class="time">${time}</div>
-                        <div class="status">✅ Disponível</div>
-                    `;
-                    div.onclick = () => selectTime(time, div);
-                } else if (slot.status === 'reservado') {
-                    div.classList.add('reserved');
-                    div.innerHTML = `
-                        <div class="time">${time}</div>
-                        <div class="status">⏳ Reservado</div>
-                        ${slot.permitirOutros ? '<div class="join-label">🤝 Aceita jogadores</div>' : ''}
-                    `;
-                } else if (slot.status === 'pago') {
-                    div.classList.add('paid');
-                    div.innerHTML = `
-                        <div class="time">${time}</div>
-                        <div class="status">✔️ Pago</div>
-                        ${slot.permitirOutros ? '<div class="join-label">🤝 Aceita jogadores</div>' : ''}
-                    `;
-                }
-                
-                scheduleGrid.appendChild(div);
-            });
-        }
-
-        function selectTime(time, element) {
-            document.querySelectorAll('.time-slot').forEach(slot => {
-                if (slot.classList.contains('available')) {
-                    slot.classList.remove('selected');
-                }
-            });
-            
-            element.classList.add('selected');
-            selectedTime = time;
-            document.getElementById('reservationForm').style.display = 'block';
-            document.getElementById('successAlert').style.display = 'none';
-            
-            // Scroll suave para o formulário
-            document.getElementById('reservationForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function selectPayment(type, element) {
-            document.querySelectorAll('.payment-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            element.classList.add('selected');
-            selectedPayment = type;
-        }
-
-        function finalizarReserva(event) {
-            event.preventDefault();
-            
-            if (!selectedPayment) {
-                alert('Por favor, selecione uma forma de pagamento');
-                return;
-            }
-
-            // Determinar o status baseado na forma de pagamento
-            const novoStatus = selectedPayment === 'pix' ? 'pago' : 'reservado';
-            
-            // Simular processamento
-            document.getElementById('reservationForm').style.display = 'none';
-            document.getElementById('successAlert').style.display = 'block';
-            
-            // Atualizar horário
-            if (!reservas[selectedDate]) {
-                reservas[selectedDate] = {};
-            }
-            reservas[selectedDate][selectedTime] = {
-                status: novoStatus,
-                permitirOutros: document.getElementById('allowOthers').checked
-            };
-            
-            loadSchedule(selectedDate);
-            
-            // Scroll suave para o alerta
-            document.getElementById('successAlert').scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            // Limpar formulário
-            document.querySelector('form').reset();
-            document.querySelectorAll('.payment-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            selectedPayment = '';
-        }
-
-        // Inicializar
-        window.onload = () => {
-            initReservas();
-        };
-    </script>
+    <script src="{{ url_for('static', filename='js/detalhes.js') }}"></script>
 </body>
 </html>

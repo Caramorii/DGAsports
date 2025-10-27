@@ -19,12 +19,22 @@
             <p>Use os filtros para achar o lugar perfeito para sua próxima partida.</p>
         </header>
 
-        <form class="filter-panel">
-            <div class="filter-group"><label for="filtro-estado">Estado</label><select id="filtro-estado"><option value="">Todos</option><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option><option value="MG">Minas Gerais</option></select></div>
-            <div class="filter-group"><label for="filtro-cidade">Cidade</label><select id="filtro-cidade" disabled><option>Escolha um estado</option></select></div>
-            <div class="filter-group"><label for="filtro-esporte">Esporte</label><select id="filtro-esporte"><option value="Qualquer">Qualquer</option><option value="Futebol">Futebol</option><option value="Basquete">Basquete</option><option value="Vôlei">Vôlei</option><option value="Tênis">Tênis</option></select></div>
+        <form class="filter-panel" action="{{ url_for('explorar') }}" method="GET">
+            <div class="filter-group">
+                <label for="filtro-localidade">Localidade</label>
+                <input type="text" name="localidade" id="filtro-localidade" placeholder="Digite a cidade ou estado" value="{{ localidade_busca }}">
+            </div>
+            <div class="filter-group">
+                <label for="filtro-esporte">Esporte</label>
+                <select id="filtro-esporte" name="esporte">
+                    <option value="">Qualquer</option>
+                    <option value="Futebol" {% if esporte_busca == 'futebol' %}selected{% endif %}>Futebol</option>
+                    <option value="Basquete" {% if esporte_busca == 'basquete' %}selected{% endif %}>Basquete</option>
+                    </select>
+            </div>
             <button class="filter-button" type="submit">Buscar</button>
         </form>
+
 
         <div class="explorar-container">
             <aside class="sidebar">
@@ -46,7 +56,7 @@
                          data-cidade="{{ quadra.cidade }}" 
                          data-esportes="{{ quadra.esportes|join(',') }}" 
                          data-tipo="{{ quadra.tipo }}" 
-                         data-ocupacao="{{ quadra.horarios[0].jogadores_atuais }}"
+                         data-ocupacao="{{ quadra.total_jogadores_agora }}"
                          data-seguindo="{{ 'true' if quadra.seguindo else 'false' }}">
                         
                         <img src="{{ url_for('static', filename=quadra.imagem) }}" alt="{{ quadra.nome }}">
@@ -57,15 +67,25 @@
                                 {% if 'Futebol' in quadra.esportes %}<span title="Futebol">⚽</span>{% endif %}
                                 {% if 'Basquete' in quadra.esportes %}<span title="Basquete">🏀</span>{% endif %}
                             </div>
-                            <div class="schedule-info"><strong>Jogadores agora:</strong><div class="time-slots"><span class="time-slot">{{ quadra.horarios[0].jogadores_atuais }}</span></div></div>
+                            <div class="schedule-info">
+                                <strong>Jogadores:</strong>
+                                <div class="time-slots">
+                                    <span class="time-slot">{{ quadra.total_jogadores_agora }}</span>
+                                </div>
+                                <strong style="margin-left: 10px;">Horários:</strong>
+                                <div class="time-slots">
+                                    <span class="time-slot">{{ quadra.total_horarios }}</span>
+                                </div>
+                            </div>
                             <a href="{{ url_for('detalhes_quadra', id_da_quadra=quadra.id) }}" class="details-btn">Ver Horários</a>
                         </div>
                     </div>
-                    {% endfor %}
+                    {% else %}
+                    <div id="sem-resultados" style="text-align: center; margin-top: 3rem; grid-column: 1 / -1; color: white;">
+                        <h2>Nenhuma quadra encontrada</h2>
+                        <p>Tente ajustar os filtros para encontrar mais resultados.</p>
                     </div>
-                <div id="sem-resultados" style="display: none; text-align: center; margin-top: 3rem;">
-                    <h2>Nenhuma quadra encontrada</h2>
-                    <p>Tente ajustar os filtros para encontrar mais resultados.</p>
+                    {% endfor %}
                 </div>
             </main>
         </div>

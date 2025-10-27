@@ -1,79 +1,46 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ELEMENTOS DO DOM (ORIGINAIS) ---
-    const filtroEstado = document.getElementById('filtro-estado');
-    const filtroCidade = document.getElementById('filtro-cidade');
-    const filtroEsporte = document.getElementById('filtro-esporte');
-    const searchForm = document.querySelector('.filter-panel');
-    const statusBusca = document.getElementById('status-busca');
-    const quadras = document.querySelectorAll('.court-card');
-    const semResultados = document.getElementById('sem-resultados');
-
-    // --- ELEMENTOS DO DOM (NOVOS FILTROS) ---
+    // --- ELEMENTOS DO DOM (APENAS SIDEBAR) ---
+    // Removemos os filtros do topo (filtroEstado, etc.), pois o Flask cuida deles.
     const filtrosTipoQuadra = document.querySelectorAll('input[name="tipo_quadra"]');
     const filtrosOcupacao = document.querySelectorAll('input[name="ocupacao"]');
     const filtroSeguindo = document.getElementById('filtro-seguindo');
 
-    // --- DADOS PARA OS FILTROS DINÂMICOS ---
-    const cidadesPorEstado = {
-        "SP": ["Franca", "Ribeirão Preto", "São Paulo", "Campinas"],
-        "RJ": ["Rio de Janeiro", "Niterói", "Duque de Caxias"],
-        "MG": ["Belo Horizonte", "Uberlândia", "Contagem"]
-    };
+    // --- ELEMENTOS DOS RESULTADOS ---
+    const statusBusca = document.getElementById('status-busca');
+    const quadras = document.querySelectorAll('.court-card');
+    // A mensagem 'semResultados' agora é controlada pelo Jinja2 (Flask)
+    // const semResultados = document.getElementById('sem-resultados'); 
 
-    // --- FUNÇÕES ---
-
-    function atualizarCidades() {
-        const estadoSelecionado = filtroEstado.value;
-        filtroCidade.innerHTML = '';
-        if (estadoSelecionado && cidadesPorEstado[estadoSelecionado]) {
-            filtroCidade.disabled = false;
-            let optionsHtml = '<option value="">Todas</option>';
-            cidadesPorEstado[estadoSelecionado].forEach(cidade => {
-                optionsHtml += `<option value="${cidade}">${cidade}</option>`;
-            });
-            filtroCidade.innerHTML = optionsHtml;
-        } else {
-            filtroCidade.innerHTML = '<option value="">Escolha um estado</option>';
-            filtroCidade.disabled = true;
-        }
-    }
-
-    function filtrarQuadras(event) {
-        if (event) {
-            event.preventDefault();
-        }
-
-        const estadoSelecionado = filtroEstado.value;
-        const cidadeSelecionada = filtroCidade.value;
-        const esporteSelecionado = filtroEsporte.value;
+    // --- FUNÇÃO DE FILTRO (Simplificada) ---
+    function filtrarQuadras() {
+        // Pega os valores APENAS da sidebar
         const tipoSelecionado = document.querySelector('input[name="tipo_quadra"]:checked').value;
         const ocupacaoSelecionada = document.querySelector('input[name="ocupacao"]:checked').value;
         const seguindoSelecionado = filtroSeguindo.checked;
 
         let quadrasVisiveis = 0;
         statusBusca.textContent = "Filtrando resultados...";
-        statusBusca.style.color = "#1CB5E0";
+        statusBusca.style.color = "#1CB5E0"; // Cor do seu CSS
 
         quadras.forEach(quadra => {
-            const estadoDaQuadra = quadra.dataset.estado;
-            const cidadeDaQuadra = quadra.dataset.cidade;
-            const esportesDaQuadra = quadra.dataset.esportes || "";
+            // Pega os dados de cada quadra que o Flask renderizou
             const tipoDaQuadra = quadra.dataset.tipo;
             const ocupacaoDaQuadra = parseInt(quadra.dataset.ocupacao, 10);
             const seguindoNaQuadra = quadra.dataset.seguindo === 'true';
 
-            const correspondeEstado = !estadoSelecionado || estadoDaQuadra === estadoSelecionado;
-            const correspondeCidade = !cidadeSelecionada || cidadeDaQuadra === cidadeSelecionada;
-            const correspondeEsporte = esporteSelecionado === 'Qualquer' || esportesDaQuadra.includes(esporteSelecionado);
+            // Verifica APENAS os filtros da sidebar
             const correspondeTipo = tipoSelecionado === 'qualquer' || tipoDaQuadra === tipoSelecionado;
+
             let correspondeOcupacao = false;
             if (ocupacaoSelecionada === 'qualquer') { correspondeOcupacao = true; }
             else if (ocupacaoSelecionada === 'vazia' && ocupacaoDaQuadra === 0) { correspondeOcupacao = true; }
             else if (ocupacaoSelecionada === 'poucos' && ocupacaoDaQuadra >= 1 && ocupacaoDaQuadra <= 5) { correspondeOcupacao = true; }
             else if (ocupacaoSelecionada === 'cheia' && ocupacaoDaQuadra > 5) { correspondeOcupacao = true; }
+
             const correspondeSeguindo = !seguindoSelecionado || seguindoNaQuadra;
 
-            if (correspondeEstado && correspondeCidade && correspondeEsporte && correspondeTipo && correspondeOcupacao && correspondeSeguindo) {
+            // O Flask já cuidou da Localidade e Esporte.
+            if (correspondeTipo && correspondeOcupacao && correspondeSeguindo) {
                 quadra.style.display = 'block';
                 quadrasVisiveis++;
             } else {
@@ -81,29 +48,32 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Atualiza a mensagem de status
         setTimeout(() => {
-            if (quadrasVisiveis > 0) {
-                statusBusca.textContent = `Exibindo ${quadrasVisiveis} resultado(s).`;
-                statusBusca.style.color = "#1ab480";
-                semResultados.style.display = 'none';
-            } else {
+            // 'quadras.length' é o total que o Flask enviou (que já foram filtrados no backend)
+            // Se 'quadras.length' for 0, o 'else' do Jinja2 (em explorar.html) já mostrou a mensagem.
+            if (quadras.length === 0) {
                 statusBusca.textContent = "";
-                semResultados.style.display = 'block';
+                return;
+            }
+
+            if (quadrasVisiveis > 0) {
+                statusBusca.textContent = `Exibindo ${quadrasVisiveis} de ${quadras.length} resultado(s) encontrados.`;
+                statusBusca.style.color = "#1ab480"; // Verde do seu CSS
+            } else {
+                statusBusca.textContent = "Nenhum resultado corresponde aos filtros da sidebar.";
+                statusBusca.style.color = "#a0a0a0"; // Cinza do seu CSS
             }
         }, 300);
     }
 
-    // --- INICIALIZAÇÃO E EVENT LISTENERS ---
+    // --- INICIALIZAÇÃO E EVENT LISTENERS (APENAS SIDEBAR) ---
 
-    searchForm.addEventListener('submit', filtrarQuadras);
+    // Removemos os listeners do formulário do topo, pois o Flask cuida disso
     filtrosTipoQuadra.forEach(radio => radio.addEventListener('change', filtrarQuadras));
     filtrosOcupacao.forEach(radio => radio.addEventListener('change', filtrarQuadras));
     filtroSeguindo.addEventListener('change', filtrarQuadras);
-    filtroEstado.addEventListener('change', () => { atualizarCidades(); filtrarQuadras(); });
-    filtroCidade.addEventListener('change', filtrarQuadras);
-    filtroEsporte.addEventListener('change', filtrarQuadras);
 
-    // Inicializa os componentes da página na ordem correta
-    atualizarCidades(); // CORREÇÃO: Adiciona esta chamada para configurar o campo de cidade
-    filtrarQuadras();   // Mantém esta chamada para aplicar o filtro inicial
+    // Aplica o filtro inicial da sidebar assim que a página carrega
+    filtrarQuadras();
 });

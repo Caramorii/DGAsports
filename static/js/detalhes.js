@@ -1,97 +1,88 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. LÓGICA DAS ABAS (continua igual) ---
-    const todasAsAbas = document.querySelectorAll('.tab-esporte');
+    // --- 1. LÓGICA DAS ABAS (Corrigida para o HTML verde/escuro) ---
+    const todasAsAbas = document.querySelectorAll('.tab');
+    const todosOsConteudos = document.querySelectorAll('.tab-content');
+
     todasAsAbas.forEach(aba => {
         aba.addEventListener('click', () => {
-            todasAsAbas.forEach(a => a.classList.remove('ativo'));
-            aba.classList.add('ativo');
+            // Remove 'active' de todas as abas e conteúdos
+            todasAsAbas.forEach(t => t.classList.remove('active'));
+            todosOsConteudos.forEach(c => c.classList.remove('active'));
+
+            // Adiciona 'active' na aba clicada
+            aba.classList.add('active');
+
+            // Pega o 'data-tab' da aba (ex: 'reserva' ou 'mapa')
+            const targetTabName = aba.dataset.tab;
+            const elementoParaMostrar = document.getElementById(targetTabName);
+            if (elementoParaMostrar) {
+                elementoParaMostrar.classList.add('active');
+            }
         });
     });
 
     // --- 2. LÓGICA ATUALIZADA DO "ENTRAR NA PARTIDA" ---
 
+    // Pega o tipo da quadra (privada ou publica) do atributo data
+    const container = document.querySelector('.container');
+    const quadraTipo = container.dataset.quadraTipo;
+
     const todosBotoesEntrar = document.querySelectorAll('.btn-entrar');
 
-    // Pega o ID da quadra que guardamos no container principal
-    const idDaQuadra = document.querySelector('.container-detalhes').dataset.quadraId;
-
     todosBotoesEntrar.forEach(botao => {
-        botao.addEventListener('click', async () => { // Usamos 'async' para poder usar 'await'
 
-            // Pega o card-pai do botão
-            const cardPai = botao.closest('.card-horario');
+        const cardPai = botao.closest('.card-horario');
+        const idDoHorario = cardPai.dataset.horarioId;
 
-            // Pega a hora que guardamos no card
-            const horaDaPartida = cardPai.dataset.hora;
+        botao.addEventListener('click', async () => {
 
-            // Mostra ao usuário que algo está acontecendo
             botao.disabled = true;
             botao.textContent = 'Processando...';
 
-            try {
-                // Chama o "garçom" (fetch) para a "cozinha" (Flask)
-                const resposta = await fetch('/quadra/entrar', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json', // Avisa que estamos enviando JSON
-                    },
-                    body: JSON.stringify({ // Converte nossos dados em texto JSON
-                        id_quadra: parseInt(idDaQuadra), // Converte o ID para número
-                        hora_partida: horaDaPartida
-                    })
-                });
+            // --- AQUI ESTÁ A NOVA LÓGICA ---
+            if (quadraTipo === 'privada') {
+                // Se for privada, redireciona para a página de checkout
+                // ex: /reservar/1
+                window.location.href = `/reservar/${idDoHorario}`;
 
-                // Pega a resposta da cozinha (Flask) e converte de JSON
-                const dados = await resposta.json();
+            } else {
+                // Se for pública, usa a lógica fetch() antiga (grátis)
+                try {
+                    const resposta = await fetch('/quadra/entrar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            horario_id: parseInt(idDoHorario)
+                        })
+                    });
 
-                if (dados.status === 'sucesso') {
-                    // --- SUCESSO! Atualiza o HTML ---
+                    const dados = await resposta.json();
 
-                    // 1. Atualiza a contagem (ex: "3 / 10")
-                    const elementoContagem = cardPai.querySelector('.contagem');
-                    const maxJogadores = cardPai.querySelector('.barra-vagas').max;
-                    elementoContagem.textContent = `${dados.nova_contagem} / ${maxJogadores}`;
+                    if (dados.status === 'sucesso') {
+                        // --- SUCESSO! (pública) ---
+                        const elementoContagem = cardPai.querySelector('.contagem');
+                        const maxJogadores = cardPai.querySelector('.barra-vagas').max;
+                        elementoContagem.textContent = `${dados.nova_contagem} / ${maxJogadores}`;
 
-                    // 2. Atualiza a barra de progresso
-                    const elementoProgress = cardPai.querySelector('.barra-vagas');
-                    elementoProgress.value = dados.nova_contagem;
+                        const elementoProgress = cardPai.querySelector('.barra-vagas');
+                        elementoProgress.value = dados.nova_contagem;
 
-                    // 3. Adiciona o avatar do novo jogador
-                    const listaAvatares = cardPai.querySelector('.lista-avatares');
-                    const novoAvatarHTML = `
-                        <img src="${dados.novo_jogador.avatar}" 
-                             alt="${dados.novo_jogador.nome}" 
-                             title="${dados.novo_jogador.nome}">
-                    `;
-                    // Remove a mensagem "Ninguém agendado" se ela existir
-                    const semJogadoresMsg = listaAvatares.querySelector('.sem-jogadores');
-                    if (semJogadoresMsg) {
-                        semJogadoresMsg.remove();
+                        botao.textContent = 'Você está na partida';
+                    } else {
+                        // --- ERRO! (pública) ---
+                        alert(dados.mensagem);
+                        botao.disabled = false;
+                        botao.textContent = 'Entrar na Partida';
                     }
-                    listaAvatares.insertAdjacentHTML('beforeend', novoAvatarHTML);
-
-                    // 4. Atualiza o botão
-                    botao.textContent = 'Você está na partida';
-                    // (O botão já está desabilitado)
-
-                } else {
-                    // --- ERRO! Avisa o usuário ---
-                    alert(dados.mensagem); // Ex: "Partida lotada!" ou "Você precisa estar logado"
-                    botao.disabled = false; // Habilita o botão de novo
+                } catch (error) {
+                    console.error("Erro ao tentar entrar na partida (pública):", error);
+                    alert("Erro de conexão. Tente novamente.");
+                    botao.disabled = false;
                     botao.textContent = 'Entrar na Partida';
                 }
-
-            } catch (error) {
-                // Erro de rede ou algo quebrou
-                console.error("Erro ao tentar entrar na partida:", error);
-                alert("Erro de conexão. Tente novamente.");
-                botao.disabled = false;
-                botao.textContent = 'Entrar na Partida';
             }
+            // --- FIM DA NOVA LÓGICA ---
         });
     });
-
-    // --- 3. LÓGICA DO BOTÃO "SEGUIR" (continua igual) ---
-    // ...
 });

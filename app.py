@@ -1,58 +1,24 @@
 # Importa as ferramentas do Flask e nossas funções do banco de dados
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort, jsonify
-from banco_de_dados import criar_tabela_usuarios, cadastrar_usuario, verificar_login
+
+# Importa TODAS as funções que criamos no banco_de_dados.py
+from banco_de_dados import (
+    criar_tabelas_iniciais, popular_dados_iniciais, 
+    cadastrar_usuario, verificar_login,
+    get_quadras, get_detalhes_quadra, 
+    adicionar_jogador_partida, get_detalhes_reserva
+)
+
+# (Opcional, para a simulação da API)
+# No topo do arquivo, você importaria a biblioteca
+# import mercadopago 
 
 # Inicializa a aplicação Flask
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta_super_segura_12345'
 
-# --- BANCO DE DADOS SIMULADO PARA AS QUADRAS ---
-# Em um projeto real, isso viria do SQLite.
-
-# Perfis de jogadores para simulação
-JOGADORES = [
-    {'id': 1, 'nome': 'Carlos', 'avatar': 'https://placehold.co/50x50/70d155/1A202C?text=C'},
-    {'id': 2, 'nome': 'Beatriz', 'avatar': 'https://placehold.co/50x50/4A90E2/FFFFFF?text=B'},
-    {'id': 3, 'nome': 'Daniel', 'avatar': 'https://placehold.co/50x50/f6ad55/1A202C?text=D'},
-    {'id': 4, 'nome': 'Fernanda', 'avatar': 'https://placehold.co/50x50/f56565/FFFFFF?text=F'},
-    {'id': 5, 'nome': 'Lucas', 'avatar': 'https://placehold.co/50x50/a0aec0/1A202C?text=L'},
-]
-
-DADOS_DAS_QUADRAS = [
-    {
-        'id': 1, 'nome': 'Quadra Amazonas', 'cidade': 'Franca', 'estado': 'SP', 'tipo': 'privada', 'seguindo': True,
-        'esportes': ['Futebol', 'Basquete'], 'imagem': 'assets/quadraamazonas.jpeg',
-        'horarios': [
-            {'hora': '18:00 - 19:00', 'jogadores_atuais': 2, 'max_jogadores': 10, 'jogadores': [JOGADORES[0], JOGADORES[2]]},
-            {'hora': '19:00 - 20:00', 'jogadores_atuais': 3, 'max_jogadores': 10, 'jogadores': [JOGADORES[1], JOGADORES[3], JOGADORES[4]]},
-            {'hora': '20:00 - 21:00', 'jogadores_atuais': 1, 'max_jogadores': 10, 'jogadores': [JOGADORES[0]]},
-        ]
-    },
-    {
-        'id': 2, 'nome': 'Gol De Placa', 'cidade': 'Franca', 'estado': 'SP', 'tipo': 'privada', 'seguindo': False,
-        'esportes': ['Futebol'], 'imagem': 'assets/goldeplaca.jpg',
-        'horarios': [
-            {'hora': '19:30 - 20:30', 'jogadores_atuais': 2, 'max_jogadores': 12, 'jogadores': [JOGADORES[1], JOGADORES[2]]},
-            {'hora': '20:30 - 21:30', 'jogadores_atuais': 1, 'max_jogadores': 12, 'jogadores': [JOGADORES[4]]},
-        ]
-    },
-    {
-        'id': 3, 'nome': 'Arena Residencial Palermo', 'cidade': 'Franca', 'estado': 'SP', 'tipo': 'publica', 'seguindo': True,
-        'esportes': ['Futebol', 'Basquete'], 'imagem': 'assets/residencialpalermo.jpeg',
-        'horarios': [
-            {'hora': '19:00 - 20:00', 'jogadores_atuais': 0, 'max_jogadores': 15, 'jogadores': []},
-            {'hora': '20:00 - 21:00', 'jogadores_atuais': 1, 'max_jogadores': 15, 'jogadores': [JOGADORES[3]]},
-        ]
-    },
-    {
-        'id': 4, 'nome': 'Quadra Parque Castelo', 'cidade': 'Franca', 'estado': 'SP', 'tipo': 'publica', 'seguindo': False,
-        'esportes': ['Basquete', 'Futebol'], 'imagem': 'assets/parquecastelo.jpeg',
-        'horarios': [
-            {'hora': '17:00 - 18:00', 'jogadores_atuais': 3, 'max_jogadores': 10, 'jogadores': [JOGADORES[0], JOGADORES[1], JOGADORES[4]]},
-            {'hora': '18:00 - 19:00', 'jogadores_atuais': 1, 'max_jogadores': 10, 'jogadores': [JOGADORES[2]]},
-        ]
-    }
-]
+# (Opcional, para a simulação da API)
+# sdk = mercadopago.SDK("SUA_CHAVE_DE_TESTE")
 
 # --- ROTAS DA APLICAÇÃO ---
 
@@ -62,21 +28,31 @@ def home():
 
 @app.route('/explorar')
 def explorar():
-    # Agora a rota explorar envia os dados das quadras para o template
-    return render_template('explorar.html', quadras=DADOS_DAS_QUADRAS)
+    # Atualizado para usar o filtro do banco de dados
+    localidade_busca = request.args.get('localidade', '').strip().lower()
+    esporte_busca = request.args.get('esporte', '').strip().lower()
 
-# ROTA NOVA PARA A PÁGINA DE DETALHES
+    quadras_filtradas = get_quadras(localidade_busca, esporte_busca)
+
+    return render_template(
+        'explorar.html', 
+        quadras=quadras_filtradas,
+        localidade_busca=localidade_busca,
+        esporte_busca=esporte_busca
+    )
+
 @app.route('/quadra/<int:id_da_quadra>')
 def detalhes_quadra(id_da_quadra):
-    # Procura a quadra na nossa lista pelo ID
-    quadra_encontrada = next((quadra for quadra in DADOS_DAS_QUADRAS if quadra['id'] == id_da_quadra), None)
+    # Atualizado para buscar do banco de dados
+    quadra_encontrada = get_detalhes_quadra(id_da_quadra)
     
     if quadra_encontrada is None:
-        abort(404) # Retorna erro "Não Encontrado" se o ID não existir
+        abort(404) 
         
     return render_template('detalhes_quadra.html', quadra=quadra_encontrada)
 
-# Suas rotas existentes
+# --- ROTAS DE AUTENTICAÇÃO ---
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -98,9 +74,15 @@ def login():
         senha = request.form['senha']
         usuario = verificar_login(email, senha)
         if usuario:
+            # Salva o ID do usuário na sessão (MUITO IMPORTANTE)
+            session['usuario_id'] = usuario['id'] 
             session['usuario_logado'] = usuario['email']
             session['nome_usuario'] = usuario['nome']
             flash(f"Login bem-sucedido! Bem-vindo(a), {usuario['nome']}!")
+            # Pega a URL 'proximo' se ela existir
+            proxima_pagina = request.args.get('proximo')
+            if proxima_pagina:
+                return redirect(proxima_pagina)
             return redirect(url_for('home'))
         else:
             flash("E-mail ou senha inválidos. Tente novamente.")
@@ -113,6 +95,8 @@ def logout():
     flash("Você saiu da sua conta.")
     return redirect(url_for('home'))
 
+# --- ROTAS ESTÁTICAS (Exemplo) ---
+
 @app.route('/social')
 def social():
     return render_template('dga.social.html')
@@ -121,63 +105,129 @@ def social():
 def mensagem():
     return render_template('DGAmensagem.html')
 
-@app.route('/perfil')
+@app.route('/usuario')
 def perfil():
     return render_template('DGAusuario.html')
 
-@app.route('/quadra/entrar', methods=['POST'])
+# --- ROTAS DA API E RESERVA (O FLUXO PRINCIPAL) ---
 
+@app.route('/quadra/entrar', methods=['POST'])
 def entrar_na_partida():
+    """API para quadras PÚBLICAS (chamada pelo JavaScript 'fetch')."""
+    
     # 1. Verifica se o usuário está logado
-    if 'usuario_logado' not in session:
-        return jsonify({'status': 'erro', 'mensagem': 'Você precisa estar logado para entrar.'}), 401 # 401 = Não autorizado
+    if 'usuario_id' not in session:
+        return jsonify({'status': 'erro', 'mensagem': 'Você precisa estar logado para entrar.'}), 401
 
     # 2. Pega os dados enviados pelo JavaScript
     dados = request.get_json()
-    id_quadra = dados.get('id_quadra')
-    hora_partida = dados.get('hora_partida')
+    horario_id = dados.get('horario_id') 
+    usuario_id = session['usuario_id']
 
-    # 3. Encontra a quadra e o horário no nosso "banco de dados" simulado
-    quadra_encontrada = next((q for q in DADOS_DAS_QUADRAS if q['id'] == id_quadra), None)
+    if not horario_id:
+         return jsonify({'status': 'erro', 'mensagem': 'ID do horário não fornecido.'}), 400
+
+    # 3. Chama a função do banco de dados
+    resultado = adicionar_jogador_partida(usuario_id, horario_id)
     
-    if not quadra_encontrada:
-        return jsonify({'status': 'erro', 'mensagem': 'Quadra não encontrada.'}), 404
+    # 4. Retorna o resultado (sucesso ou erro) para o JavaScript
+    return jsonify(resultado)
 
-    horario_encontrado = next((h for h in quadra_encontrada['horarios'] if h['hora'] == hora_partida), None)
+@app.route('/reservar/<int:horario_id>')
+def reservar(horario_id):
+    """Página de checkout para quadras PRIVADAS."""
     
-    if not horario_encontrado:
-        return jsonify({'status': 'erro', 'mensagem': 'Horário não encontrado.'}), 404
+    # 1. Verifica se o usuário está logado
+    if 'usuario_id' not in session:
+        flash("Você precisa estar logado para fazer uma reserva.")
+        return redirect(url_for('login', proximo=request.url)) # Salva a URL para redirecionar de volta
 
-    # 4. Verifica se a partida está lotada
-    if horario_encontrado['jogadores_atuais'] >= horario_encontrado['max_jogadores']:
-        return jsonify({'status': 'erro', 'mensagem': 'Esta partida já está lotada!'})
-
-    # 5. Lógica para adicionar o jogador
-    # (O ideal seria verificar se ele já não está na lista)
-    nome_usuario = session.get('nome_usuario', 'Usuário')
+    # 2. Busca os dados da reserva
+    reserva = get_detalhes_reserva(horario_id)
     
-    # Verifica se o usuário já está na lista
-    if any(jogador['nome'] == nome_usuario for jogador in horario_encontrado['jogadores']):
-        return jsonify({'status': 'erro', 'mensagem': 'Você já está nessa partida.'})
+    if reserva is None:
+        abort(404) # Horário não encontrado
 
-    # TUDO CERTO! Atualiza os dados no servidor
-    horario_encontrado['jogadores_atuais'] += 1
-    
-    # Cria um objeto de jogador "simulado" para o usuário logado
-    novo_jogador = {
-        'id': session.get('usuario_logado'), # Usando o email como ID
-        'nome': nome_usuario,
-        'avatar': f'https://placehold.co/50x50/9F7AEA/FFFFFF?text={nome_usuario[0].upper()}' # Avatar roxo
+    # 3. Pega os dados do usuário atual na sessão
+    usuario_atual = {
+        'id': session['usuario_id'],
+        'nome': session['nome_usuario']
     }
-    horario_encontrado['jogadores'].append(novo_jogador)
 
-    # 6. Envia a resposta de sucesso para o JavaScript
-    return jsonify({
-        'status': 'sucesso',
-        'nova_contagem': horario_encontrado['jogadores_atuais'],
-        'novo_jogador': novo_jogador # Envia os dados do novo jogador para o JS
-    })
+    # 4. Renderiza a nova página de checkout
+    return render_template(
+        'reserva_privada.html', 
+        reserva=reserva,
+        usuario_atual=usuario_atual
+    )
+
+@app.route('/confirmar_reserva', methods=['POST'])
+def confirmar_reserva():
+    """Recebe o formulário de pagamento (SIMULAÇÃO DE API)."""
+
+    # 1. Verifica login
+    if 'usuario_id' not in session:
+        flash("Sua sessão expirou. Por favor, faça login novamente.")
+        return redirect(url_for('login'))
+
+    # 2. Pega dados do formulário
+    horario_id = request.form.get('horario_id')
+    metodo_pagamento = request.form.get('metodo') 
+    usuario_id = session['usuario_id']
+
+    # --- INÍCIO DA LÓGICA DA API (PARA SUA APRESENTAÇÃO) ---
+    
+    # 1. BUSCAR O PREÇO NO BANCO DE DADOS
+    # (No nosso caso, a função get_detalhes_reserva faria isso, 
+    # mas para o exemplo, vamos apenas simular)
+    # preco_da_vaga = buscar_preco(horario_id) ... R$ 15,00
+    
+    # 2. MONTAR O "PEDIDO" PARA A API
+    # dados_do_pagamento = { "transaction_amount": 15.00, ... }
+    
+    # 3. CHAMAR A API (PUXAR A API)
+    try:
+        # ----> LINHA MÁGICA DE EXEMPLO <----
+        # resultado_api = sdk.payment().create(dados_do_pagamento) 
+        
+        # SIMULAÇÃO: Vamos fingir que a API sempre aprova
+        status_da_api = "approved" 
+        
+        # 4. VERIFICAR A RESPOSTA DA API
+        if status_da_api == "approved":
+            # SE A API APROVOU, SALVA NO NOSSO BANCO
+            
+            resultado = adicionar_jogador_partida(usuario_id, int(horario_id))
+
+            if resultado['status'] == 'sucesso':
+                flash(f"Pagamento Aprovado! Reserva confirmada.")
+                return redirect(url_for('home'))
+            else:
+                # DEU CERTO PAGAR, MAS DEU ERRO AO RESERVAR (ex: lotou no último segundo)
+                # (Aqui você teria que estornar o pagamento)
+                # sdk.payment().refund(pagamento_id) 
+                flash(f"Pagamento Aprovado, mas erro ao reservar: {resultado['mensagem']}. O valor será estornado.")
+                return redirect(url_for('reservar', horario_id=horario_id))
+
+        else:
+            # SE A API REJEITOU (ex: cartão sem limite)
+            flash("Pagamento foi recusado pela operadora.")
+            return redirect(url_for('reservar', horario_id=horario_id))
+
+    except Exception as e:
+        # SE DEU ERRO AO CONECTAR NA API (ex: API offline)
+        flash(f"Erro ao processar o pagamento: {e}")
+        return redirect(url_for('reservar', horario_id=horario_id))
+    
+    # --- FIM DA LÓGICA DA API ---
+
+
+# --- INICIALIZAÇÃO DO SERVIDOR ---
 
 if __name__ == '__main__':
-    criar_tabela_usuarios()
+    # Garante que o banco de dados e as tabelas sejam criados
+    criar_tabelas_iniciais()
+    # Insere os dados iniciais (quadras, horários) se o DB estiver vazio
+    popular_dados_iniciais()
+    
     app.run(debug=True)

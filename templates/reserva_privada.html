@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva - {{ reserva.quadra.nome }}</title>
+    
+    <style>
+        :root {
+            --primary-green: #70d155;
+            --secondary-green: #1ab480;
+            --dark-bg: #1A202C;
+            --dark-card-bg: #2D3748;
+            --text-primary: #e0e6f0;
+            --text-secondary: #a0aec0;
+            --text-dark: #1A202C;
+            --border-color: rgba(112, 209, 85, 0.2);
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--dark-bg);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--dark-card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: var(--text-dark);
+            padding: 30px;
+            text-align: center;
+        }
+        header h1 { font-size: 2.5em; font-weight: 900; }
+        .content { padding: 30px; }
+        
+        .reserva-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        h2 { color: var(--text-primary); margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        
+        /* Lista de Jogadores */
+        .jogadores-lista { list-style: none; }
+        .jogador-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--dark-bg);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .jogador-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .jogador-item.voce {
+            border-left: 3px solid var(--primary-green);
+            font-weight: bold;
+        }
+        
+        /* Resumo do Pedido */
+        .resumo-card {
+            background: var(--dark-bg);
+            padding: 25px;
+            border-radius: 15px;
+            border-top: 5px solid var(--primary-green);
+        }
+        .resumo-card h3 { color: var(--primary-green); margin-bottom: 20px; }
+        .resumo-linha {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .resumo-linha.total {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-green);
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        /* Pagamento */
+        .form-pagamento { margin-top: 20px; }
+        .metodo-pagamento {
+            display: block;
+            background: var(--dark-card-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .metodo-pagamento:hover { background: var(--dark-bg); }
+        .metodo-pagamento input { margin-right: 10px; }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: var(--text-dark);
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+        @media (max-width: 768px) {
+            .reserva-grid { grid-template-columns: 1fr; }
+            .resumo-card { order: -1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Confirmar Reserva</h1>
+        </header>
+
+        <div class="content">
+            <div class="reserva-grid">
+                
+                <div class="detalhes-pagamento">
+                    <h2>1. Jogadores na Partida</h2>
+                    <ul class="jogadores-lista">
+                        {% for jogador in reserva.jogadores %}
+                        <li class="jogador-item">
+                            <img src="{{ jogador.avatar }}" alt="{{ jogador.nome }}">
+                            <span>{{ jogador.nome }}</span>
+                        </li>
+                        {% endfor %}
+                        
+                        <li class="jogador-item voce">
+                            <img src="https://placehold.co/50x50/70d155/1A202C?text={{ usuario_atual.nome[0].upper() }}" alt="{{ usuario_atual.nome }}">
+                            <span>{{ usuario_atual.nome }} (Você)</span>
+                        </li>
+                    </ul>
+
+                    <h2>2. Método de Pagamento</h2>
+                    
+                    <form action="{{ url_for('confirmar_reserva') }}" method="POST" class="form-pagamento">
+                        
+                        <input type="hidden" name="horario_id" value="{{ reserva.horario.id }}">
+                        
+                        <label class="metodo-pagamento">
+                            <input type="radio" name="metodo" value="pix" checked>
+                            PIX (Chave aleatória)
+                        </label>
+                        <label class="metodo-pagamento">
+                            <input type="radio" name="metodo" value="cartao">
+                            Cartão de Crédito
+                        </label>
+                        
+                        <button type="submit" class="btn">Confirmar e Pagar</button>
+                    </form>
+                </div>
+                
+                <aside class="resumo-card">
+                    <h3>Resumo da Reserva</h3>
+                    
+                    <div class="resumo-linha">
+                        <strong>Quadra:</strong>
+                        <span>{{ reserva.quadra.nome }}</span>
+                    </div>
+                    <div class="resumo-linha">
+                        <strong>Horário:</strong>
+                        <span>{{ reserva.horario.hora }}</span>
+                    </div>
+                    <div class="resumo-linha">
+                        <strong>Jogadores:</strong>
+                        <span>{{ reserva.horario.jogadores_atuais + 1 }} / {{ reserva.horario.max_jogadores }}</span>
+                    </div>
+                    
+                    <div class="resumo-linha total">
+                        <strong>Preço p/ Jogador:</strong>
+                        <span>R$ {{ "%.2f"|format(reserva.horario.preco) }}</span>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
