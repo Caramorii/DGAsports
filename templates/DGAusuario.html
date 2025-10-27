@@ -3,592 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil - @NomeDeUsuario</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuario.css') }}">
+    <title>@NomeDeUsuario - DGA Social</title>
     <style>
-        /* ====================================================== */
-        /* 1. CONFIGURAÇÃO GLOBAL E VARIÁVEIS                     */
-        /* ====================================================== */
         :root {
             --primary-green: #70d155;
             --secondary-green: #1ab480;
-            --dark-bg: #1A202C;
-            --dark-card-bg: #2D3748;
-            --dark-footer-bg: #11151C;
+            --dark-bg: #12181f;
+            --dark-card-bg: #1c2330;
+            --darker-bg: #0d1117;
             --text-primary: #e0e6f0;
             --text-secondary: #a0aec0;
-            --text-light: #ffffff;
-            --text-dark: #1A202C;
             --border-color: rgba(112, 209, 85, 0.2);
             --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --profile-radius: 50%;
         }
 
-        /* ====================================================== */
-        /* 2. RESET E ESTILOS DE BASE                             */
-        /* ====================================================== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: var(--font-main);
-            line-height: 1.6;
+            background: var(--dark-bg);
             color: var(--text-primary);
-            background-color: var(--dark-bg);
             min-height: 100vh;
-            display: grid;
-            grid-template-columns: 250px 1fr 300px;
-            grid-template-rows: 1fr auto;
-            gap: 1rem;
-            padding: 1rem;
         }
 
-        a {
-            color: var(--primary-green);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        a:hover {
-            color: var(--secondary-green);
-        }
-
-        /* ====================================================== */
-        /* 3. SIDEBAR ESQUERDA                                    */
-        /* ====================================================== */
-        .sidebar-left {
-            background-color: var(--dark-card-bg);
-            border-radius: 16px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            height: fit-content;
-            position: sticky;
-            top: 1rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--text-light);
-            margin-bottom: 1rem;
-        }
-
-        .logo span {
-            color: var(--primary-green);
-        }
-
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            color: var(--text-secondary);
-            transition: all 0.3s;
-        }
-
-        .nav-item:hover {
-            background-color: rgba(112, 209, 85, 0.1);
-            color: var(--primary-green);
-        }
-
-        .nav-item.active {
-            background-color: rgba(112, 209, 85, 0.15);
-            color: var(--primary-green);
-            font-weight: 600;
-        }
-
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-            flex-shrink: 0;
-        }
-
-        .post-btn {
-            background-color: var(--primary-green);
-            color: var(--text-dark);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 1rem;
-        }
-
-        .post-btn:hover {
-            background-color: #8cf271;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(112, 209, 85, 0.6);
-        }
-
-        /* ====================================================== */
-        /* 4. ÁREA PRINCIPAL DO PERFIL                            */
-        /* ====================================================== */
-        .main-feed {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            max-width: 900px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .profile-header {
-            background-color: var(--dark-card-bg);
-            padding: 1rem 1.5rem;
-            border-radius: 16px;
+        /* HEADER */
+        header {
+            background: var(--dark-card-bg);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
             position: sticky;
-            top: 1rem;
+            top: 0;
             z-index: 10;
         }
 
-        .header-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-light);
-        }
-
-        .nav-link {
-            font-size: 1.5rem;
-            padding: 0.5rem;
-            transition: transform 0.2s;
-            color: var(--text-primary);
-            cursor: pointer;
-        }
-
-        .nav-link:hover {
-            transform: scale(1.1);
+        header h1 {
             color: var(--primary-green);
+            font-weight: 800;
+            font-size: 1.3rem;
         }
 
-        /* ====================================================== */
-        /* 5. INFORMAÇÕES DO PERFIL                               */
-        /* ====================================================== */
-        .dga-card {
-            background-color: var(--dark-card-bg);
+        header .user-actions {
+            display: flex;
+            gap: 1.2rem;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .icon-btn:hover { color: var(--primary-green); }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* PROFILE CARD */
+        .profile-card {
+            background: var(--dark-card-bg);
             border-radius: 16px;
             padding: 2rem;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        #info-perfil {
-            text-align: center;
-        }
-
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: var(--profile-radius);
-            object-fit: cover;
-            border: 4px solid var(--primary-green);
-            box-shadow: 0 0 0 6px rgba(112, 209, 85, 0.3);
-            margin-bottom: 1rem;
-        }
-
-        #info-perfil h1 {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--text-light);
-            margin-bottom: 0.5rem;
-        }
-
-        .score {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-        }
-
-        .dga-btn-primary {
-            background-color: var(--primary-green);
-            color: var(--text-dark);
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(112, 209, 85, 0.4);
-        }
-
-        .dga-btn-primary:hover {
-            background-color: #8cf271;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(112, 209, 85, 0.6);
-        }
-
-        /* ====================================================== */
-        /* 6. ESTATÍSTICAS                                        */
-        /* ====================================================== */
-        .dga-stats-bar {
-            background-color: var(--dark-card-bg);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-around;
-            text-align: center;
-        }
-
-        .dga-stats-bar > div {
-            padding: 0 1rem;
-            flex-grow: 1;
-        }
-
-        .dga-stats-bar > div:not(:last-child) {
-            border-right: 1px solid var(--border-color);
-        }
-
-        .dga-stats-bar h3 {
-            font-size: 2.5rem;
-            font-weight: 900;
-            background-image: linear-gradient(45deg, var(--secondary-green) 0%, var(--primary-green) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.25rem;
-        }
-
-        .dga-stats-bar p {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        /* ====================================================== */
-        /* 7. POSTAGENS                                           */
-        /* ====================================================== */
-        #minhas-atividades {
-            background-color: var(--dark-card-bg);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid var(--border-color);
-        }
-
-        #minhas-atividades h2 {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            color: var(--text-light);
-        }
-
-        .postagem {
-            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
             align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background-color: rgba(255, 255, 255, 0.05);
-            margin-bottom: 1rem;
-            border-radius: 12px;
-            transition: background-color 0.3s;
-        }
-
-        .postagem:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-        }
-
-        .post-thumb {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .post-info {
-            flex-grow: 1;
-        }
-
-        .post-info h4 {
-            font-size: 1.1rem;
-            color: var(--text-light);
-            margin-bottom: 0.25rem;
-        }
-
-        .post-info p {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .view-post-link {
-            color: var(--primary-green);
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-
-        .dga-all-memories-btn {
-            display: block;
-            text-align: center;
-            padding: 1rem;
-            background-color: rgba(112, 209, 85, 0.1);
-            border-radius: 12px;
-            font-weight: 700;
-            margin-top: 1rem;
-            transition: background-color 0.3s;
-        }
-
-        .dga-all-memories-btn:hover {
-            background-color: rgba(112, 209, 85, 0.2);
-        }
-
-        /* ====================================================== */
-        /* 8. SIDEBAR DIREITA                                     */
-        /* ====================================================== */
-        .sidebar-right {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            height: fit-content;
-            position: sticky;
-            top: 1rem;
-        }
-
-        .suggestions, .trends {
-            background-color: var(--dark-card-bg);
-            border-radius: 16px;
-            padding: 1.5rem;
             border: 1px solid var(--border-color);
+            box-shadow: 0 0 20px rgba(112,209,85,0.05);
         }
 
-        .suggestions h3, .trends h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--text-light);
-        }
-
-        .suggestion {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 0;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
+        .profile-img {
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            border: 3px solid var(--primary-green);
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
         }
 
         .username {
-            flex-grow: 1;
+            font-size: 1.4rem;
+            font-weight: 700;
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
-        .follow-btn {
-            background-color: var(--primary-green);
-            color: var(--text-dark);
-            border: none;
-            padding: 0.4rem 1rem;
+        .verified { color: var(--primary-green); font-size: 1.1rem; }
+
+        .user-level {
+            margin-top: 0.3rem;
+            background: linear-gradient(90deg, var(--secondary-green), var(--primary-green));
+            color: var(--dark-bg);
+            padding: 0.25rem 0.75rem;
             border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 600;
-            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        .bio {
+            margin-top: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.3rem;
+            border-radius: 8px;
+            border: 1px solid var(--primary-green);
+            color: var(--primary-green);
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: transparent;
             cursor: pointer;
             transition: all 0.3s;
         }
 
-        .follow-btn:hover {
-            background-color: #8cf271;
+        .btn:hover { background: var(--primary-green); color: var(--dark-bg); }
+
+        /* STATS */
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 0.8rem 1rem;
+            background: var(--darker-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
         }
 
-        .trends ul {
-            list-style: none;
+        .stats div span {
+            display: block;
+            font-weight: 700;
+            color: var(--primary-green);
+            font-size: 1.1rem;
         }
 
-        .trends li {
-            padding: 0.5rem 0;
+        /* MAP SECTION */
+        .map-section {
+            background: var(--dark-card-bg);
+            border-radius: 16px;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .map-section h2 {
+            color: var(--primary-green);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .fake-map {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            background: radial-gradient(circle at 30% 50%, rgba(112,209,85,0.2), transparent 70%), 
+                        linear-gradient(135deg, #1c2330, #12181f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--text-secondary);
-            cursor: pointer;
-            transition: color 0.3s;
+            font-style: italic;
         }
 
-        .trends li:hover {
+        /* BADGES */
+        .badges {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .badge {
+            background: var(--dark-card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-green);
+            padding: 1rem;
+            border-radius: 12px;
+            flex: 1 1 calc(33% - 1rem);
+            min-width: 220px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .badge:hover { transform: translateY(-5px); border-left-color: var(--secondary-green); }
+
+        .badge-icon {
+            font-size: 1.6rem;
             color: var(--primary-green);
         }
 
-        /* ====================================================== */
-        /* 9. RESPONSIVIDADE                                      */
-        /* ====================================================== */
-        @media (max-width: 1200px) {
-            body {
-                grid-template-columns: 200px 1fr 250px;
-            }
+        .badge-text {
+            display: flex;
+            flex-direction: column;
         }
 
-        @media (max-width: 992px) {
-            body {
-                grid-template-columns: 1fr;
-                padding: 0;
-            }
-
-            .sidebar-left, .sidebar-right {
-                display: none;
-            }
-
-            .profile-header {
-                border-radius: 0;
-                top: 0;
-            }
-
-            .main-feed {
-                padding: 1rem;
-            }
+        .badge-text span:first-child {
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
-        @media (max-width: 600px) {
-            #info-perfil h1 {
-                font-size: 2rem;
-            }
+        .badge-text span:last-child {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
 
-            .dga-stats-bar h3 {
-                font-size: 2rem;
-            }
+        /* POSTS */
+        .posts-section {
+            margin-top: 2.5rem;
+        }
 
-            .postagem {
-                padding: 0.75rem;
-                gap: 0.75rem;
-            }
+        .posts-section h2 {
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 6px;
+        }
+
+        .post-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .post-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .3s;
+        }
+
+        .post-item:hover img { transform: scale(1.05); }
+
+        .post-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .post-item:hover .post-overlay { opacity: 1; }
+
+        .post-overlay span {
+            color: white;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .profile-card { flex-direction: column; text-align: center; }
+            .profile-actions { justify-content: center; }
+            .badges { flex-direction: column; }
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>DGA Social ⚽</h1>
+        <div class="user-actions">
+            <button class="icon-btn">💬</button>
+            <button class="icon-btn">➕</button>
+            <button class="icon-btn">☰</button>
+        </div>
+    </header>
 
-    <aside class="sidebar-left">
-        <a href="{{ url_for('home') }}" class="logo">DGA<span>Social</span></a>
-        <nav class="nav-menu">
-            <a href="{{ url_for('home') }}" class="nav-item">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 12L12 3l9 9"/>
-                    <path d="M9 21V9h6v12"/>
-                </svg>
-                <span>Início</span>
-            </a>
-            <a href="{{ url_for('mensagem') }}" class="nav-item">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-                <span>Mensagens</span>
-            </a>
-            <a href="#" class="nav-item">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                </svg>
-                <span>Notificações</span>
-            </a>
-            <a href="{{ url_for('perfil') }}" class="nav-item active">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="7" r="4"/>
-                    <path d="M5.5 21a8.38 8.38 0 0 1 13 0"/>
-                </svg>
-                <span>Perfil</span>
-            </a>
-        </nav>
-        <button class="post-btn">+ Novo Post</button>
-    </aside>
-
-    <main class="main-feed">
-        
-        <header class="profile-header">
-            <a href="{{ url_for('home') }}" class="nav-link profile-back-btn">&#9664;</a>
-            <span class="header-title">Meu Perfil</span>
-            <a href="#" class="nav-link profile-edit-btn">&#9998;</a>
-        </header>
-
-        <section id="info-perfil" class="dga-card">
-            <img src="https://i.ibb.co/L5kL2jD/avatar-placeholder.png" alt="Foto de Perfil" class="profile-avatar">
-            <h1>@NomeDeUsuario</h1>
-            <p class="score">Pontuação Snap: 12.345</p>
-            <button class="dga-btn-primary">Adicionar Amigos</button>
-        </section>
-
-        <section id="estatisticas" class="dga-stats-bar">
-            <div>
-                <h3>1.5K</h3>
-                <p>Seguidores</p>
-            </div>
-            <div>
-                <h3>80</h3>
-                <p>Seguindo</p>
-            </div>
-            <div>
-                <h3>55</h3>
-                <p>Posts Recentes</p>
-            </div>
-        </section>
-
-        <section id="minhas-atividades">
-            <h2>Postagens Ativas</h2>
-
-            <article class="postagem">
-                <img src="https://i.ibb.co/q7776zX/post-thumb-1.jpg" alt="Miniatura da Postagem" class="post-thumb">
-                <div class="post-info">
-                    <h4>Férias na Praia ☀️</h4>
-                    <p>Visualizações: 50 | Expira em: 2h</p>
-                </div>
-                <a href="#" class="view-post-link">Ver</a>
-            </article>
-            
-            <a href="#" class="dga-all-memories-btn">Ver Todas as Memórias (Postagens Arquivadas)</a>
-        </section>
-
-    </main>
-
-    <aside class="sidebar-right">
-        <section class="suggestions">
-            <h3>Sugestões para você</h3>
-            <div class="suggestion">
-                <div class="avatar"></div>
-                <div>
-                    <span class="username">@usuario1</span>
-                    <button class="follow-btn">Seguir</button>
+    <div class="container">
+        <!-- Perfil -->
+        <div class="profile-card">
+            <img src="https://i.ibb.co/L5kL2jD/avatar-placeholder.png" class="profile-img" alt="Foto de perfil">
+            <div class="profile-info">
+                <div class="username">NomeDeUsuario <span class="verified">✓</span></div>
+                <div class="user-level">🏆 Nível 12 - Pro Player</div>
+                <p class="bio">
+                    Jogador de fim de semana e apaixonado por futebol.  
+                    Sempre em busca da próxima quadra livre para jogar!
+                </p>
+                <div class="profile-actions">
+                    <button class="btn">Editar perfil</button>
+                    <button class="btn">Configurações</button>
                 </div>
             </div>
-            <div class="suggestion">
-                <div class="avatar"></div>
-                <div>
-                    <span class="username">@usuario2</span>
-                    <button class="follow-btn">Seguir</button>
-                </div>
-            </div>
-            <div class="suggestion">
-                <div class="avatar"></div>
-                <div>
-                    <span class="username">@usuario3</span>
-                    <button class="follow-btn">Seguir</button>
-                </div>
-            </div>
-        </section>
-        <section class="trends">
-            <h3>Trends</h3>
-            <ul>
-                <li>#TreinoDoDia</li>
-                <li>#DGAChallenge</li>
-                <li>#EsporteÉVida</li>
-            </ul>
-        </section>
-    </aside>
+        </div>
 
+        <!-- Estatísticas -->
+        <div class="stats">
+            <div><span>68</span> Partidas</div>
+            <div><span>1.543</span> Seguidores</div>
+            <div><span>74</span> Seguindo</div>
+        </div>
+
+        <!-- Mapa -->
+        <div class="map-section">
+            <h2>Quadras próximas 🏀</h2>
+            <div class="fake-map">Mapa interativo em desenvolvimento...</div>
+        </div>
+
+        <!-- Badges -->
+        <div class="badges">
+            <div class="badge">
+                <div class="badge-icon">⚽</div>
+                <div class="badge-text">
+                    <span>Craque da Semana</span>
+                    <span>Mais vitórias na sua região</span>
+                </div>
+            </div>
+            <div class="badge">
+                <div class="badge-icon">🏆</div>
+                <div class="badge-text">
+                    <span>Top Jogador</span>
+                    <span>5 jogos consecutivos ganhos</span>
+                </div>
+            </div>
+            <div class="badge">
+                <div class="badge-icon">🔥</div>
+                <div class="badge-text">
+                    <span>Ativo na Comunidade</span>
+                    <span>Participa de torneios locais</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Postagens -->
+        <div class="posts-section">
+            <h2>Publicações Recentes</h2>
+            <div class="posts-grid">
+                <div class="post-item">
+                    <img src="https://i.ibb.co/q7776zX/post-thumb-1.jpg" alt="">
+                    <div class="post-overlay"><span>❤️ 245</span></div>
+                </div>
+                <div class="post-item">
+                    <img src="https://i.ibb.co/q7776zX/post-thumb-1.jpg" alt="">
+                    <div class="post-overlay"><span>💬 32</span></div>
+                </div>
+                <div class="post-item">
+                    <img src="https://i.ibb.co/q7776zX/post-thumb-1.jpg" alt="">
+                    <div class="post-overlay"><span>❤️ 158</span></div>
+                </div>
+                <div class="post-item">
+                    <img src="https://i.ibb.co/q7776zX/post-thumb-1.jpg" alt="">
+                    <div class="post-overlay"><span>💬 11</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+

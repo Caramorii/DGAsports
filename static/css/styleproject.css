@@ -598,4 +598,39 @@ h3::after {
         align-items: flex-start;
         gap: 30px;
     }
+
+    /* Em: static/css/styleproject.css */
+
+/* --- Estilos para o novo botão de Geolocalização --- */
+
+.search-form .input-group {
+    /* Garante que os botões fiquem lado a lado */
+    display: flex;
+    align-items: center;
+    position: relative; /* Necessário para o botão */
+}
+
+.search-form .input-group input {
+    /* Faz o input não passar por baixo do botão */
+    flex-grow: 1;
+    padding-right: 40px; /* Adiciona espaço para o botão */
+}
+
+#btn-geolocate {
+    position: absolute; /* Coloca o botão "dentro" do input */
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #a0aec0; /* Cor do ícone */
+    transition: color 0.2s;
+}
+
+#btn-geolocate:hover {
+    color: #ffffff; /* Cor ao passar o mouse */
+}
 }

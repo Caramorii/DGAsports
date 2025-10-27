@@ -106,7 +106,7 @@ def mensagem():
     return render_template('DGAmensagem.html')
 
 @app.route('/usuario')
-def perfil():
+def usuario():
     return render_template('DGAusuario.html')
 
 # --- ROTAS DA API E RESERVA (O FLUXO PRINCIPAL) ---
