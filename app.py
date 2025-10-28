@@ -6,7 +6,8 @@ from banco_de_dados import (
     criar_tabelas_iniciais, popular_dados_iniciais, 
     cadastrar_usuario, verificar_login,
     get_quadras, get_detalhes_quadra, 
-    adicionar_jogador_partida, get_detalhes_reserva
+    adicionar_jogador_partida, get_detalhes_reserva,
+    remover_jogador_partida
 )
 
 # (Opcional, para a simulação da API)
@@ -41,10 +42,15 @@ def explorar():
         esporte_busca=esporte_busca
     )
 
+# Em: app.py
+
 @app.route('/quadra/<int:id_da_quadra>')
 def detalhes_quadra(id_da_quadra):
-    # Atualizado para buscar do banco de dados
-    quadra_encontrada = get_detalhes_quadra(id_da_quadra)
+    # Pega o ID do usuário da sessão (será None se não estiver logado)
+    usuario_id_atual = session.get('usuario_id')
+    
+    # Passa o ID do usuário para a função
+    quadra_encontrada = get_detalhes_quadra(id_da_quadra, usuario_id_atual)
     
     if quadra_encontrada is None:
         abort(404) 
@@ -220,6 +226,29 @@ def confirmar_reserva():
         return redirect(url_for('reservar', horario_id=horario_id))
     
     # --- FIM DA LÓGICA DA API ---
+# Em: app.py
+
+@app.route('/quadra/sair', methods=['POST'])
+def sair_da_partida():
+    """API para sair de partidas PÚBLICAS."""
+    
+    # 1. Verifica se o usuário está logado
+    if 'usuario_id' not in session:
+        return jsonify({'status': 'erro', 'mensagem': 'Você precisa estar logado.'}), 401
+
+    # 2. Pega os dados
+    dados = request.get_json()
+    horario_id = dados.get('horario_id')
+    usuario_id = session['usuario_id']
+
+    if not horario_id:
+         return jsonify({'status': 'erro', 'mensagem': 'ID do horário não fornecido.'}), 400
+
+    # 3. Chama a nova função do banco de dados
+    resultado = remover_jogador_partida(usuario_id, horario_id)
+    
+    # 4. Retorna o resultado para o JavaScript
+    return jsonify(resultado)
 
 
 # --- INICIALIZAÇÃO DO SERVIDOR ---

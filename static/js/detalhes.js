@@ -1,19 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. LÓGICA DAS ABAS (Corrigida para o HTML verde/escuro) ---
+    // --- 1. LÓGICA DAS ABAS (Sem alteração) ---
     const todasAsAbas = document.querySelectorAll('.tab');
     const todosOsConteudos = document.querySelectorAll('.tab-content');
 
     todasAsAbas.forEach(aba => {
         aba.addEventListener('click', () => {
-            // Remove 'active' de todas as abas e conteúdos
             todasAsAbas.forEach(t => t.classList.remove('active'));
             todosOsConteudos.forEach(c => c.classList.remove('active'));
-
-            // Adiciona 'active' na aba clicada
             aba.classList.add('active');
-
-            // Pega o 'data-tab' da aba (ex: 'reserva' ou 'mapa')
             const targetTabName = aba.dataset.tab;
             const elementoParaMostrar = document.getElementById(targetTabName);
             if (elementoParaMostrar) {
@@ -22,67 +17,121 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 2. LÓGICA ATUALIZADA DO "ENTRAR NA PARTIDA" ---
-
-    // Pega o tipo da quadra (privada ou publica) do atributo data
+    // --- 2. LÓGICA ATUALIZADA (ENTRAR E SAIR) (Sem alteração) ---
     const container = document.querySelector('.container');
     const quadraTipo = container.dataset.quadraTipo;
+    const grid = document.querySelector('.schedule-grid'); 
 
-    const todosBotoesEntrar = document.querySelectorAll('.btn-entrar');
-
-    todosBotoesEntrar.forEach(botao => {
+    grid.addEventListener('click', async (event) => {
+        const botao = event.target.closest('.btn-entrar, .btn-sair');
+        if (!botao) return;
 
         const cardPai = botao.closest('.card-horario');
         const idDoHorario = cardPai.dataset.horarioId;
+        
+        botao.disabled = true;
+        botao.textContent = 'Processando...';
 
-        botao.addEventListener('click', async () => {
-
-            botao.disabled = true;
-            botao.textContent = 'Processando...';
-
-            // --- AQUI ESTÁ A NOVA LÓGICA ---
+        const isEntrar = botao.classList.contains('btn-entrar');
+        
+        if (isEntrar) {
+            // LÓGICA DE ENTRAR
             if (quadraTipo === 'privada') {
-                // Se for privada, redireciona para a página de checkout
-                // ex: /reservar/1
                 window.location.href = `/reservar/${idDoHorario}`;
-
             } else {
-                // Se for pública, usa a lógica fetch() antiga (grátis)
+                // Pública: chama a API de entrar
                 try {
                     const resposta = await fetch('/quadra/entrar', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            horario_id: parseInt(idDoHorario)
-                        })
+                        body: JSON.stringify({ horario_id: parseInt(idDoHorario) })
                     });
-
                     const dados = await resposta.json();
-
+                    
                     if (dados.status === 'sucesso') {
-                        // --- SUCESSO! (pública) ---
-                        const elementoContagem = cardPai.querySelector('.contagem');
-                        const maxJogadores = cardPai.querySelector('.barra-vagas').max;
-                        elementoContagem.textContent = `${dados.nova_contagem} / ${maxJogadores}`;
-
-                        const elementoProgress = cardPai.querySelector('.barra-vagas');
-                        elementoProgress.value = dados.nova_contagem;
-
-                        botao.textContent = 'Você está na partida';
+                        // ATUALIZA O BOTÃO
+                        botao.textContent = 'Sair da Partida';
+                        botao.classList.remove('btn-entrar');
+                        botao.classList.add('btn-sair');
+                        botao.disabled = false;
+                        
+                        // Atualiza contagem
+                        const contagem = cardPai.querySelector('.contagem');
+                        const max = cardPai.querySelector('.barra-vagas').max;
+                        contagem.textContent = `${dados.nova_contagem} / ${max}`;
+                        cardPai.querySelector('.barra-vagas').value = dados.nova_contagem;
                     } else {
-                        // --- ERRO! (pública) ---
                         alert(dados.mensagem);
                         botao.disabled = false;
                         botao.textContent = 'Entrar na Partida';
                     }
-                } catch (error) {
-                    console.error("Erro ao tentar entrar na partida (pública):", error);
-                    alert("Erro de conexão. Tente novamente.");
+                } catch (e) {
+                    alert('Erro de conexão.');
                     botao.disabled = false;
                     botao.textContent = 'Entrar na Partida';
                 }
             }
-            // --- FIM DA NOVA LÓGICA ---
+        } else {
+            // LÓGICA DE SAIR (SÓ PÚBLICA)
+            try {
+                const resposta = await fetch('/quadra/sair', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ horario_id: parseInt(idDoHorario) })
+                });
+                const dados = await resposta.json();
+
+                if (dados.status === 'sucesso') {
+                    // ATUALIZA O BOTÃO
+                    botao.textContent = 'Entrar na Partida';
+                    botao.classList.remove('btn-sair');
+                    botao.classList.add('btn-entrar');
+                    botao.disabled = false;
+
+                    // Atualiza contagem
+                    const contagem = cardPai.querySelector('.contagem');
+                    const max = cardPai.querySelector('.barra-vagas').max;
+                    contagem.textContent = `${dados.nova_contagem} / ${max}`;
+                    cardPai.querySelector('.barra-vagas').value = dados.nova_contagem;
+                } else {
+                    alert(dados.mensagem);
+                    botao.disabled = false;
+                    botao.textContent = 'Sair da Partida';
+                }
+            } catch (e) {
+                alert('Erro de conexão.');
+                botao.disabled = false;
+                botao.textContent = 'Sair da Partida';
+            }
+        }
+    });
+
+    // --- 3. NOVA LÓGICA DO FILTRO DE ESPORTES ---
+    
+    const botoesFiltroEsporte = document.querySelectorAll('.tab-esporte');
+    const todosHorarioCards = document.querySelectorAll('.card-horario');
+
+    botoesFiltroEsporte.forEach(botao => {
+        botao.addEventListener('click', () => {
+            // Pega o esporte selecionado (ex: "Futebol" ou "Todos")
+            const esporteSelecionado = botao.dataset.esporte;
+
+            // Atualiza a aparência do botão (ativo/inativo)
+            botoesFiltroEsporte.forEach(b => b.classList.remove('active'));
+            botao.classList.add('active');
+
+            // Filtra os cards de horário
+            todosHorarioCards.forEach(card => {
+                const esporteDoCard = card.dataset.esporteDoHorario;
+                
+                // Se "Todos" foi clicado OU o esporte do card é o selecionado
+                if (esporteSelecionado === 'Todos' || esporteDoCard === esporteSelecionado) {
+                    card.style.display = 'block'; // Mostra o card
+                } else {
+                    card.style.display = 'none'; // Esconde o card
+                }
+            });
         });
     });
+
 });

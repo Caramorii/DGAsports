@@ -56,6 +56,7 @@ def criar_tabelas_iniciais():
                 hora_texto TEXT NOT NULL,
                 max_jogadores INTEGER NOT NULL,
                 preco REAL DEFAULT 0,
+                esporte TEXT NOT NULL,
                 FOREIGN KEY(quadra_id) REFERENCES quadras(id)
             );
         """)
@@ -80,6 +81,9 @@ def criar_tabelas_iniciais():
 
 # --- POPULAR DADOS INICIAIS ---
 
+# Em: banco_de_dados.py
+# SUBSTITUA a função inteira
+
 def popular_dados_iniciais():
     """Insere os dados simulados no banco de dados (só roda uma vez)."""
     conn, cursor = conectar()
@@ -87,19 +91,18 @@ def popular_dados_iniciais():
     try:
         # --- CADASTRA USUÁRIOS DE TESTE PRIMEIRO ---
         print("Cadastrando usuários de teste...")
-        # (Não vai cadastrar de novo se já existirem, por causa do UNIQUE email)
         cadastrar_usuario('Ana Silva', 'ana@email.com', 'senha123')
         cadastrar_usuario('Beto Costa', 'beto@email.com', 'abc456')
 
         # Verifica se já tem quadras
         cursor.execute("SELECT COUNT(*) FROM quadras")
         if cursor.fetchone()[0] > 0:
-            conn.close() # Fecha a conexão
+            conn.close() 
             print("Dados de quadras/horários já haviam sido populados.")
-            return # Já foi populado
+            return 
 
         print("Populando quadras e horários...")
-        # Dados das quadras
+        # Dados das quadras (sem mudança)
         quadras_data = [
             (1, 'Quadra Amazonas', 'Franca', 'SP', 'privada', 'assets/quadraamazonas.jpeg'),
             (2, 'Gol De Placa', 'Franca', 'SP', 'privada', 'assets/goldeplaca.jpg'),
@@ -108,39 +111,52 @@ def popular_dados_iniciais():
         ]
         cursor.executemany("INSERT INTO quadras (id, nome, cidade, estado, tipo, imagem) VALUES (?, ?, ?, ?, ?, ?)", quadras_data)
 
-        # Esportes
+        # Esportes (sem mudança)
         esportes_data = [
             (1, 'Futebol'), (1, 'Basquete'), (2, 'Futebol'),
             (3, 'Futebol'), (3, 'Basquete'), (4, 'Basquete'), (4, 'Futebol')
         ]
         cursor.executemany("INSERT INTO esportes_quadras (quadra_id, esporte) VALUES (?, ?)", esportes_data)
 
-        # Horários (com preços por vaga)
+        # --- HORÁRIOS ATUALIZADOS (com esporte) ---
         horarios_data = [
-            # (quadra_id, hora, max_jogadores, preco_POR_PESSOA)
-            (1, '18:00 - 19:00', 10, 15.00), # R$ 15 por pessoa (ID 1)
-            (1, '19:00 - 20:00', 10, 15.00), # (ID 2)
-            (1, '20:00 - 21:00', 10, 15.00), # (ID 3)
-            (2, '19:30 - 20:30', 12, 12.50), # R$ 12.50 por pessoa (ID 4)
-            (2, '20:30 - 21:30', 12, 12.50), # (ID 5)
-            (3, '19:00 - 20:00', 15, 0),     # Quadra pública (grátis) (ID 6)
-            (3, '20:00 - 21:00', 15, 0),     # (ID 7)
-            (4, '17:00 - 18:00', 10, 0),     # (ID 8)
-            (4, '18:00 - 19:00', 10, 0)      # (ID 9)
+            # (quadra_id, hora, max_jogadores, preco, esporte)
+            # Quadra 1 (Poli, Privada)
+            (1, '18:00 - 19:00', 10, 15.00, 'Futebol'),  # ID 1
+            (1, '18:00 - 19:00', 10, 15.00, 'Basquete'), # ID 2
+            (1, '19:00 - 20:00', 10, 15.00, 'Futebol'),  # ID 3
+            (1, '19:00 - 20:00', 10, 15.00, 'Basquete'), # ID 4
+            (1, '20:00 - 21:00', 10, 15.00, 'Futebol'),  # ID 5
+            (1, '20:00 - 21:00', 10, 15.00, 'Basquete'), # ID 6
+
+            # Quadra 2 (Só Futebol, Privada)
+            (2, '19:30 - 20:30', 12, 12.50, 'Futebol'), # ID 7
+            (2, '20:30 - 21:30', 12, 12.50, 'Futebol'), # ID 8
+
+            # Quadra 3 (Poli, Pública)
+            (3, '19:00 - 20:00', 15, 0, 'Futebol'),  # ID 9
+            (3, '19:00 - 20:00', 15, 0, 'Basquete'), # ID 10
+            (3, '20:00 - 21:00', 15, 0, 'Futebol'),  # ID 11
+            (3, '20:00 - 21:00', 15, 0, 'Basquete'), # ID 12
+
+            # Quadra 4 (Poli, Pública)
+            (4, '17:00 - 18:00', 10, 0, 'Futebol'),  # ID 13
+            (4, '17:00 - 18:00', 10, 0, 'Basquete'), # ID 14
+            (4, '18:00 - 19:00', 10, 0, 'Futebol'),  # ID 15
+            (4, '18:00 - 19:00', 10, 0, 'Basquete')  # ID 16
         ]
-        cursor.executemany("INSERT INTO horarios (quadra_id, hora_texto, max_jogadores, preco) VALUES (?, ?, ?, ?)", horarios_data)
+        # ATUALIZE A QUERY PARA 5 VALORES
+        cursor.executemany("INSERT INTO horarios (quadra_id, hora_texto, max_jogadores, preco, esporte) VALUES (?, ?, ?, ?, ?)", horarios_data)
         
-        # --- ADICIONA RESERVAS INICIAIS ---
+        # --- ADICIONA RESERVAS INICIAIS (com os novos IDs) ---
         print("Adicionando reservas de teste...")
-        # IDs dos usuários (Ana=1, Beto=2)
         ana_id = 1
         beto_id = 2
         
-        # IDs dos horários (baseado na lista acima)
         reservas_data = [
-            (ana_id, 1),  # Ana no horário 1 (Quadra 1, 18:00)
-            (beto_id, 1), # Beto no horário 1 (Quadra 1, 18:00)
-            (ana_id, 2)   # Ana no horário 2 (Quadra 1, 19:00)
+            (ana_id, 1),  # Ana no (ID 1: Q1, 18:00, Futebol)
+            (beto_id, 1), # Beto no (ID 1: Q1, 18:00, Futebol)
+            (ana_id, 3)   # Ana no (ID 3: Q1, 19:00, Futebol)
         ]
         
         cursor.executemany("INSERT INTO reservas_jogadores (usuario_id, horario_id) VALUES (?, ?)", reservas_data)
@@ -232,8 +248,11 @@ def get_quadras(localidade_busca, esporte_busca):
     conn.close()
     return quadras
 
-def get_detalhes_quadra(id_quadra):
-    """Busca uma quadra específica e seus horários detalhados."""
+# Em: banco_de_dados.py
+
+def get_detalhes_quadra(id_quadra, usuario_id_atual=None):
+    """Busca uma quadra específica e seus horários detalhados.
+       Também verifica se o usuário atual está em cada partida."""
     conn, cursor = conectar()
     
     # 1. Pega dados da quadra
@@ -249,11 +268,12 @@ def get_detalhes_quadra(id_quadra):
     cursor.execute("SELECT esporte FROM esportes_quadras WHERE quadra_id = ?", (id_quadra,))
     quadra_dict['esportes'] = [row['esporte'] for row in cursor.fetchall()]
 
-    # 3. Pega horários e contagem de jogadores
+    # 3. Pega horários e todos os jogadores
     cursor.execute("""
         SELECT 
-            h.id, h.hora_texto, h.max_jogadores, h.preco,
+            h.id, h.hora_texto, h.max_jogadores, h.preco, h.esporte,
             (SELECT COUNT(*) FROM reservas_jogadores rj WHERE rj.horario_id = h.id) as jogadores_atuais,
+            u.id as jogador_id,
             u.nome as jogador_nome
         FROM horarios h
         LEFT JOIN reservas_jogadores rj ON h.id = rj.horario_id
@@ -264,7 +284,7 @@ def get_detalhes_quadra(id_quadra):
     horarios_raw = cursor.fetchall()
     conn.close()
 
-    # 4. Processa os dados dos horários (agrupando jogadores)
+    # 4. Processa os dados dos horários
     horarios_processados = {}
     for row in horarios_raw:
         horario_id = row['id']
@@ -274,19 +294,25 @@ def get_detalhes_quadra(id_quadra):
                 'hora': row['hora_texto'],
                 'max_jogadores': row['max_jogadores'],
                 'preco': row['preco'],
+                'esporte': row['esporte'], # ADICIONE ESTA LINHA
                 'jogadores_atuais': row['jogadores_atuais'],
-                'jogadores': []
+                'jogadores': [],
+                'usuario_esta_na_partida': False 
             }
         
-        if row['jogador_nome']:
+        if row['jogador_id']:
+            # Adiciona jogador à lista
             horarios_processados[horario_id]['jogadores'].append({
+                'id': row['jogador_id'],
                 'nome': row['jogador_nome'],
                 'avatar': f'https://placehold.co/50x50/9F7AEA/FFFFFF?text={row["jogador_nome"][0].upper()}'
             })
+            # VERIFICA SE O JOGADOR É O USUÁRIO ATUAL
+            if row['jogador_id'] == usuario_id_atual:
+                horarios_processados[horario_id]['usuario_esta_na_partida'] = True
             
     quadra_dict['horarios'] = list(horarios_processados.values())
     
-    # Simula o "seguindo"
     quadra_dict['seguindo'] = (id_quadra % 2 == 1) 
     
     return quadra_dict
@@ -297,7 +323,7 @@ def get_detalhes_reserva(horario_id):
     
     cursor.execute("""
         SELECT 
-            h.id as horario_id, h.hora_texto, h.max_jogadores, h.preco,
+            h.id as horario_id, h.hora_texto, h.max_jogadores, h.preco, h.esporte,
             q.id as quadra_id, q.nome as quadra_nome, q.cidade, q.estado, q.imagem,
             u.id as jogador_id, u.nome as jogador_nome
         FROM horarios h
@@ -314,19 +340,16 @@ def get_detalhes_reserva(horario_id):
         return None
 
     # Processa os dados
+    # Em: banco_de_dados.py, dentro de get_detalhes_reserva()
+
     reserva_detalhes = {
-        'quadra': {
-            'id': rows[0]['quadra_id'],
-            'nome': rows[0]['quadra_nome'],
-            'cidade': rows[0]['cidade'],
-            'estado': rows[0]['estado'],
-            'imagem': rows[0]['imagem']
-        },
+        # ... (bloco 'quadra' sem mudança) ...
         'horario': {
             'id': rows[0]['horario_id'],
             'hora': rows[0]['hora_texto'],
             'max_jogadores': rows[0]['max_jogadores'],
-            'preco': rows[0]['preco']
+            'preco': rows[0]['preco'],
+            'esporte': rows[0]['esporte'] # ADICIONE ESTA LINHA
         },
         'jogadores': []
     }
@@ -392,6 +415,38 @@ def adicionar_jogador_partida(usuario_id, horario_id):
     except sqlite3.IntegrityError:
         # Erro (PRIMARY KEY (usuario_id, horario_id)): Usuário já está na partida
         return {'status': 'erro', 'mensagem': 'Você já está nessa partida.'}
+    except sqlite3.Error as e:
+        return {'status': 'erro', 'mensagem': f'Erro de banco de dados: {e}'}
+    finally:
+        if conn:
+            conn.close()
+# Em: banco_de_dados.py
+
+def remover_jogador_partida(usuario_id, horario_id):
+    """Tenta remover um jogador de um horário."""
+    conn, cursor = conectar()
+    
+    try:
+        # Tenta deletar a reserva
+        cursor.execute(
+            "DELETE FROM reservas_jogadores WHERE usuario_id = ? AND horario_id = ?",
+            (usuario_id, horario_id)
+        )
+        conn.commit()
+        
+        # Verifica se algo foi realmente deletado
+        if cursor.rowcount == 0:
+            return {'status': 'erro', 'mensagem': 'Você não estava nesta partida.'}
+
+        # Pega a nova contagem de jogadores
+        cursor.execute("SELECT COUNT(*) FROM reservas_jogadores WHERE horario_id = ?", (horario_id,))
+        contagem_atual = cursor.fetchone()[0]
+
+        return {
+            'status': 'sucesso',
+            'nova_contagem': contagem_atual
+        }
+
     except sqlite3.Error as e:
         return {'status': 'erro', 'mensagem': f'Erro de banco de dados: {e}'}
     finally:
