@@ -17,8 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- VARIÁVEL GLOBAL PARA O ESPORTE ATIVO ---
-    let esporteAtivo = 'Todos'; // Começa com "Todos"
-
+    // Pega o esporte do primeiro botão de filtro que está ativo (definido no HTML)
+    const primeiroEsporteAtivoEl = document.querySelector('.tab-esporte.active');
+    let esporteAtivo = primeiroEsporteAtivoEl ? primeiroEsporteAtivoEl.dataset.esporte : null;
     // --- 2. LÓGICA ATUALIZADA (ENTRAR E SAIR) ---
     const container = document.querySelector('.container');
     const quadraTipo = container.dataset.quadraTipo;
@@ -31,14 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const cardPai = botao.closest('.card-horario');
         const idDoHorario = cardPai.dataset.horarioId;
 
-        // Verifica se o esporteAtivo é "Todos", o que não é permitido para reservar
-        if (esporteAtivo === 'Todos' && quadraTipo === 'publica') {
-            alert('Por favor, selecione um esporte (Futebol ou Basquete) antes de entrar na partida.');
-            return;
-        }
-        // Para quadras privadas, o 'esporteAtivo' será pego do filtro
-        if (esporteAtivo === 'Todos' && quadraTipo === 'privada') {
-            alert('Por favor, selecione um esporte (Futebol ou Basquete) antes de reservar.');
+        // Se por algum motivo nenhum esporte estiver ativo, impede a ação.
+        if (!esporteAtivo) {
+            alert('Por favor, selecione um esporte para continuar.');
             return;
         }
 
@@ -93,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
-            // --- LÓGICA DE SAIR (SÓ PÚBLICA) ---
+            // --- LÓGICA DE SAIR (PÚBLICA E PRIVADA) ---
             try {
                 const resposta = await fetch('/quadra/sair', {
                     method: 'POST',
@@ -158,11 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const esporteDoCard = card.dataset.esporteReservado; // (Ex: "Futebol" ou "")
 
                 // Lógica de exibição:
-                // 1. Se o filtro for "Todos", mostra tudo.
-                // 2. Se o filtro for "Futebol", mostra cards onde esporte_reservado="Futebol" OU esporte_reservado="" (vazio)
-                // 3. Se o filtro for "Basquete", mostra cards onde esporte_reservado="Basquete" OU esporte_reservado="" (vazio)
+                // Um card é visível se:
+                // 1. O esporte do card ainda não foi definido (está vazio).
+                // 2. O esporte do card é o mesmo que o esporte ativo no filtro.
 
-                if (esporteAtivo === 'Todos' || esporteDoCard === esporteAtivo || esporteDoCard === '') {
+                if (esporteDoCard === esporteAtivo || esporteDoCard === '') {
                     card.style.display = 'block'; // Mostra o card
                 } else {
                     card.style.display = 'none'; // Esconde o card
@@ -170,5 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+
+    // Dispara um clique no primeiro botão para aplicar o filtro inicial
+    if (primeiroEsporteAtivoEl) primeiroEsporteAtivoEl.click();
 
 });

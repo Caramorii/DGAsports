@@ -254,7 +254,6 @@
     </style>
 </head>
 <body>
-    
     <div class="container" data-quadra-tipo="{{ quadra.tipo }}">
         <header>
             <h1>⚽ {{ quadra.nome }}</h1>
@@ -271,9 +270,8 @@
             <p>Escolha um horário para se juntar à partida.</p>
             
             <div class="tabs-esportes">
-                <button class="tab-esporte active" data-esporte="Todos">Todos</button>
                 {% for esporte in quadra.esportes %}
-                <button class="tab-esporte" data-esporte="{{ esporte }}">{{ esporte }}</button>
+                <button class="tab-esporte {% if loop.first %}active{% endif %}" data-esporte="{{ esporte }}">{{ esporte }}</button>
                 {% endfor %}
             </div>
 
@@ -281,11 +279,11 @@
                 
                 {% for horario in quadra.horarios %}
                 
-                <div class="time-slot card-horario" 
+                <div class="card-horario" 
                      data-horario-id="{{ horario.id }}"
                      data-esporte-reservado="{{ horario.esporte_reservado or '' }}">
                     
-                    <div class="time">{{ horario.hora }}</div>
+                    <div class="time-slot-time">{{ horario.hora }}</div>
                     
                     <div class="vagas">
                         <span class="esporte-travado"></span> 
@@ -295,12 +293,7 @@
                     <progress class="barra-vagas" value="{{ horario.jogadores_atuais }}" max="{{ horario.max_jogadores }}"></progress>
                     
                     {% if horario.usuario_esta_na_partida %}
-                        
-                        {% if quadra.tipo == 'publica' %}
-                            <button class="btn btn-sair">Sair da Partida</button>
-                        {% else %}
-                            <button class="btn" disabled>Você está na partida</button>
-                        {% endif %}
+                        <button class="btn btn-sair">Sair da Partida</button>
 
                     {% else %}
                         

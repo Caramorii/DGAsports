@@ -223,6 +223,7 @@
                     <form action="{{ url_for('confirmar_reserva') }}" method="POST" class="form-pagamento">
                         
                         <input type="hidden" name="horario_id" value="{{ reserva.horario.id }}">
+                        <input type="hidden" name="esporte_selecionado" value="{{ esporte_selecionado }}">
                         
                         <label class="metodo-pagamento">
                             <input type="radio" name="metodo" value="pix" id="radio-pix" checked>
