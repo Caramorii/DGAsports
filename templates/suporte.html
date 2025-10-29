@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suporte</title>
-    <!-- 
-        MUDANÇA: Agora usa o url_for do Flask para encontrar o CSS 
-        na pasta static/css/
-    -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/suporte.css') }}">
+    <!-- O link para o CSS já estava correto, usando url_for -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/suporte.css') }}">
 </head>
 <body>
     <div class="container">
@@ -18,37 +15,25 @@
             Preencha o formulário abaixo e entraremos em contato.
         </p>
 
-        <!-- 
-            MUDANÇA: O formulário volta a ter um ID para o JavaScript
-            O action="#" é um placeholder. O JS vai prevenir o envio.
-        -->
-        <form action="#" method="POST" id="support-form">
+        <!-- CORREÇÃO: O 'action' agora aponta para a rota 'suporte' do Flask. -->
+        <form action="{{ url_for('suporte') }}" method="POST" id="support-form">
             <input type="text" name="name" class="input-field" placeholder="Seu nome" required>
             <input type="email" name="email" class="input-field" placeholder="Seu e-mail" required>
             <input type="text" name="subject" class="input-field" placeholder="Assunto" required>
             <textarea name="message" class="input-field" placeholder="Sua mensagem..." required></textarea>
             
-            <!-- 
-                MUDANÇA: Voltamos a usar o <button type="submit"> 
-            -->
             <button type="submit" class="submit-btn">
                 Enviar Mensagem
             </button>
         </form>
         
         <p class="back-link">
-            <!-- 
-                MUDANÇA: O link "Voltar" não precisa mais de um href.
-                O JavaScript vai cuidar do clique.
-            -->
-            <a href="#">Voltar para a página inicial</a>
+            <!-- O JavaScript cuidará da ação de voltar, então href="#" é adequado. -->
+            <a href="#">Voltar</a>
         </p>
     </div>
 
-    <!-- 
-        MUDANÇA: Agora usa o url_for para encontrar o JS 
-        na pasta static/js/
-    -->
-    <script src="{{ url_for('static', filename='DGAsports\static\js\suporte.js') }}"></script>
+    <!-- CORREÇÃO: O caminho do arquivo em 'filename' deve ser relativo à pasta 'static'. -->
+    <script src="{{ url_for('static', filename='js/suporte.js') }}"></script>
 </body>
 </html>

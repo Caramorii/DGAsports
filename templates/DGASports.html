@@ -22,8 +22,7 @@
                 <a href="{{ url_for('explorar') }}">Explorar</a>
                 <a href="{{ url_for('social') }}">Comunidade</a>
                 <a href="#">Campeonatos</a>
-                <a href="suporte.html">Suporte</a>
-            </nav>
+<a href="{{ url_for('suporte') }}" class="btn ...">Suporte</a>            </nav>
             <div class="header-actions">
                 {% if session['usuario_logado'] %}
                 <span style="color: white; font-weight: 600; margin-right: 15px;">Olá, {{ session['nome_usuario']

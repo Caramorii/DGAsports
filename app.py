@@ -115,12 +115,31 @@ def mensagem():
 def usuario():
     return render_template('DGAusuario.html')
 
-# --- ADICIONE ESTA NOVA ROTA ---
-@app.route('/suporte')
+# --- ROTA DE SUPORTE (COM LÓGICA DE FORMULÁRIO) ---
+@app.route('/suporte', methods=['GET', 'POST'])
 def suporte():
-    # Isso vai renderizar o arquivo templates/suporte.html
+    # Se o formulário for enviado (método POST)
+    if request.method == 'POST':
+        # 1. Coleta os dados do formulário
+        nome = request.form.get('name')
+        email = request.form.get('email')
+        assunto = request.form.get('subject')
+        mensagem = request.form.get('message')
+
+        # 2. Processa os dados (aqui, apenas imprimimos no console)
+        # Em um projeto real, você enviaria um e-mail ou salvaria no banco de dados.
+        print(f"--- NOVA MENSAGEM DE SUPORTE ---")
+        print(f"Nome: {nome} ({email})")
+        print(f"Assunto: {assunto}")
+        print(f"Mensagem: {mensagem}")
+        print(f"---------------------------------")
+
+        # 3. Envia uma mensagem de sucesso e redireciona
+        flash('Sua mensagem foi enviada com sucesso! Entraremos em contato em breve.')
+        return redirect(url_for('home'))
+
+    # Se for um acesso normal (método GET), apenas mostra a página
     return render_template('suporte.html')
-# -------------------------------
 
 # --- ROTAS DA API E RESERVA (O FLUXO PRINCIPAL) ---
 
@@ -239,4 +258,3 @@ if __name__ == '__main__':
     popular_dados_iniciais()
     
     app.run(debug=True)
-

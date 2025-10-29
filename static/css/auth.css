@@ -1,6 +1,6 @@
 /* ====================================================== */
-/* ESTILOS PARA A PÁGINA DE SUPORTE (suporte.html)        */
-/* Baseado na paleta de cores de auth.css                 */
+/* ESTILOS UNIFICADOS PARA PÁGINAS DE AUTENTICAÇÃO        */
+/* (Login e Registro)                                     */
 /* ====================================================== */
 
 * {
@@ -30,7 +30,7 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 25px rgba(255, 0, 170, 0.1);
     backdrop-filter: blur(8px);
     width: 100%;
-    max-width: 480px; /* Um pouco maior para acomodar o textarea */
+    max-width: 420px;
     text-align: center;
     transition: transform 0.3s ease;
 }
@@ -40,19 +40,12 @@ body {
 }
 
 h1 {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     font-size: 2.2rem;
     color: rgb(252, 254, 255);
     font-weight: 700;
     letter-spacing: 1px;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.832);
-}
-
-.description {
-    margin-bottom: 1.5rem;
-    font-size: 1rem;
-    color: #b0bec5;
-    line-height: 1.5;
 }
 
 .input-field {
@@ -66,11 +59,6 @@ h1 {
     font-size: 1rem;
     color: #f0f0f0;
     transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-textarea.input-field {
-    resize: vertical;
-    min-height: 120px;
 }
 
 .input-field:focus {
@@ -97,21 +85,27 @@ textarea.input-field {
     box-shadow: 0 4px 20px rgba(110, 203, 74, 0.4);
 }
 
-.back-link {
+.bottom-link {
     margin-top: 1.5rem;
     font-size: 0.9rem;
     color: #b0bec5;
 }
 
-.back-link a {
+.bottom-link a {
     color: #00d4ff;
     font-weight: 600;
     text-decoration: none;
     transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-.back-link a:hover {
+.bottom-link a:hover {
     color: #40ff63;
     text-decoration: none;
     text-shadow: 0 0 5px rgba(64, 255, 77, 0.7);
+}
+
+.flash-messages {
+    color: #ff4081;
+    margin-bottom: 1rem;
+    font-weight: bold;
 }
