@@ -127,7 +127,7 @@ body {
     justify-content: center;
 }
 
-.tab-esporte {
+.tab-data, .tab-esporte {
     padding: 0.5rem 1rem;
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -136,9 +136,14 @@ body {
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s ease;
+    white-space: nowrap; /* Impede que o texto do botão quebre */
 }
 
-.tab-esporte.active {
+.tab-data:hover, .tab-esporte:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tab-data.active, .tab-esporte.active {
     background-color: rgba(26, 180, 128, 0.2);
     color: #1ab480;
     border-color: #1ab480;
