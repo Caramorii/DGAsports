@@ -79,29 +79,64 @@ header h1 {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- FILTRO DE ESPORTES (Dentro da aba Horários) --- */
-.tabs-esportes {
+/* --- ESTILOS PARA OS FILTROS (DATAS E ESPORTES) --- */
+.tabs-datas, .tabs-esportes {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    padding-bottom: 15px;
+    overflow-x: auto; /* Permite rolar se houver muitas datas */
+}
+
+/* Estilo da barra de rolagem para navegadores Webkit */
+.tabs-datas::-webkit-scrollbar, .tabs-esportes::-webkit-scrollbar {
+    height: 6px;
+}
+.tabs-datas::-webkit-scrollbar-thumb, .tabs-esportes::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 3px;
+}
+
+/* --- BOTÕES DE FILTRO (DATAS) --- */
+.tab-data {
+    padding: 8px 16px;
+    font-size: 1em;
+    font-weight: 600;
+    background-color: var(--dark-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px; /* Deixa os botões arredondados */
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap; /* Impede que o texto quebre */
+}
+
+.tab-data:hover {
+    color: var(--text-primary);
+    background-color: #3e4c5a; /* Um pouco mais claro no hover */
+}
+
+.tab-data.active {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+    color: var(--text-dark);
+    border-color: var(--primary-green);
+    transform: scale(1.05);
+}
+
+/* --- BOTÕES DE FILTRO (ESPORTES) --- */
+.tabs-esportes {
     border-bottom: 2px solid var(--border-color);
 }
 
 .tab-esporte {
-    padding: 10px 20px;
+    padding: 10px 15px;
     font-size: 1.1em;
     font-weight: 600;
     background-color: transparent;
     border: none;
-    cursor: pointer;
-    color: var(--text-secondary);
     border-bottom: 3px solid transparent;
-    position: relative;
-    top: 2px;
-}
-
-.tab-esporte:hover {
-    color: var(--text-primary);
+    color: var(--text-secondary);
+    cursor: pointer;
 }
 
 .tab-esporte.active {

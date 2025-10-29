@@ -1,5 +1,6 @@
 # Importa as ferramentas do Flask e nossas funções do banco de dados
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort, jsonify
+from datetime import date
 import qrcode
 import uuid
 import io
@@ -9,7 +10,7 @@ import io
 from banco_de_dados import (
     criar_tabelas_iniciais, popular_dados_iniciais, 
     cadastrar_usuario, verificar_login,
-    get_quadras, get_detalhes_quadra, 
+    get_quadras, get_detalhes_quadra, get_horarios_por_data,
     adicionar_jogador_partida, get_detalhes_reserva,
     remover_jogador_partida, conectar # Adicionado 'conectar' aqui
 )
@@ -32,16 +33,18 @@ def home():
 
 @app.route('/explorar')
 def explorar():
-    localidade_busca = request.args.get('localidade', '').strip().lower()
-    esporte_busca = request.args.get('esporte', '').strip().lower()
+    # Pega os valores do formulário
+    localidade_busca_raw = request.args.get('localidade', '').strip()
+    esporte_busca_raw = request.args.get('esporte', '').strip()
 
-    quadras_filtradas = get_quadras(localidade_busca, esporte_busca)
+    # Passa para a função de busca. Se a string estiver vazia, vira None.
+    quadras_filtradas = get_quadras(localidade_busca_raw or None, esporte_busca_raw or None)
 
     return render_template(
         'explorar.html', 
-        quadras=quadras_filtradas,
-        localidade_busca=localidade_busca,
-        esporte_busca=esporte_busca
+        quadras=quadras_filtradas, # Os resultados da busca
+        localidade_busca=localidade_busca_raw, # Para preencher o campo de busca
+        esporte_busca=esporte_busca_raw # Para selecionar a opção correta no <select>
     )
 
 @app.route('/quadra/<int:id_da_quadra>')
@@ -54,7 +57,11 @@ def detalhes_quadra(id_da_quadra):
     if quadra_encontrada is None:
         abort(404) 
         
-    return render_template('detalhes_quadra.html', quadra=quadra_encontrada)
+    return render_template(
+        'detalhes_quadra.html', 
+        quadra=quadra_encontrada,
+        hoje=date.today().isoformat() # Passa a data de hoje para o template
+    )
 
 # --- ROTAS DE AUTENTICAÇÃO ---
 
@@ -176,6 +183,25 @@ def sair_da_partida():
     resultado = remover_jogador_partida(usuario_id, horario_id)
     
     return jsonify(resultado)
+
+@app.route('/api/quadra/<int:quadra_id>/horarios/<string:data_selecionada>')
+def api_get_horarios_por_data(quadra_id, data_selecionada):
+    """API para buscar horários de uma quadra em uma data específica."""
+    if 'usuario_id' not in session:
+        return jsonify({'status': 'erro', 'mensagem': 'Acesso não autorizado.'}), 401
+
+    usuario_id = session['usuario_id']
+    
+    try:
+        # Valida o formato da data
+        date.fromisoformat(data_selecionada)
+    except ValueError:
+        return jsonify({'status': 'erro', 'mensagem': 'Formato de data inválido.'}), 400
+
+    # Chama a nova função do banco de dados
+    horarios = get_horarios_por_data(quadra_id, data_selecionada, usuario_id)
+    return jsonify({'status': 'sucesso', 'horarios': horarios})
+
 
 @app.route('/reservar/<int:horario_id>')
 def reservar(horario_id):

@@ -14,7 +14,7 @@
 </head>
 <body>
     <div class="background-shapes"></div>
-    <div class="content-container" data-quadra-tipo="{{ quadra.tipo }}">
+    <div class="content-container" data-quadra-id="{{ quadra.id }}" data-quadra-tipo="{{ quadra.tipo }}">
         <header class="page-header">
             <a href="{{ url_for('explorar') }}" class="back-button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -29,6 +29,15 @@
         </div>
 
         <div id="reserva" class="tab-content active">
+            <div class="tabs-datas">
+                {% for data_str in quadra.datas_disponiveis %}
+                    {% set dia = data_str.split('-')[2] %}
+                    {% set mes = data_str.split('-')[1] %}
+                    <button class="tab-data {% if loop.first %}active{% endif %}" data-data="{{ data_str }}">
+                        {{ "Hoje" if data_str == hoje else dia + '/' + mes }}
+                    </button>
+                {% endfor %}
+            </div>
             <div class="tabs-esportes">
                 {% for esporte in quadra.esportes %}
                 <button class="tab-esporte {% if loop.first %}active{% endif %}" data-esporte="{{ esporte }}">{{ esporte }}</button>
@@ -42,7 +51,7 @@
                      data-horario-id="{{ horario.id }}"
                      data-esporte-reservado="{{ horario.esporte_reservado or '' }}">
                     
-                    <div class="time-slot-time">{{ horario.hora }}</div>
+                    <div class="time-slot-time">{{ horario.hora_texto }}</div>
                     
                     <div class="vagas">
                         <span class="esporte-travado"></span>

@@ -21,8 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const primeiroEsporteAtivoEl = document.querySelector('.tab-esporte.active');
     let esporteAtivo = primeiroEsporteAtivoEl ? primeiroEsporteAtivoEl.dataset.esporte : null;
     // --- 2. LÓGICA ATUALIZADA (ENTRAR E SAIR) ---
-    const container = document.querySelector('.container');
-    const quadraTipo = container.dataset.quadraTipo;
+    const container = document.querySelector('.content-container');
+    const quadraId = container.dataset.quadraId;
+    const quadraTipo = container ? container.dataset.quadraTipo : null;
     const grid = document.querySelector('.schedule-grid');
 
     // --- FUNÇÃO AUXILIAR PARA ATUALIZAR O BOTÃO ---
@@ -171,19 +172,96 @@ document.addEventListener('DOMContentLoaded', () => {
             todosHorarioCards.forEach(card => {
                 const esporteDoCard = card.dataset.esporteReservado; // (Ex: "Futebol" ou "")
 
-                // Lógica de exibição:
+                // LÓGICA DE EXIBIÇÃO CORRIGIDA:
                 // Um card é visível se:
-                // 1. O esporte do card ainda não foi definido (está vazio).
-                // 2. O esporte do card é o mesmo que o esporte ativo no filtro.
-
-                if (esporteDoCard === esporteAtivo || esporteDoCard === '') {
-                    card.style.display = 'block'; // Mostra o card
+                // 1. O filtro selecionado é "Todos".
+                // 2. O esporte do card ainda não foi definido (está vazio).
+                // 3. O esporte do card é o mesmo que o esporte ativo no filtro.
+                if (esporteAtivo === 'Todos' || esporteDoCard === '' || esporteDoCard === esporteAtivo) {
+                    card.style.display = 'block';
                 } else {
                     card.style.display = 'none'; // Esconde o card
                 }
             });
         });
     });
+
+    // --- 4. NOVA LÓGICA DO FILTRO DE DATAS ---
+    const botoesFiltroData = document.querySelectorAll('.tab-data');
+
+    botoesFiltroData.forEach(botao => {
+        botao.addEventListener('click', async () => {
+            // 1. Atualiza a aparência dos botões
+            botoesFiltroData.forEach(b => b.classList.remove('active'));
+            botao.classList.add('active');
+
+            const dataSelecionada = botao.dataset.data;
+
+            // 2. Mostra um estado de carregamento
+            grid.innerHTML = '<p class="loading-message">Buscando horários...</p>';
+
+            // 3. Busca os novos horários na API
+            try {
+                const response = await fetch(`/api/quadra/${quadraId}/horarios/${dataSelecionada}`);
+                const dados = await response.json();
+
+                if (dados.status === 'sucesso') {
+                    renderizarHorarios(dados.horarios);
+                } else {
+                    grid.innerHTML = `<p class="error-message">${dados.mensagem}</p>`;
+                }
+            } catch (error) {
+                grid.innerHTML = '<p class="error-message">Não foi possível carregar os horários. Verifique sua conexão.</p>';
+            }
+        });
+    });
+
+    function renderizarHorarios(horarios) {
+        grid.innerHTML = ''; // Limpa a grade
+
+        if (horarios.length === 0) {
+            grid.innerHTML = '<p class="loading-message">Nenhum horário disponível para este dia.</p>';
+            return;
+        }
+
+        horarios.forEach(horario => {
+            const esporteReservado = horario.esporte_reservado || '';
+            const iconeEsporte = esporteReservado === 'Futebol' ? '⚽' : (esporteReservado === 'Basquete' ? '🏀' : '');
+
+            let botaoHtml;
+            if (horario.usuario_esta_na_partida) {
+                botaoHtml = '<button class="btn btn-sair">Sair da Partida</button>';
+            } else {
+                let textoBotao = 'Entrar na Partida';
+                if (quadraTipo === 'privada') {
+                    textoBotao = esporteReservado ? `Entrar (R$ ${horario.preco.toFixed(2)})` : `Reservar (R$ ${horario.preco.toFixed(2)})`;
+                }
+                botaoHtml = `<button class="btn btn-entrar">${textoBotao}</button>`;
+            }
+
+            const cardHtml = `
+                <div class="card-horario" 
+                     data-horario-id="${horario.id}"
+                     data-esporte-reservado="${esporteReservado}">
+                    
+                    <div class="time-slot-time">${horario.hora_texto}</div>
+                    
+                    <div class="vagas">
+                        <span class="esporte-travado">${iconeEsporte}</span>
+                        <span class="contagem">${horario.jogadores_atuais} / ${horario.max_jogadores}</span>
+                    </div>
+                    
+                    <progress class="barra-vagas" value="${horario.jogadores_atuais}" max="${horario.max_jogadores}"></progress>
+                    
+                    ${botaoHtml}
+                </div>
+            `;
+            grid.insertAdjacentHTML('beforeend', cardHtml);
+        });
+
+        // Re-aplica o filtro de esporte atual
+        document.querySelector('.tab-esporte.active')?.click();
+    }
 
     // Dispara um clique no primeiro botão para aplicar o filtro inicial
     if (primeiroEsporteAtivoEl) primeiroEsporteAtivoEl.click();

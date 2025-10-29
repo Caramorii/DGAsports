@@ -52,6 +52,7 @@ def criar_tabelas_iniciais():
             CREATE TABLE IF NOT EXISTS horarios (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 quadra_id INTEGER NOT NULL,
+                data TEXT NOT NULL, -- NOVA COLUNA
                 hora_texto TEXT NOT NULL,
                 max_jogadores INTEGER NOT NULL,
                 preco REAL DEFAULT 0,
@@ -114,28 +115,33 @@ def popular_dados_iniciais():
         ]
         cursor.executemany("INSERT INTO esportes_quadras (quadra_id, esporte) VALUES (?, ?)", esportes_data)
 
-        # --- HORÁRIOS ATUALIZADOS (UM POR SLOT, esporte_reservado é NULL) ---
+        # --- HORÁRIOS ATUALIZADOS COM DATAS ---
+        from datetime import date, timedelta
+        hoje = date.today()
+        amanha = hoje + timedelta(days=1)
+
         horarios_data = [
-            # (quadra_id, hora, max_jogadores, preco)
+            # (quadra_id, data, hora, max_jogadores, preco)
             # Quadra 1 (Poli, Privada)
-            (1, '18:00 - 19:00', 10, 15.00), # ID 1
-            (1, '19:00 - 20:00', 10, 15.00), # ID 2
-            (1, '20:00 - 21:00', 10, 15.00), # ID 3
+            (1, hoje.isoformat(), '18:00 - 19:00', 10, 15.00), # ID 1
+            (1, hoje.isoformat(), '19:00 - 20:00', 10, 15.00), # ID 2
+            (1, hoje.isoformat(), '20:00 - 21:00', 10, 15.00), # ID 3
+            (1, amanha.isoformat(), '18:00 - 19:00', 10, 15.00), # Horário para amanhã
 
             # Quadra 2 (Só Futebol, Privada)
-            (2, '19:30 - 20:30', 12, 12.50), # ID 4
-            (2, '20:30 - 21:30', 12, 12.50), # ID 5
+            (2, hoje.isoformat(), '19:30 - 20:30', 12, 12.50), # ID 4
+            (2, hoje.isoformat(), '20:30 - 21:30', 12, 12.50), # ID 5
 
             # Quadra 3 (Poli, Pública)
-            (3, '19:00 - 20:00', 15, 0), # ID 6
-            (3, '20:00 - 21:00', 15, 0), # ID 7
+            (3, hoje.isoformat(), '19:00 - 20:00', 15, 0), # ID 6
+            (3, amanha.isoformat(), '20:00 - 21:00', 15, 0), # ID 7
 
             # Quadra 4 (Poli, Pública)
-            (4, '17:00 - 18:00', 10, 0), # ID 8
-            (4, '18:00 - 19:00', 10, 0)  # ID 9
+            (4, hoje.isoformat(), '17:00 - 18:00', 10, 0), # ID 8
+            (4, hoje.isoformat(), '18:00 - 19:00', 10, 0)  # ID 9
         ]
-        # ATUALIZE A QUERY PARA 4 VALORES
-        cursor.executemany("INSERT INTO horarios (quadra_id, hora_texto, max_jogadores, preco) VALUES (?, ?, ?, ?)", horarios_data)
+        # ATUALIZE A QUERY PARA 5 VALORES
+        cursor.executemany("INSERT INTO horarios (quadra_id, data, hora_texto, max_jogadores, preco) VALUES (?, ?, ?, ?, ?)", horarios_data)
         
         # --- ADICIONA RESERVAS INICIAIS E TRAVA O ESPORTE ---
         print("Adicionando reservas de teste...")
@@ -211,30 +217,49 @@ def verificar_login(email, senha):
 def get_quadras(localidade_busca, esporte_busca):
     """Busca quadras no DB, filtrando e contando jogadores/horários."""
     conn, cursor = conectar()
-    
+
+    # A query base agora busca todas as quadras.
     query = """
-        SELECT DISTINCT q.*,
+        SELECT q.*,
             (SELECT COUNT(*) FROM horarios h WHERE h.quadra_id = q.id) as total_horarios,
             (SELECT COUNT(rj.usuario_id) FROM reservas_jogadores rj
              JOIN horarios h ON rj.horario_id = h.id
              WHERE h.quadra_id = q.id) as total_jogadores_agora
         FROM quadras q
-        LEFT JOIN esportes_quadras eq ON q.id = eq.quadra_id
-        WHERE 1=1
     """
     params = []
+    conditions = []
     
     if localidade_busca:
-        query += " AND (LOWER(q.cidade) LIKE ? OR LOWER(q.estado) LIKE ?)"
-        term = f"%{localidade_busca}%"
-        params.extend([term, term])
+        # LÓGICA CORRIGIDA: Trata "Cidade, Estado" de forma mais flexível.
+        partes_busca = [p.strip() for p in localidade_busca.split(',')]
+        partes_busca = [p for p in partes_busca if p] # Remove strings vazias
+        
+        # Cria uma única condição OR para todas as partes da busca
+        if partes_busca:
+            # Ex: (LOWER(cidade) LIKE ? OR LOWER(estado) LIKE ?) OR (LOWER(cidade) LIKE ? OR LOWER(estado) LIKE ?)
+            or_conditions = ["(LOWER(q.cidade) LIKE ? OR LOWER(q.estado) LIKE ?)"] * len(partes_busca)
+            conditions.append(f"({' OR '.join(or_conditions)})")
+            for parte in partes_busca:
+                params.extend([f"%{parte}%", f"%{parte}%"])
         
     if esporte_busca:
-        query += " AND LOWER(eq.esporte) = ?"
-        params.append(esporte_busca)
+        # Adiciona condição de esporte, buscando em uma subquery
+        conditions.append("q.id IN (SELECT quadra_id FROM esportes_quadras WHERE LOWER(esporte) = ?)")
+        params.append(esporte_busca.lower()) # Converte para minúsculo aqui
+
+    # Se houver condições, adiciona a cláusula WHERE
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
         
     cursor.execute(query, params)
     quadras = [dict(row) for row in cursor.fetchall()]
+    
+    # Busca os esportes de cada quadra separadamente para exibição
+    for quadra in quadras:
+        cursor.execute("SELECT esporte FROM esportes_quadras WHERE quadra_id = ?", (quadra['id'],))
+        quadra['esportes'] = [row['esporte'] for row in cursor.fetchall()]
+
     conn.close()
     return quadras
 
@@ -257,16 +282,21 @@ def get_detalhes_quadra(id_quadra, usuario_id_atual=None):
 
     # 3. Pega horários e todos os jogadores
     cursor.execute("""
-        SELECT 
-            h.id, h.hora_texto, h.max_jogadores, h.preco, h.esporte_reservado,
-            (SELECT COUNT(*) FROM reservas_jogadores rj WHERE rj.horario_id = h.id) as jogadores_atuais,
-            u.id as jogador_id,
-            u.nome as jogador_nome
-        FROM horarios h
-        LEFT JOIN reservas_jogadores rj ON h.id = rj.horario_id
-        LEFT JOIN usuarios u ON rj.usuario_id = u.id
-        WHERE h.quadra_id = ?
+        SELECT DISTINCT data FROM horarios WHERE quadra_id = ? ORDER BY data ASC
     """, (id_quadra,))
+    quadra_dict['datas_disponiveis'] = [row['data'] for row in cursor.fetchall()]
+
+    # 4. Pega horários e jogadores APENAS DO PRIMEIRO DIA DISPONÍVEL
+    primeira_data = quadra_dict['datas_disponiveis'][0] if quadra_dict['datas_disponiveis'] else None
+    
+    cursor.execute(f"""
+        SELECT
+            h.id, h.data, h.hora_texto, h.max_jogadores, h.preco, h.esporte_reservado,
+            (SELECT COUNT(*) FROM reservas_jogadores rj WHERE rj.horario_id = h.id) as jogadores_atuais,
+            (SELECT 1 FROM reservas_jogadores rj WHERE rj.horario_id = h.id AND rj.usuario_id = ?) as usuario_esta_na_partida
+        FROM horarios h
+        WHERE h.quadra_id = ? AND h.data = ?
+    """, (usuario_id_atual, id_quadra, primeira_data))
     
     horarios_raw = cursor.fetchall()
     conn.close()
@@ -278,28 +308,45 @@ def get_detalhes_quadra(id_quadra, usuario_id_atual=None):
         if horario_id not in horarios_processados:
             horarios_processados[horario_id] = {
                 'id': row['id'],
-                'hora': row['hora_texto'],
+                'hora_texto': row['hora_texto'],
                 'max_jogadores': row['max_jogadores'],
                 'preco': row['preco'],
                 'esporte_reservado': row['esporte_reservado'], # MUDANÇA AQUI
                 'jogadores_atuais': row['jogadores_atuais'],
-                'jogadores': [],
-                'usuario_esta_na_partida': False 
+                'usuario_esta_na_partida': bool(row['usuario_esta_na_partida'])
             }
-        
-        if row['jogador_id']:
-            horarios_processados[horario_id]['jogadores'].append({
-                'id': row['jogador_id'],
-                'nome': row['jogador_nome'],
-                'avatar': f'https://placehold.co/50x50/9F7AEA/FFFFFF?text={row["jogador_nome"][0].upper()}'
-            })
-            if row['jogador_id'] == usuario_id_atual:
-                horarios_processados[horario_id]['usuario_esta_na_partida'] = True
             
     quadra_dict['horarios'] = list(horarios_processados.values())
     quadra_dict['seguindo'] = (id_quadra % 2 == 1) 
     
     return quadra_dict
+
+def get_horarios_por_data(quadra_id, data_selecionada, usuario_id):
+    """Busca os horários de uma quadra para uma data específica."""
+    try:
+        conn, cursor = conectar()
+        cursor.execute(f"""
+            SELECT
+                h.id, h.data, h.hora_texto, h.max_jogadores, h.preco, h.esporte_reservado,
+                (SELECT COUNT(*) FROM reservas_jogadores rj WHERE rj.horario_id = h.id) as jogadores_atuais,
+                (SELECT 1 FROM reservas_jogadores rj WHERE rj.horario_id = h.id AND rj.usuario_id = ?) as usuario_esta_na_partida
+            FROM horarios h
+            WHERE h.quadra_id = ? AND h.data = ?
+            ORDER BY h.hora_texto
+        """, (usuario_id, quadra_id, data_selecionada))
+        
+        horarios = [dict(row) for row in cursor.fetchall()]
+
+        # Converte o valor booleano para o JS
+        for horario in horarios:
+            horario['usuario_esta_na_partida'] = bool(horario['usuario_esta_na_partida'])
+
+        return horarios
+    except Exception as e:
+        print(f"Erro ao buscar horários por data: {e}")
+        return []
+    finally:
+        if conn: conn.close()
 
 # --- ESTA É A FUNÇÃO QUE ESTÁ CAUSANDO O ERRO ---
 # --- GARANTA QUE A SUA SEJA SUBSTITUÍDA POR ESTA ---
