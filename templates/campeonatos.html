@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campeonatos - DGA Sports</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/x-png">
+    <!-- Carrega o script do tema no head para evitar 'flash' -->
+    <script src="{{ url_for('static', filename='js/theme_switcher.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/campeonatos.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-shapes"></div>
+    <div class="content-container">
+        <header class="page-header">
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='assets/logo2.png') }}" alt="Logo DGASports" class="page-logo"></a>
+            <h1>Nossos Campeonatos</h1>
+            <p>Encontre torneios, compita com outros jogadores e suba no ranking.</p>
+        </header>
+
+        <form class="filter-panel" action="{{ url_for('campeonatos') }}" method="GET">
+            <div class="filter-group">
+                <label for="filtro-esporte">Esporte</label>
+                <select id="filtro-esporte" name="esporte">
+                    <option value="">Todos</option>
+                    <option value="Futebol">Futebol</option>
+                    <option value="Basquete">Basquete</option>
+                    <option value="Volei">Vôlei</option>
+                    <option value="Beach Tennis">Beach Tennis</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filtro-status">Status</label>
+                <select id="filtro-status" name="status">
+                    <option value="">Todos</option>
+                    <option value="inscricoes_abertas">Inscrições Abertas</option>
+                    <option value="em_andamento">Em Andamento</option>
+                    <option value="finalizado">Finalizado</option>
+                </select>
+            </div>
+            <button class="filter-button" type="submit">Filtrar</button>
+        </form>
+
+        <main class="campeonatos-grid">
+            <!-- Exemplo de Card de Campeonato -->
+            <div class="campeonato-card">
+                <div class="card-header">
+                    <span class="esporte-tag futebol">Futebol</span>
+                    <span class="status-tag inscricoes">Inscrições Abertas</span>
+                </div>
+                <div class="card-body">
+                    <div class="card-title-section">
+                        <!-- Espaço para o logo do campeonato -->
+                        <img src="https://placehold.co/50x50/121212/FFFFFF?text=Logo" alt="Logo do Campeonato" class="campeonato-logo">
+                        <h3>Liga DGA de Futebol Society</h3>
+                    </div>
+                    <p class="data">📅 15/11/2025 - 30/11/2025</p>
+                    <div class="info-chips">
+                        <span>🏆 R$ 500,00</span>
+                        <span>👥 16/16 Times</span>
+                    </div>
+                </div>
+                <a href="#" class="details-btn">Ver Detalhes</a>
+            </div>
+
+            <!-- Card de Exemplo 2 -->
+            <div class="campeonato-card">
+                <div class="card-header">
+                    <span class="esporte-tag basquete">Basquete</span>
+                    <span class="status-tag em-andamento">Em Andamento</span>
+                </div>
+                <div class="card-body">
+                    <div class="card-title-section">
+                        <img src="https://placehold.co/50x50/121212/FFFFFF?text=Logo" alt="Logo do Campeonato" class="campeonato-logo">
+                        <h3>Torneio 3x3 DGA</h3>
+                    </div>
+                    <p class="data">📅 01/12/2025 - 15/12/2025</p>
+                    <div class="info-chips">
+                        <span>🏆 R$ 300,00</span>
+                        <span>👥 8/8 Times</span>
+                    </div>
+                </div>
+                <a href="#" class="details-btn">Ver Tabela</a>
+            </div>
+
+            <!-- Card de Exemplo 3 -->
+            <div class="campeonato-card">
+                <div class="card-header">
+                    <span class="esporte-tag volei">Vôlei</span>
+                    <span class="status-tag finalizado">Finalizado</span>
+                </div>
+                <div class="card-body">
+                    <div class="card-title-section">
+                        <img src="https://placehold.co/50x50/121212/FFFFFF?text=Logo" alt="Logo do Campeonato" class="campeonato-logo">
+                        <h3>Copa de Vôlei de Praia</h3>
+                    </div>
+                    <p class="data">📅 05/10/2025 - 12/10/2025</p>
+                    <div class="info-chips">
+                        <span>🏆 Medalhas</span>
+                        <span>👥 12 Duplas</span>
+                    </div>
+                </div>
+                <a href="#" class="details-btn">Ver Resultados</a>
+            </div>
+            <!-- Adicione mais cards aqui, talvez com um loop Jinja2 no futuro -->
+        </main>
+    </div>
+</body>
+</html>

@@ -12,6 +12,7 @@
     <style>
         :root {
             --primary-green: #70d155;
+            --dark-footer-bg: #11151C; /* Adicionado para consistência */
             --secondary-green: #1ab480;
             --dark-bg: #1A202C;
             --dark-card-bg: #2D3748;
@@ -19,6 +20,16 @@
             --text-secondary: #a0aec0;
             --border-color: rgba(112, 209, 85, 0.2);
             --font-main: 'Inter', sans-serif;
+        }
+        body.light-theme {
+            --primary-green: #007BFF;
+            --secondary-green: #00C6A7;
+            --dark-bg: #f8f9fa;
+            --dark-card-bg: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-dark: #ffffff;
+            --border-color: #e2e8f0;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -253,6 +264,7 @@
     </div>
 
     <script>
+        (function() { const theme = localStorage.getItem('theme'); if (theme === 'light') { document.body.classList.add('light-theme'); } })();
         document.addEventListener('DOMContentLoaded', () => {
             
             // --- 1. LÓGICA PARA MOSTRAR/ESCONDER O FORMULÁRIO ---

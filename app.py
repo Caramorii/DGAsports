@@ -115,6 +115,11 @@ def social():
 def mensagem():
     return render_template('DGAmensagem.html')
 
+@app.route('/campeonatos')
+def campeonatos():
+    # No futuro, você pode adicionar lógica para buscar campeonatos do banco de dados
+    return render_template('campeonatos.html')
+
 @app.route('/perfil')
 def perfil():
     return render_template('DGAusuario.html')
