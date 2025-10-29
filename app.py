@@ -1,5 +1,8 @@
 # Importa as ferramentas do Flask e nossas funções do banco de dados
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort, jsonify
+import qrcode
+import uuid
+import io
 
 # Importa TODAS as funções que criamos no banco_de_dados.py
 # Certifique-se de adicionar 'conectar' se não estiver
@@ -217,67 +220,68 @@ def confirmar_reserva():
     esporte_selecionado = request.form.get('esporte_selecionado')
     usuario_id = session['usuario_id']
 
-    # --- INÍCIO DA LÓGICA DA API (PARA SUA APRESENTAÇÃO) ---
-    try:
-        # SIMULAÇÃO: Vamos fingir que a API sempre aprova
-        status_da_api = "approved" 
+    # --- NOVA LÓGICA DE PAGAMENTO ---
+    if metodo_pagamento == 'pix':
+        # 1. Gera uma chave PIX aleatória (simulação)
+        chave_pix = str(uuid.uuid4())
         
-        if status_da_api == "approved":
-            # SE A API APROVOU, SALVA NO NOSSO BANCO
-            
-            resultado = adicionar_jogador_partida(usuario_id, int(horario_id), esporte_selecionado)
+        # 2. Gera o QR Code em memória
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(chave_pix)
+        qr.make(fit=True)
+        img = qr.make_image(fill='black', back_color='white')
+        
+        # 3. Salva a imagem em um buffer e converte para base64
+        import base64
+        buffered = io.BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        qr_code_data_uri = f"data:image/png;base64,{img_str}"
 
-            if resultado['status'] == 'sucesso':
-                flash(f"Pagamento Aprovado! Reserva confirmada para {esporte_selecionado}.")
-                return redirect(url_for('home'))
-            else:
-                # DEU CERTO PAGAR, MAS DEU ERRO AO RESERVAR
-                flash(f"Erro ao reservar: {resultado['mensagem']}") # Mensagem simplificada
-                
-                # --- REDIRECIONAMENTO CORRIGIDO ---
-                # Busca o ID da quadra para poder redirecionar para a página dela
-                conn, cursor = conectar()
-                cursor.execute("SELECT quadra_id FROM horarios WHERE id = ?", (horario_id,))
-                quadra_info = cursor.fetchone()
-                conn.close()
-                id_da_quadra = quadra_info['quadra_id'] if quadra_info else None
-                
-                # Redireciona para a página de DETALHES da quadra
-                if id_da_quadra:
-                    return redirect(url_for('detalhes_quadra', id_da_quadra=id_da_quadra))
-                else:
-                    return redirect(url_for('home'))
-                # --- FIM DA CORREÇÃO ---
-
-        else:
-            # SE A API REJEITOU
-            flash("Pagamento foi recusado pela operadora.")
-            # Redireciona para DETALHES (igual ao caso de erro)
+        # 4. Renderiza a nova página de pagamento PIX
+        return render_template(
+            'pagamento_pix.html',
+            chave_pix=chave_pix,
+            qr_code_data_uri=qr_code_data_uri,
+            horario_id=horario_id,
+            esporte_selecionado=esporte_selecionado
+        )
+    else: # Lógica antiga para Cartão de Crédito
+        id_da_quadra = None
+        try:
             conn, cursor = conectar()
             cursor.execute("SELECT quadra_id FROM horarios WHERE id = ?", (horario_id,))
             quadra_info = cursor.fetchone()
+            if quadra_info: id_da_quadra = quadra_info['quadra_id']
             conn.close()
-            id_da_quadra = quadra_info['quadra_id'] if quadra_info else None
-            if id_da_quadra:
-                 return redirect(url_for('detalhes_quadra', id_da_quadra=id_da_quadra))
-            else:
-                 return redirect(url_for('home'))
 
-    except Exception as e:
-        # SE DEU ERRO AO CONECTAR NA API OU OUTRO ERRO
-        flash(f"Erro ao processar o pagamento: {e}")
-        # Redireciona para DETALHES
-        conn, cursor = conectar()
-        cursor.execute("SELECT quadra_id FROM horarios WHERE id = ?", (horario_id,))
-        quadra_info = cursor.fetchone()
-        conn.close()
-        id_da_quadra = quadra_info['quadra_id'] if quadra_info else None
-        if id_da_quadra:
-             return redirect(url_for('detalhes_quadra', id_da_quadra=id_da_quadra))
-        else:
-             return redirect(url_for('home'))
+            status_da_api = "approved"
+            if status_da_api == "approved":
+                resultado = adicionar_jogador_partida(usuario_id, int(horario_id), esporte_selecionado)
+                if resultado['status'] == 'sucesso':
+                    flash(f"Pagamento Aprovado! Reserva confirmada para {esporte_selecionado}.")
+                    return redirect(url_for('home'))
+                else:
+                    flash(f"Erro ao reservar: {resultado['mensagem']}")
+            else:
+                flash("Pagamento foi recusado pela operadora.")
+        except Exception as e:
+            flash(f"Erro ao processar o pagamento: {e}")
+        finally:
+            if id_da_quadra:
+                return redirect(url_for('detalhes_quadra', id_da_quadra=id_da_quadra))
+            return redirect(url_for('home'))
+
+@app.route('/finalizar_pix', methods=['POST'])
+def finalizar_pix():
+    """Rota chamada após a 'confirmação' do pagamento PIX."""
+    horario_id = request.form.get('horario_id')
+    esporte_selecionado = request.form.get('esporte_selecionado')
+    usuario_id = session['usuario_id']
     
-    # --- FIM DA LÓGICA DA API ---
+    resultado = adicionar_jogador_partida(usuario_id, int(horario_id), esporte_selecionado)
+    flash(f"Pagamento PIX confirmado! Reserva para {esporte_selecionado} efetuada com sucesso.")
+    return redirect(url_for('home'))
 
 
 # --- INICIALIZAÇÃO DO SERVIDOR ---

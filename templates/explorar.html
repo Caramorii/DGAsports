@@ -29,8 +29,8 @@
                 <label for="filtro-esporte">Esporte</label>
                 <select id="filtro-esporte" name="esporte">
                     <option value="">Qualquer</option>
-                    <option value="Futebol" {% if esporte_busca == 'futebol' %}selected{% endif %}>Futebol</option>
-                    <option value="Basquete" {% if esporte_busca == 'basquete' %}selected{% endif %}>Basquete</option>
+                    <option value="Futebol" {% if esporte_busca.lower() == 'futebol' %}selected{% endif %}>Futebol</option>
+                    <option value="Basquete" {% if esporte_busca.lower() == 'basquete' %}selected{% endif %}>Basquete</option>
                     </select>
             </div>
             <button class="filter-button" type="submit">Buscar</button>

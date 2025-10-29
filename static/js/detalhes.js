@@ -25,6 +25,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const quadraTipo = container.dataset.quadraTipo;
     const grid = document.querySelector('.schedule-grid');
 
+    // --- FUNÇÃO AUXILIAR PARA ATUALIZAR O BOTÃO ---
+    function atualizarBotao(cardPai, isEntrando, dados) {
+        const botaoAntigo = cardPai.querySelector('.btn-entrar, .btn-sair');
+        let novoBotao;
+
+        if (isEntrando) {
+            // O usuário entrou, então criamos um botão de "Sair"
+            novoBotao = document.createElement('button');
+            novoBotao.className = 'btn btn-sair';
+            novoBotao.textContent = 'Sair da Partida';
+        } else {
+            // O usuário saiu, então criamos um botão de "Entrar"
+            novoBotao = document.createElement('button');
+            novoBotao.className = 'btn btn-entrar';
+            if (quadraTipo === 'publica') {
+                novoBotao.textContent = 'Entrar na Partida';
+            } else {
+                // Usa o preço que está no HTML
+                const preco = cardPai.dataset.preco;
+                novoBotao.textContent = `Reservar (R$ ${parseFloat(preco).toFixed(2)})`;
+            }
+        }
+
+        botaoAntigo.replaceWith(novoBotao);
+    }
+
     grid.addEventListener('click', async (event) => {
         const botao = event.target.closest('.btn-entrar, .btn-sair');
         if (!botao) return;
@@ -63,12 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dados = await resposta.json();
 
                     if (dados.status === 'sucesso') {
-                        // ATUALIZA O BOTÃO
-                        botao.textContent = 'Sair da Partida';
-                        botao.classList.remove('btn-entrar');
-                        botao.classList.add('btn-sair');
-                        botao.disabled = false;
-
+                        atualizarBotao(cardPai, true, dados);
                         // Atualiza contagem e ícone
                         cardPai.querySelector('.esporte-travado').textContent = (esporteAtivo === 'Futebol' ? '⚽' : '🏀');
                         const contagem = cardPai.querySelector('.contagem');
@@ -77,15 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         cardPai.querySelector('.barra-vagas').value = dados.nova_contagem;
                         // Atualiza o data-attribute para o filtro funcionar
                         cardPai.dataset.esporteReservado = dados.esporte_travado;
+
+                        // MARCA QUE O USUÁRIO ESTÁ NA PARTIDA (CORREÇÃO)
+                        cardPai.dataset.usuarioNaPartida = 'true';
                     } else {
                         alert(dados.mensagem);
-                        botao.disabled = false;
-                        botao.textContent = 'Entrar na Partida';
+                        atualizarBotao(cardPai, false, dados); // Restaura o botão de "Entrar"
                     }
                 } catch (e) {
                     alert('Erro de conexão.');
-                    botao.disabled = false;
-                    botao.textContent = 'Entrar na Partida';
+                    atualizarBotao(cardPai, false, {}); // Restaura o botão de "Entrar"
                 }
             }
         } else {
@@ -99,12 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dados = await resposta.json();
 
                 if (dados.status === 'sucesso') {
-                    // ATUALIZA O BOTÃO
-                    botao.textContent = 'Entrar na Partida';
-                    botao.classList.remove('btn-sair');
-                    botao.classList.add('btn-entrar');
-                    botao.disabled = false;
-
+                    atualizarBotao(cardPai, false, dados);
                     // Atualiza contagem e ícone
                     if (dados.esporte_destravado) {
                         cardPai.querySelector('.esporte-travado').textContent = '';
@@ -114,15 +131,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     const max = cardPai.querySelector('.barra-vagas').max;
                     contagem.textContent = `${dados.nova_contagem} / ${max}`;
                     cardPai.querySelector('.barra-vagas').value = dados.nova_contagem;
+
+                    // MARCA QUE O USUÁRIO NÃO ESTÁ MAIS NA PARTIDA (CORREÇÃO)
+                    cardPai.dataset.usuarioNaPartida = 'false';
                 } else {
                     alert(dados.mensagem);
-                    botao.disabled = false;
-                    botao.textContent = 'Sair da Partida';
+                    atualizarBotao(cardPai, true, dados); // Restaura o botão de "Sair"
                 }
             } catch (e) {
                 alert('Erro de conexão.');
-                botao.disabled = false;
-                botao.textContent = 'Sair da Partida';
+                atualizarBotao(cardPai, true, {}); // Restaura o botão de "Sair"
             }
         }
     });

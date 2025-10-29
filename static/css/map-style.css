@@ -1,0 +1,169 @@
+:root {
+    --primary-green: #70d155;
+    --secondary-green: #1ab480;
+    --dark-bg: #1A202C;
+    --dark-card-bg: #2D3748;
+    --text-primary: #e0e6f0;
+    --text-secondary: #a0aec0;
+    --border-color: rgba(112, 209, 85, 0.2);
+    --font-main: 'Inter', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--dark-bg);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* Impede scroll na página inteira */
+}
+
+header {
+    background: var(--dark-card-bg);
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+header h1 {
+    color: var(--primary-green);
+    font-weight: 900;
+}
+
+header p {
+    color: var(--text-secondary);
+}
+
+#app-container {
+    display: grid;
+    grid-template-columns: 400px 1fr; /* Painel de controle com largura fixa */
+    flex-grow: 1;
+    height: calc(100vh - 105px); /* Altura restante */
+}
+
+.controls-panel {
+    background: var(--dark-bg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto; /* Permite scroll apenas no painel */
+    border-right: 1px solid var(--border-color);
+}
+
+.controls-panel h2, .controls-panel h3 {
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* Estilo para o Place Picker do Google */
+gmpx-place-picker {
+    width: 100%;
+}
+
+gmpx-place-picker > input {
+    width: 100%;
+    padding: 12px;
+    background: var(--dark-card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+/* Botões */
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#use-location-btn {
+    background: var(--dark-card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+#use-location-btn:hover {
+    background: #3c4a60;
+    color: var(--text-primary);
+}
+
+#search-btn {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+    color: var(--dark-bg);
+}
+
+#search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(112, 209, 85, 0.2);
+}
+
+.status {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: center;
+    min-height: 1.2em;
+}
+
+/* Painel de Resultados */
+.results-panel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.results-list {
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+.local-item {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.local-item:hover {
+    background-color: var(--dark-card-bg);
+}
+
+.local-item .titulo-local {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.local-item p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.placeholder {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+/* Painel do Mapa */
+.map-panel {
+    height: 100%;
+}
+
+gmp-map {
+    width: 100%;
+    height: 100%;
+}

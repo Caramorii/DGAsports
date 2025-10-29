@@ -4,9 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reserva - {{ reserva.quadra.nome }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-    <!-- Carrega o CSS específico para esta página -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/reserva.css') }}">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-green: #70d155;
+            --secondary-green: #1ab480;
+            --dark-bg: #1A202C;
+            --dark-card-bg: #2D3748;
+            --text-primary: #e0e6f0;
+            --text-secondary: #a0aec0;
+            --border-color: rgba(112, 209, 85, 0.2);
+            --font-main: 'Inter', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        header h1 {
+            color: var(--primary-green);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 900;
+        }
+        h2 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* --- GRID PRINCIPAL --- */
+        .reserva-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        /* --- COLUNA DA ESQUERDA: DETALHES E PAGAMENTO --- */
+        .detalhes-pagamento {
+            background: var(--dark-card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Lista de Jogadores */
+        .jogadores-lista {
+            list-style: none;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .jogador-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--dark-bg);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .jogador-item img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+        .jogador-item.voce {
+            background: var(--primary-green);
+            color: var(--dark-bg);
+            font-weight: 700;
+        }
+
+        /* Formulário de Pagamento */
+        .form-pagamento .metodo-pagamento {
+            display: block;
+            background: var(--dark-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .form-pagamento .metodo-pagamento:has(input:checked) {
+            border-color: var(--primary-green);
+            background: #3c4a60;
+        }
+        .form-pagamento-cartao { display: none; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        .form-group-inline { display: flex; gap: 15px; }
+        .form-group-inline .form-group { flex: 1; }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* --- COLUNA DA DIREITA: RESUMO --- */
+        .resumo-card {
+            background: var(--dark-card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            align-self: start; /* Impede que estique */
+        }
+        .resumo-card h3 { font-size: 1.5rem; margin-bottom: 20px; }
+        .resumo-linha { display: flex; justify-content: space-between; margin-bottom: 15px; color: var(--text-secondary); }
+        .resumo-linha strong { color: var(--text-primary); }
+        .resumo-linha.total { font-size: 1.2rem; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        .resumo-linha.total span { color: var(--primary-green); font-weight: 700; }
+
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 768px) {
+            .reserva-grid {
+                grid-template-columns: 1fr; /* Colunas empilhadas */
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
