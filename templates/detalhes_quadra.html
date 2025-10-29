@@ -6,6 +6,7 @@
     <title>Detalhes - {{ quadra.nome }}</title>
     
     <style>
+        /* --- ESTILOS GERAIS --- */
         :root {
             --primary-green: #70d155;
             --secondary-green: #1ab480;
@@ -49,6 +50,8 @@
             font-weight: 900;
             letter-spacing: -0.02em;
         }
+        
+        /* --- ABAS PRINCIPAIS (Horários / Localização) --- */
         .tabs {
             display: flex;
             background: var(--dark-bg);
@@ -75,6 +78,8 @@
             color: var(--primary-green);
             border-bottom: 3px solid var(--primary-green);
         }
+        
+        /* --- Conteúdo das Abas --- */
         .tab-content {
             display: none;
             padding: 30px;
@@ -87,122 +92,8 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .info-card {
-            background: var(--dark-bg);
-            padding: 25px;
-            border-radius: 15px;
-            border-left: 5px solid var(--primary-green);
-            margin-bottom: 20px;
-        }
-        .info-card h3 { color: var(--primary-green); margin-bottom: 15px; font-size: 1.3em; }
-        .info-card p { color: var(--text-primary); line-height: 1.8; margin-bottom: 10px; }
-        
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .time-slot {
-            padding: 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            text-align: center;
-            transition: all 0.3s;
-            background: var(--dark-bg);
-        }
-        .time-slot .time {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 15px; 
-        }
-        
-        .time-slot .vagas {
-            font-size: 1.1em;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-        .time-slot .vagas .contagem {
-            font-weight: bold;
-            color: var(--text-primary);
-        }
-        
-        .time-slot progress {
-            width: 100%;
-            height: 8px;
-            border: none;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .time-slot progress::-webkit-progress-bar {
-            background-color: var(--dark-bg);
-            border: 1px solid var(--border-color);
-        }
-        .time-slot progress::-webkit-progress-value {
-            background: linear-gradient(90deg, var(--primary-green), var(--secondary-green));
-        }
 
-        .map-container {
-            width: 100%;
-            height: 400px;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-top: 20px;
-            border: 2px solid var(--border-color);
-        }
-
-        .btn {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
-            color: var(--text-dark);
-            padding: 15px 40px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 15px rgba(112, 209, 85, 0.2);
-            width: 100%;
-            margin-top: 15px;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(112, 209, 85, 0.4);
-        }
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: var(--text-secondary);
-        }
-
-        h2 { color: var(--text-primary); margin-bottom: 20px; }
-        h3 { color: var(--text-primary); margin-top: 30px; margin-bottom: 15px; }
-        p { color: var(--text-secondary); }
-
-        @media (max-width: 768px) {
-            .schedule-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-            header h1 { font-size: 2rem; }
-        }
-        .btn-sair {
-            background: #4A5568; /* Cinza escuro */
-            color: var(--text-primary);
-            padding: 15px 40px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 15px;
-            transition: background-color 0.3s;
-        }
-        .btn-sair:hover {
-            background: #718096; /* Cinza um pouco mais claro */
-        }
-        /* Em: <style> dentro de templates/detalhes_quadra.html */
-
-        /* --- NOVOS ESTILOS PARA FILTRO DE ESPORTE --- */
+        /* --- FILTRO DE ESPORTES (Dentro da aba Horários) --- */
         .tabs-esportes {
             display: flex;
             gap: 10px;
@@ -228,9 +119,142 @@
             color: var(--primary-green);
             border-bottom-color: var(--primary-green);
         }
+
+        /* --- Grade de Horários --- */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        /* Card de Horário */
+        .time-slot {
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+            background: var(--dark-bg);
+        }
+        .time-slot .time {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px; 
+        }
+        
+        /* Vagas (Contagem e Ícone do Esporte) */
+        .time-slot .vagas {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            /* Flex para alinhar ícone e contagem */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+        .time-slot .vagas .contagem {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        .esporte-travado {
+            font-size: 0.9em;
+        }
+        
+        /* Barra de progresso */
+        .time-slot progress {
+            width: 100%;
+            height: 8px;
+            border: none;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .time-slot progress::-webkit-progress-bar {
+            background-color: var(--dark-bg);
+            border: 1px solid var(--border-color);
+        }
+        .time-slot progress::-webkit-progress-value {
+            background: linear-gradient(90deg, var(--primary-green), var(--secondary-green));
+        }
+
+        /* --- Botões (Entrar, Sair, Desabilitado) --- */
+        .btn {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: var(--text-dark);
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(112, 209, 85, 0.2);
+            width: 100%;
+            margin-top: 15px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(112, 209, 85, 0.4);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: var(--text-secondary);
+            color: var(--text-primary);
+            box-shadow: none;
+            transform: none;
+        }
+        /* Botão Sair (Cinza) */
+        .btn-sair {
+            background: #4A5568; /* Cinza escuro */
+            color: var(--text-primary);
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        .btn-sair:hover {
+            background: #718096; /* Cinza um pouco mais claro */
+        }
+
+        /* --- Aba Localização --- */
+        .info-card {
+            background: var(--dark-bg);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary-green);
+            margin-bottom: 20px;
+        }
+        .info-card h3 { color: var(--primary-green); margin-bottom: 15px; font-size: 1.3em; }
+        .info-card p { color: var(--text-primary); line-height: 1.8; margin-bottom: 10px; }
+        
+        .map-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            border: 2px solid var(--border-color);
+        }
+
+        h2 { color: var(--text-primary); margin-bottom: 20px; }
+        h3 { color: var(--text-primary); margin-top: 30px; margin-bottom: 15px; }
+        p { color: var(--text-secondary); }
+
+        @media (max-width: 768px) {
+            .schedule-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+            header h1 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
+    
     <div class="container" data-quadra-tipo="{{ quadra.tipo }}">
         <header>
             <h1>⚽ {{ quadra.nome }}</h1>
@@ -252,41 +276,44 @@
                 <button class="tab-esporte" data-esporte="{{ esporte }}">{{ esporte }}</button>
                 {% endfor %}
             </div>
+
             <div class="schedule-grid">
+                
                 {% for horario in quadra.horarios %}
                 
                 <div class="time-slot card-horario" 
                      data-horario-id="{{ horario.id }}"
-                     data-esporte-do-horario="{{ horario.esporte }}">
+                     data-esporte-reservado="{{ horario.esporte_reservado or '' }}">
                     
-    <div class="time">{{ horario.hora }}</div>
+                    <div class="time">{{ horario.hora }}</div>
                     
-    <div class="vagas">
-        <span class="contagem">{{ horario.jogadores_atuais }} / {{ horario.max_jogadores }}</span>
-    </div>
+                    <div class="vagas">
+                        <span class="esporte-travado"></span> 
+                        <span class="contagem">{{ horario.jogadores_atuais }} / {{ horario.max_jogadores }}</span>
+                    </div>
                     
-    <progress class="barra-vagas" value="{{ horario.jogadores_atuais }}" max="{{ horario.max_jogadores }}"></progress>
-    
-    {% if horario.usuario_esta_na_partida %}
-        
-        {% if quadra.tipo == 'publica' %}
-            <button class="btn btn-sair">Sair da Partida</button>
-        {% else %}
-            <button class="btn" disabled>Você está na partida</button>
-        {% endif %}
+                    <progress class="barra-vagas" value="{{ horario.jogadores_atuais }}" max="{{ horario.max_jogadores }}"></progress>
+                    
+                    {% if horario.usuario_esta_na_partida %}
+                        
+                        {% if quadra.tipo == 'publica' %}
+                            <button class="btn btn-sair">Sair da Partida</button>
+                        {% else %}
+                            <button class="btn" disabled>Você está na partida</button>
+                        {% endif %}
 
-    {% else %}
-        
-        <button class="btn btn-entrar">
-            {% if quadra.tipo == 'publica' %}
-                Entrar na Partida
-            {% else %}
-                Reservar (R$ {{ "%.2f"|format(horario.preco) }})
-            {% endif %}
-        </button>
-    
-    {% endif %}
-    </div>
+                    {% else %}
+                        
+                        <button class="btn btn-entrar">
+                            {% if quadra.tipo == 'publica' %}
+                                Entrar na Partida
+                            {% else %}
+                                Reservar (R$ {{ "%.2f"|format(horario.preco) }})
+                            {% endif %}
+                        </button>
+                    
+                    {% endif %}
+                    </div>
                 {% else %}
                     <p>Nenhum horário disponível no momento.</p>
                 {% endfor %}

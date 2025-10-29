@@ -121,112 +121,84 @@ def usuario():
 def entrar_na_partida():
     """API para quadras PÚBLICAS (chamada pelo JavaScript 'fetch')."""
     
-    # 1. Verifica se o usuário está logado
     if 'usuario_id' not in session:
         return jsonify({'status': 'erro', 'mensagem': 'Você precisa estar logado para entrar.'}), 401
 
-    # 2. Pega os dados enviados pelo JavaScript
     dados = request.get_json()
     horario_id = dados.get('horario_id') 
+    esporte_selecionado = dados.get('esporte_selecionado') # NOVO
     usuario_id = session['usuario_id']
 
-    if not horario_id:
-         return jsonify({'status': 'erro', 'mensagem': 'ID do horário não fornecido.'}), 400
+    if not horario_id or not esporte_selecionado:
+         return jsonify({'status': 'erro', 'mensagem': 'Dados incompletos (horário ou esporte).'}), 400
 
-    # 3. Chama a função do banco de dados
-    resultado = adicionar_jogador_partida(usuario_id, horario_id)
+    # Passa o esporte para a função do DB
+    resultado = adicionar_jogador_partida(usuario_id, horario_id, esporte_selecionado)
     
-    # 4. Retorna o resultado (sucesso ou erro) para o JavaScript
     return jsonify(resultado)
 
 @app.route('/reservar/<int:horario_id>')
 def reservar(horario_id):
     """Página de checkout para quadras PRIVADAS."""
     
-    # 1. Verifica se o usuário está logado
     if 'usuario_id' not in session:
         flash("Você precisa estar logado para fazer uma reserva.")
-        return redirect(url_for('login', proximo=request.url)) # Salva a URL para redirecionar de volta
+        return redirect(url_for('login', proximo=request.url))
 
-    # 2. Busca os dados da reserva
+    # Pega o esporte que o JS enviou pela URL (ex: ?esporte=Futebol)
+    esporte_selecionado = request.args.get('esporte')
+    if not esporte_selecionado:
+        abort(400, "Esporte não selecionado.")
+
     reserva = get_detalhes_reserva(horario_id)
-    
     if reserva is None:
-        abort(404) # Horário não encontrado
+        abort(404) 
 
-    # 3. Pega os dados do usuário atual na sessão
     usuario_atual = {
         'id': session['usuario_id'],
         'nome': session['nome_usuario']
     }
 
-    # 4. Renderiza a nova página de checkout
     return render_template(
         'reserva_privada.html', 
         reserva=reserva,
-        usuario_atual=usuario_atual
+        usuario_atual=usuario_atual,
+        esporte_selecionado=esporte_selecionado # Envia o esporte para o template
     )
 
 @app.route('/confirmar_reserva', methods=['POST'])
 def confirmar_reserva():
     """Recebe o formulário de pagamento (SIMULAÇÃO DE API)."""
 
-    # 1. Verifica login
     if 'usuario_id' not in session:
         flash("Sua sessão expirou. Por favor, faça login novamente.")
         return redirect(url_for('login'))
 
-    # 2. Pega dados do formulário
     horario_id = request.form.get('horario_id')
     metodo_pagamento = request.form.get('metodo') 
+    esporte_selecionado = request.form.get('esporte_selecionado') # NOVO
     usuario_id = session['usuario_id']
 
-    # --- INÍCIO DA LÓGICA DA API (PARA SUA APRESENTAÇÃO) ---
-    
-    # 1. BUSCAR O PREÇO NO BANCO DE DADOS
-    # (No nosso caso, a função get_detalhes_reserva faria isso, 
-    # mas para o exemplo, vamos apenas simular)
-    # preco_da_vaga = buscar_preco(horario_id) ... R$ 15,00
-    
-    # 2. MONTAR O "PEDIDO" PARA A API
-    # dados_do_pagamento = { "transaction_amount": 15.00, ... }
-    
-    # 3. CHAMAR A API (PUXAR A API)
+    # --- INÍCIO DA LÓGICA DA API ---
     try:
-        # ----> LINHA MÁGICA DE EXEMPLO <----
-        # resultado_api = sdk.payment().create(dados_do_pagamento) 
-        
-        # SIMULAÇÃO: Vamos fingir que a API sempre aprova
         status_da_api = "approved" 
         
-        # 4. VERIFICAR A RESPOSTA DA API
         if status_da_api == "approved":
-            # SE A API APROVOU, SALVA NO NOSSO BANCO
-            
-            resultado = adicionar_jogador_partida(usuario_id, int(horario_id))
+            # Passa o esporte para a função do DB
+            resultado = adicionar_jogador_partida(usuario_id, int(horario_id), esporte_selecionado)
 
             if resultado['status'] == 'sucesso':
-                flash(f"Pagamento Aprovado! Reserva confirmada.")
+                flash(f"Pagamento Aprovado! Reserva confirmada para {esporte_selecionado}.")
                 return redirect(url_for('home'))
             else:
-                # DEU CERTO PAGAR, MAS DEU ERRO AO RESERVAR (ex: lotou no último segundo)
-                # (Aqui você teria que estornar o pagamento)
-                # sdk.payment().refund(pagamento_id) 
-                flash(f"Pagamento Aprovado, mas erro ao reservar: {resultado['mensagem']}. O valor será estornado.")
-                return redirect(url_for('reservar', horario_id=horario_id))
-
+                flash(f"Pagamento Aprovado, mas erro ao reservar: {resultado['mensagem']}.")
+                return redirect(url_for('reservar', horario_id=horario_id, esporte=esporte_selecionado))
         else:
-            # SE A API REJEITOU (ex: cartão sem limite)
             flash("Pagamento foi recusado pela operadora.")
-            return redirect(url_for('reservar', horario_id=horario_id))
-
+            return redirect(url_for('reservar', horario_id=horario_id, esporte=esporte_selecionado))
     except Exception as e:
-        # SE DEU ERRO AO CONECTAR NA API (ex: API offline)
         flash(f"Erro ao processar o pagamento: {e}")
-        return redirect(url_for('reservar', horario_id=horario_id))
-    
-    # --- FIM DA LÓGICA DA API ---
-# Em: app.py
+        return redirect(url_for('reservar', horario_id=horario_id, esporte=esporte_selecionado))
 
 @app.route('/quadra/sair', methods=['POST'])
 def sair_da_partida():
