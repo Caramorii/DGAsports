@@ -4,25 +4,54 @@
 /* ====================================================== */
 
 :root {
-    /* Paleta de Cores */
-    --primary-green: #70d155;
-    --secondary-green: #1ab480;
-    --primary-blue: #4A90E2;
+    /* Paleta de Cores - TEMA ESCURO (Original) */
     --dark-bg: #1A202C;
-    --card-bg: #2D3748;
-    --card-bg-transparent: rgba(45, 55, 72, 0.7);
-    --footer-bg: #11151C;
-    --border-color: rgba(112, 209, 85, 0.2);
+    --dark-bg-start: #21293a; /* Gradiente de fundo mais sutil */
+    --dark-bg-end: #1A202C;   /* Termina na cor de fundo principal */
+    --card-bg: #2D3748; /* Fundo dos cards, separado para mais controle */
+    --dark-card-bg: #2D3748;
     --text-primary: #e0e6f0;
     --text-secondary: #a0aec0;
     --text-light: #ffffff;
     --text-dark: #1A202C;
+    --header-bg-transparent: rgba(26, 32, 44, 0.6); /* Fundo do cabeçalho com blur */
+    --primary-green: #70d155;
+    --secondary-green: #1ab480;
+    --primary-blue: #4A90E2;
+    --border-color: rgba(112, 209, 85, 0.2);
     --accent-color: #00A3FF;
+    --shadow-color: rgba(112, 209, 85, 0.2);
+    --hover-bg: rgba(112, 209, 85, 0.15);
+    --header-gradient: none; /* Removido para usar o fundo com blur */
+    --hero-gradient: radial-gradient(ellipse at 50% -50%, rgba(112, 209, 85, 0.1), transparent 80%); /* Gradiente mais suave e disperso */
 
     /* Tipografia */
     --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-secondary: 'Roboto', sans-serif;
     --font-social: 'Segoe UI', Arial, sans-serif;
+}
+
+body.light-theme {
+    /* Paleta de Cores - TEMA CLARO */
+    --dark-bg: #f8f9fa; /* Fundo branco-gelo, mais limpo */
+    --dark-bg-start: #ffffff; /* Gradiente de fundo mais sutil */
+    --dark-bg-end: #f0f2f5;   /* Termina num cinza bem claro */
+    --card-bg: #ffffff; /* Fundo dos cards no tema claro */
+    --dark-card-bg: #ffffff; /* Cards brancos */
+    --text-primary: #212529; /* Texto principal preto para legibilidade máxima */
+    --text-secondary: #6c757d; /* Cinza secundário padrão de web */
+    --text-light: #212529; /* Equivalente ao text-light, mas para fundo claro */
+    --text-dark: #ffffff; /* Texto para usar em botões coloridos */
+    --header-bg-transparent: rgba(255, 255, 255, 0.6); /* Fundo do cabeçalho com blur */
+    --primary-green: #007BFF; /* Azul primário vibrante e moderno */
+    --secondary-green: #00C6A7; /* Verde-azulado complementar */
+    --primary-blue: #007BFF; /* Mantendo consistência com o verde primário */
+    --border-color: #e2e8f0; /* Borda cinza clara */
+    --accent-color: #0056b3; /* Azul de destaque mais escuro */
+    --shadow-color: rgba(0, 123, 255, 0.15);
+    --hover-bg: rgba(0, 123, 255, 0.1); /* Fundo azul claro para hover */
+    --header-gradient: none; /* Removido para usar o fundo com blur */
+    --hero-gradient: radial-gradient(ellipse at 50% -50%, rgba(0, 123, 255, 0.08), transparent 80%);
 }
 
 * {
@@ -35,5 +64,27 @@ body {
     font-family: var(--font-main);
     line-height: 1.6;
     color: var(--text-primary);
-    background-color: var(--dark-bg);
+    background-color: var(--dark-bg); /* Fallback para navegadores antigos */
+    background-image: linear-gradient(135deg, var(--dark-bg-start) 0%, var(--dark-bg) 100%);
+    background-attachment: fixed; /* Mantém o gradiente fixo durante o scroll */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* --- COMPONENTES GLOBAIS REUTILIZÁVEIS --- */
+
+/* Fundo animado padrão para páginas internas */
+.background-shapes {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(circle at 15% 20%, rgba(112, 209, 85, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 70%, rgba(26, 180, 128, 0.08) 0%, transparent 40%);
+    animation: animateBackground 15s ease-in-out infinite;
+    z-index: -1;
+}
+
+body.light-theme .background-shapes {
+    background-image: radial-gradient(circle at 15% 20%, rgba(0, 138, 87, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 70%, rgba(24, 119, 242, 0.08) 0%, transparent 40%);
+}
+
+@keyframes animateBackground {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+    50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
 }

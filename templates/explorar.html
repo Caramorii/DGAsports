@@ -6,6 +6,8 @@
     <title>Encontre sua Quadra - DGA Sports</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/x-png">
+    <!-- Carrega o script do tema no head para evitar 'flash' -->
+    <script src="{{ url_for('static', filename='js/theme_switcher.js') }}" defer></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/explorar_fullscreen.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

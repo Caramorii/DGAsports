@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Link para o novo CSS de autenticação -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/x-png">
     <title>Login</title>
@@ -32,5 +33,6 @@
             Não tem uma conta? <a href="{{ url_for('register') }}">Cadastre-se</a>
         </p>
     </div>
+    <script src="{{ url_for('static', filename='js/theme_switcher.js') }}" defer></script>
 </body>
 </html>

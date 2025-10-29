@@ -11,7 +11,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: rgba(29, 42, 52);
+    background-color: var(--dark-bg);
     background-image: linear-gradient(135deg, #192e22 0%, #2c2a4a 100%);
     margin: 0;
     display: flex;
@@ -22,12 +22,16 @@ body {
     padding: 1rem;
 }
 
+body.light-theme {
+    background-image: none;
+}
+
 .container {
-    background: rgba(35, 38, 49, 0.85);
+    background: var(--dark-card-bg);
     padding: 2.5rem;
     border-radius: 20px;
-    border: 1px solid rgba(0, 212, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 25px rgba(255, 0, 170, 0.1);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(8px);
     width: 100%;
     max-width: 480px; /* Um pouco maior para acomodar o textarea */
@@ -42,16 +46,16 @@ body {
 h1 {
     margin-bottom: 1rem;
     font-size: 2.2rem;
-    color: rgb(252, 254, 255);
+    color: var(--text-light);
     font-weight: 700;
     letter-spacing: 1px;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.832);
+    text-shadow: 0 0 8px rgba(112, 209, 85, 0.2);
 }
 
 .description {
     margin-bottom: 1.5rem;
     font-size: 1rem;
-    color: #b0bec5;
+    color: var(--text-secondary);
     line-height: 1.5;
 }
 
@@ -59,12 +63,12 @@ h1 {
     width: 100%;
     padding: 0.8rem;
     margin-bottom: 0.8rem;
-    background: rgba(28, 37, 48);
-    border: 2px solid rgba(32, 46, 49);
+    background: var(--dark-bg);
+    border: 2px solid var(--border-color);
     border-radius: 10px;
     outline: none;
     font-size: 1rem;
-    color: #f0f0f0;
+    color: var(--text-primary);
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -74,15 +78,15 @@ textarea.input-field {
 }
 
 .input-field:focus {
-    border-color: rgba(255, 255, 255, 0.874);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.632);
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 2px var(--border-color);
 }
 
 .submit-btn {
     width: 100%;
     padding: 0.9rem;
-    background: linear-gradient(90deg, rgb(110, 203, 74), rgba(14, 87, 163));
-    color: #fff;
+    background: linear-gradient(90deg, var(--primary-green), var(--secondary-green));
+    color: var(--text-dark);
     border: none;
     border-radius: 10px;
     font-size: 1rem;
@@ -94,24 +98,23 @@ textarea.input-field {
 
 .submit-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(110, 203, 74, 0.4);
+    box-shadow: 0 4px 20px rgba(112, 209, 85, 0.3);
 }
 
 .back-link {
     margin-top: 1.5rem;
     font-size: 0.9rem;
-    color: #b0bec5;
+    color: var(--text-secondary);
 }
 
 .back-link a {
-    color: #00d4ff;
+    color: var(--primary-green);
     font-weight: 600;
     text-decoration: none;
-    transition: color 0.3s ease, text-shadow 0.3s ease;
+    transition: color 0.3s ease;
 }
 
 .back-link a:hover {
-    color: #40ff63;
-    text-decoration: none;
-    text-shadow: 0 0 5px rgba(64, 255, 77, 0.7);
+    color: var(--secondary-green);
+    text-decoration: underline;
 }
