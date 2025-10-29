@@ -633,4 +633,10 @@ h3::after {
 #btn-geolocate:hover {
     color: #ffffff; /* Cor ao passar o mouse */
 }
+}*{ 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
 }
+
+

@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DGA SPORTS</title>
     <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/x-png">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleproject.css') }}">
 </head>
 
 <body>
@@ -14,7 +13,8 @@
     <div id="root">
         <header>
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='assets/logo2.png') }}" alt="Logo DGASports"
+                <link rel="stylesheet" href="{{ url_for('static', filename='css/styleproject.css') }}">
+<img src="{{ url_for('static', filename='assets/logo2.png') }}" alt="Logo DGASports"
                     class="header-logo">
                 <h1>DGA<span>Sports</span></h1>
             </div>
@@ -22,7 +22,7 @@
                 <a href="{{ url_for('explorar') }}">Explorar</a>
                 <a href="{{ url_for('social') }}">Comunidade</a>
                 <a href="#">Campeonatos</a>
-                <a href="#">Suporte</a>
+                <a href="suporte.html">Suporte</a>
             </nav>
             <div class="header-actions">
                 {% if session['usuario_logado'] %}

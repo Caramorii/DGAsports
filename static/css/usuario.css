@@ -1,25 +1,6 @@
 /* ====================================================== */
 /* 1. CONFIGURAÇÃO GLOBAL E VARIÁVEIS                     */
 /* ====================================================== */
-:root {
-    /* Paleta de Cores */
-    --primary-green: #70d155;
-    --secondary-green: #1ab480;
-    --dark-bg: #1A202C;
-    --dark-card-bg: #2D3748;
-    --dark-footer-bg: #11151C;
-    --text-primary: #e0e6f0;
-    --text-secondary: #a0aec0;
-    --text-light: #ffffff;
-    --text-dark: #1A202C;
-    --border-color: rgba(112, 209, 85, 0.2);
-
-    /* Tipografia */
-    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-    /* Adições para Perfil */
-    --profile-radius: 50%;
-}
 
 /* ====================================================== */
 /* 2. RESET E ESTILOS DE BASE                             */
@@ -30,15 +11,6 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: var(--font-main);
-    line-height: 1.6;
-    color: var(--text-primary);
-    background-color: var(--dark-bg);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
 
 main {
     flex-grow: 1;

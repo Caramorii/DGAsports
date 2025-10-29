@@ -115,6 +115,13 @@ def mensagem():
 def usuario():
     return render_template('DGAusuario.html')
 
+# --- ADICIONE ESTA NOVA ROTA ---
+@app.route('/suporte')
+def suporte():
+    # Isso vai renderizar o arquivo templates/suporte.html
+    return render_template('suporte.html')
+# -------------------------------
+
 # --- ROTAS DA API E RESERVA (O FLUXO PRINCIPAL) ---
 
 @app.route('/quadra/entrar', methods=['POST'])
@@ -232,3 +239,4 @@ if __name__ == '__main__':
     popular_dados_iniciais()
     
     app.run(debug=True)
+

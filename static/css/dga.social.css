@@ -1,30 +1,3 @@
-:root {
-    --primary-green: #70d155;
-    --secondary-green: #1ab480;
-    --dark-bg: #1A202C;
-    --dark-card-bg: #2D3748;
-    --dark-footer-bg: #11151C;
-    --text-primary: #e0e6f0;
-    --text-secondary: #a0aec0;
-    --text-light: #ffffff;
-    --text-dark: #1A202C;
-    --border-color: rgba(112, 209, 85, 0.2);
-}
-
-/* Reset básico */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: var(--dark-bg);
-    color: var(--text-primary);
-    display: flex;
-    min-height: 100vh;
-}
 
 /* Sidebar esquerda */
 .sidebar-left {
