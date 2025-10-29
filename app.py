@@ -198,7 +198,7 @@ def api_get_horarios_por_data(quadra_id, data_selecionada):
     except ValueError:
         return jsonify({'status': 'erro', 'mensagem': 'Formato de data inválido.'}), 400
 
-    # Chama a nova função do banco de dados
+    # Chama a função do banco de dados para buscar os horários
     horarios = get_horarios_por_data(quadra_id, data_selecionada, usuario_id)
     return jsonify({'status': 'sucesso', 'horarios': horarios})
 

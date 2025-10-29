@@ -119,26 +119,43 @@ def popular_dados_iniciais():
         from datetime import date, timedelta
         hoje = date.today()
         amanha = hoje + timedelta(days=1)
+        dias = [hoje + timedelta(days=i) for i in range(5)] # Gera hoje e os próximos 4 dias
 
         horarios_data = [
             # (quadra_id, data, hora, max_jogadores, preco)
             # Quadra 1 (Poli, Privada)
-            (1, hoje.isoformat(), '18:00 - 19:00', 10, 15.00), # ID 1
-            (1, hoje.isoformat(), '19:00 - 20:00', 10, 15.00), # ID 2
-            (1, hoje.isoformat(), '20:00 - 21:00', 10, 15.00), # ID 3
-            (1, amanha.isoformat(), '18:00 - 19:00', 10, 15.00), # Horário para amanhã
+            (1, dias[0].isoformat(), '18:00 - 19:00', 10, 15.00),
+            (1, dias[0].isoformat(), '19:00 - 20:00', 10, 15.00),
+            (1, dias[0].isoformat(), '20:00 - 21:00', 10, 15.00),
+            (1, dias[0].isoformat(), '21:00 - 22:00', 10, 15.00),
+            (1, dias[1].isoformat(), '18:00 - 19:00', 10, 15.00),
+            (1, dias[1].isoformat(), '19:00 - 20:00', 10, 15.00),
+            (1, dias[2].isoformat(), '20:00 - 21:00', 10, 15.00),
+            (1, dias[3].isoformat(), '19:00 - 20:00', 10, 15.00),
 
             # Quadra 2 (Só Futebol, Privada)
-            (2, hoje.isoformat(), '19:30 - 20:30', 12, 12.50), # ID 4
-            (2, hoje.isoformat(), '20:30 - 21:30', 12, 12.50), # ID 5
+            (2, dias[0].isoformat(), '18:30 - 19:30', 12, 12.50),
+            (2, dias[0].isoformat(), '19:30 - 20:30', 12, 12.50),
+            (2, dias[0].isoformat(), '20:30 - 21:30', 12, 12.50),
+            (2, dias[1].isoformat(), '19:30 - 20:30', 12, 12.50),
+            (2, dias[2].isoformat(), '20:30 - 21:30', 12, 12.50),
 
             # Quadra 3 (Poli, Pública)
-            (3, hoje.isoformat(), '19:00 - 20:00', 15, 0), # ID 6
-            (3, amanha.isoformat(), '20:00 - 21:00', 15, 0), # ID 7
+            (3, dias[0].isoformat(), '17:00 - 18:00', 15, 0),
+            (3, dias[0].isoformat(), '18:00 - 19:00', 15, 0),
+            (3, dias[0].isoformat(), '19:00 - 20:00', 15, 0),
+            (3, dias[1].isoformat(), '18:00 - 19:00', 15, 0),
+            (3, dias[1].isoformat(), '20:00 - 21:00', 15, 0),
+            (3, dias[2].isoformat(), '17:00 - 18:00', 15, 0),
+            (3, dias[3].isoformat(), '19:00 - 20:00', 15, 0),
+            (3, dias[4].isoformat(), '18:00 - 19:00', 15, 0),
 
             # Quadra 4 (Poli, Pública)
-            (4, hoje.isoformat(), '17:00 - 18:00', 10, 0), # ID 8
-            (4, hoje.isoformat(), '18:00 - 19:00', 10, 0)  # ID 9
+            (4, dias[0].isoformat(), '17:00 - 18:00', 10, 0),
+            (4, dias[0].isoformat(), '18:00 - 19:00', 10, 0),
+            (4, dias[1].isoformat(), '17:00 - 18:00', 10, 0),
+            (4, dias[2].isoformat(), '18:00 - 19:00', 10, 0),
+            (4, dias[3].isoformat(), '17:00 - 18:00', 10, 0)
         ]
         # ATUALIZE A QUERY PARA 5 VALORES
         cursor.executemany("INSERT INTO horarios (quadra_id, data, hora_texto, max_jogadores, preco) VALUES (?, ?, ?, ?, ?)", horarios_data)

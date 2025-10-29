@@ -149,15 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 3. LÓGICA ATUALIZADA DO FILTRO DE ESPORTES ---
 
     const botoesFiltroEsporte = document.querySelectorAll('.tab-esporte');
-    const todosHorarioCards = document.querySelectorAll('.card-horario');
-
-    // Inicializa os ícones
-    todosHorarioCards.forEach(card => {
-        const esporte = card.dataset.esporteReservado;
-        const iconeEl = card.querySelector('.esporte-travado');
-        if (esporte === 'Futebol') iconeEl.textContent = '⚽';
-        if (esporte === 'Basquete') iconeEl.textContent = '🏀';
-    });
 
     botoesFiltroEsporte.forEach(botao => {
         botao.addEventListener('click', () => {
@@ -169,7 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
             botao.classList.add('active');
 
             // Filtra os cards de horário
-            todosHorarioCards.forEach(card => {
+            // CORREÇÃO: Busca a lista de cards ATUAL toda vez que o filtro é acionado.
+            document.querySelectorAll('.card-horario').forEach(card => {
                 const esporteDoCard = card.dataset.esporteReservado; // (Ex: "Futebol" ou "")
 
                 // LÓGICA DE EXIBIÇÃO CORRIGIDA:

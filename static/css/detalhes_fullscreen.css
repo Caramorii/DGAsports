@@ -122,8 +122,18 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- FILTRO DE DATAS --- */
+.tabs-datas {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-x: auto;
+}
+
 /* --- Abas de Esportes --- */
-.tabs-esportes {
+.tabs-esportes { 
     display: flex;
     gap: 1rem;
     margin-bottom: 2rem;
@@ -131,7 +141,7 @@ body {
 }
 
 .tab-esporte {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1rem; /* Estilo base para os botões de filtro */
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #a0a0a0;
@@ -141,7 +151,20 @@ body {
     transition: all 0.2s ease;
 }
 
-.tab-esporte.active {
+/* Aplica o mesmo estilo base para os botões de data */
+.tab-data {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #a0a0a0;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap; /* Impede que o texto quebre */
+}
+
+.tab-data.active, .tab-esporte.active { /* Estilo para botão ativo */
     background-color: rgba(26, 180, 128, 0.2);
     color: #1ab480;
     border-color: #1ab480;
