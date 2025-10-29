@@ -4,272 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes - {{ quadra.nome }}</title>
-    
-    <style>
-        /* --- ESTILOS GERAIS --- */
-        :root {
-            --primary-green: #70d155;
-            --secondary-green: #1ab480;
-            --dark-bg: #1A202C;
-            --dark-card-bg: #2D3748;
-            --dark-footer-bg: #11151C;
-            --text-primary: #e0e6f0;
-            --text-secondary: #a0aec0;
-            --text-light: #ffffff;
-            --text-dark: #1A202C;
-            --border-color: rgba(112, 209, 85, 0.2);
-            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: var(--font-main);
-            background-color: var(--dark-bg);
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--text-primary);
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: var(--dark-card-bg);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-            border: 1px solid var(--border-color);
-        }
-        header {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
-            color: var(--text-dark);
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 900;
-            letter-spacing: -0.02em;
-        }
-        
-        /* --- ABAS PRINCIPAIS (Horários / Localização) --- */
-        .tabs {
-            display: flex;
-            background: var(--dark-bg);
-            border-bottom: 2px solid var(--border-color);
-        }
-        .tab {
-            flex: 1;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            background: var(--dark-bg);
-            border: none;
-            font-size: 1.1em;
-            font-weight: 600;
-            color: var(--text-secondary);
-            transition: all 0.3s;
-        }
-        .tab:hover {
-            background: var(--dark-card-bg);
-            color: var(--text-primary);
-        }
-        .tab.active {
-            background: var(--dark-card-bg);
-            color: var(--primary-green);
-            border-bottom: 3px solid var(--primary-green);
-        }
-        
-        /* --- Conteúdo das Abas --- */
-        .tab-content {
-            display: none;
-            padding: 30px;
-            animation: fadeIn 0.5s;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- FILTRO DE ESPORTES (Dentro da aba Horários) --- */
-        .tabs-esportes {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-        }
-        .tab-esporte {
-            padding: 10px 20px;
-            font-size: 1.1em;
-            font-weight: 600;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            color: var(--text-secondary);
-            border-bottom: 3px solid transparent;
-            position: relative;
-            top: 2px;
-        }
-        .tab-esporte:hover {
-            color: var(--text-primary);
-        }
-        .tab-esporte.active {
-            color: var(--primary-green);
-            border-bottom-color: var(--primary-green);
-        }
-
-        /* --- Grade de Horários --- */
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        /* Card de Horário */
-        .time-slot {
-            padding: 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            text-align: center;
-            transition: all 0.3s;
-            background: var(--dark-bg);
-        }
-        .time-slot .time {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 15px; 
-        }
-        
-        /* Vagas (Contagem e Ícone do Esporte) */
-        .time-slot .vagas {
-            font-size: 1.1em;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            /* Flex para alinhar ícone e contagem */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-        }
-        .time-slot .vagas .contagem {
-            font-weight: bold;
-            color: var(--text-primary);
-        }
-        .esporte-travado {
-            font-size: 0.9em;
-        }
-        
-        /* Barra de progresso */
-        .time-slot progress {
-            width: 100%;
-            height: 8px;
-            border: none;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .time-slot progress::-webkit-progress-bar {
-            background-color: var(--dark-bg);
-            border: 1px solid var(--border-color);
-        }
-        .time-slot progress::-webkit-progress-value {
-            background: linear-gradient(90deg, var(--primary-green), var(--secondary-green));
-        }
-
-        /* --- Botões (Entrar, Sair, Desabilitado) --- */
-        .btn {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
-            color: var(--text-dark);
-            padding: 15px 40px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 15px rgba(112, 209, 85, 0.2);
-            width: 100%;
-            margin-top: 15px;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(112, 209, 85, 0.4);
-        }
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: var(--text-secondary);
-            color: var(--text-primary);
-            box-shadow: none;
-            transform: none;
-        }
-        /* Botão Sair (Cinza) */
-        .btn-sair {
-            background: #4A5568; /* Cinza escuro */
-            color: var(--text-primary);
-            padding: 15px 40px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 15px;
-            transition: background-color 0.3s;
-        }
-        .btn-sair:hover {
-            background: #718096; /* Cinza um pouco mais claro */
-        }
-
-        /* --- Aba Localização --- */
-        .info-card {
-            background: var(--dark-bg);
-            padding: 25px;
-            border-radius: 15px;
-            border-left: 5px solid var(--primary-green);
-            margin-bottom: 20px;
-        }
-        .info-card h3 { color: var(--primary-green); margin-bottom: 15px; font-size: 1.3em; }
-        .info-card p { color: var(--text-primary); line-height: 1.8; margin-bottom: 10px; }
-        
-        .map-container {
-            width: 100%;
-            height: 400px;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-top: 20px;
-            border: 2px solid var(--border-color);
-        }
-
-        h2 { color: var(--text-primary); margin-bottom: 20px; }
-        h3 { color: var(--text-primary); margin-top: 30px; margin-bottom: 15px; }
-        p { color: var(--text-secondary); }
-
-        @media (max-width: 768px) {
-            .schedule-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-            header h1 { font-size: 2rem; }
-        }
-    </style>
+    <!-- Carrega o CSS base e o CSS específico para esta página -->
+    <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/x-png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/detalhes_fullscreen.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <a href="{{ url_for('explorar') }}" class="btn-voltar">← Voltar para Exploração</a>
-
-    <div class="container" data-quadra-tipo="{{ quadra.tipo }}">
-        <header>
-            <h1>⚽ {{ quadra.nome }}</h1>
-            <p>{{ quadra.cidade }}, {{ quadra.estado }}</p>
+    <div class="background-shapes"></div>
+    <div class="content-container" data-quadra-tipo="{{ quadra.tipo }}">
+        <header class="page-header">
+            <a href="{{ url_for('explorar') }}" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <span>Voltar</span>
+            </a>
+            <h1 class="page-title">{{ quadra.nome }}</h1>
         </header>
+        <p class="page-subtitle">{{ quadra.cidade }}, {{ quadra.estado }}</p>
+
         <div class="tabs">
-            <button class="tab active" data-tab="reserva">🕐 Horários</button>
-            <button class="tab" data-tab="mapa">📍 Localização</button>
+            <button class="tab active" data-tab="reserva">🕐 Horários</button><button class="tab" data-tab="mapa">📍 Localização</button>
         </div>
 
         <div id="reserva" class="tab-content active">
-            <h2>Horários Disponíveis (Entrar na Partida)</h2>
-            <p>Escolha um horário para se juntar à partida.</p>
-            
             <div class="tabs-esportes">
                 {% for esporte in quadra.esportes %}
                 <button class="tab-esporte {% if loop.first %}active{% endif %}" data-esporte="{{ esporte }}">{{ esporte }}</button>
@@ -277,19 +36,16 @@
             </div>
 
             <div class="schedule-grid">
-                
                 {% for horario in quadra.horarios %}
                 
                 <div class="card-horario" 
                      data-horario-id="{{ horario.id }}"
-                     data-esporte-reservado="{{ horario.esporte_reservado or '' }}"
-                     data-usuario-na-partida="{{ 'true' if horario.usuario_esta_na_partida else 'false' }}"
-                     data-preco="{{ horario.preco }}">
+                     data-esporte-reservado="{{ horario.esporte_reservado or '' }}">
                     
                     <div class="time-slot-time">{{ horario.hora }}</div>
                     
                     <div class="vagas">
-                        <span class="esporte-travado"></span> 
+                        <span class="esporte-travado"></span>
                         <span class="contagem">{{ horario.jogadores_atuais }} / {{ horario.max_jogadores }}</span>
                     </div>
                     
@@ -297,12 +53,12 @@
                     
                     {% if horario.usuario_esta_na_partida %}
                         <button class="btn btn-sair">Sair da Partida</button>
-
                     {% else %}
-                        
                         <button class="btn btn-entrar">
                             {% if quadra.tipo == 'publica' %}
                                 Entrar na Partida
+                            {% elif quadra.tipo == 'privada' and horario.esporte_reservado %}
+                                Entrar (R$ {{ "%.2f"|format(horario.preco) }})
                             {% else %}
                                 Reservar (R$ {{ "%.2f"|format(horario.preco) }})
                             {% endif %}
@@ -313,12 +69,11 @@
                 {% else %}
                     <p>Nenhum horário disponível no momento.</p>
                 {% endfor %}
-                
             </div>
         </div>
 
         <div id="mapa" class="tab-content">
-            <h2>📍 Como Chegar</h2>
+            <h2>Como Chegar</h2>
             <div class="info-card">
                 <h3>Endereço</h3>
                 <p><strong>{{ quadra.nome }}</strong></p>

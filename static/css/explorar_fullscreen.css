@@ -134,198 +134,32 @@ body {
     .explorar-container { flex-direction: column; }
     .sidebar { position: static; width: 100%; }
     .explorar-header h1 { font-size: 2.5rem; }
-/* --- ESTILOS PARA A PÁGINA DE DETALHES DA QUADRA --- */
-
-.detalhes-container {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 2rem;
 }
-
-.detalhes-header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    margin-bottom: 3rem;
-    align-items: center;
+.filter-group input[type="text"] {
+    width: 100%; padding: 0.75rem; background-color: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px; color: white; font-size: 1rem;
 }
-
-.quadra-imagem-principal {
-    flex: 1 1 500px;
-    width: 100%;
-    border-radius: 24px;
-    object-fit: cover;
-    aspect-ratio: 16 / 9;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-}
-
-.detalhes-info {
-    flex: 1 1 400px;
-}
-
-.detalhes-info h1 {
-    font-size: 3.5rem;
-    font-weight: 900;
-    line-height: 1.2;
-}
-
-.detalhes-info .localizacao {
-    font-size: 1.2rem;
-    color: #a0a0a0;
-    margin-top: 0.5rem;
+.input-with-icon {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
 }
 
-.esportes-disponiveis {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+.input-with-icon input {
+    padding-right: 40px; /* Espaço para o botão */
 }
 
-.esportes-disponiveis span {
-    background-color: rgba(30, 30, 30, 0.5);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 600;
-}
-
-.titulo-horarios {
-    font-size: 2.5rem;
-    text-align: center;
-    margin-bottom: 2rem;
-    font-weight: 800;
-}
-
-.horarios-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1.5rem;
-}
-
-.horario-card {
-    background: rgba(30, 30, 30, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 1.5rem;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.horario-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(26, 180, 128, 0.1);
-}
-
-.horario-card h3 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 0.75rem;
-    margin-bottom: 1rem;
-}
-
-.ocupacao {
-    margin: 1rem 0;
-}
-.ocupacao span {
-    font-weight: 500;
-    color: #a0a0a0;
-}
-.ocupacao progress {
-    width: 100%;
-    height: 10px;
-    margin-top: 0.5rem;
-    border-radius: 5px;
-    -webkit-appearance: none;
-    appearance: none;
-}
-.ocupacao progress::-webkit-progress-bar {
-    background-color: #121212;
-    border-radius: 5px;
-}
-.ocupacao progress::-webkit-progress-value {
-    background: linear-gradient(90deg, #1ab480, #4A90E2);
-    border-radius: 5px;
-}
-
-.horario-card h4 {
-    font-size: 1rem;
-    color: #a0a0a0;
-    margin-top: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.jogadores-lista {
-    display: flex;
-    gap: 1rem;
-    margin-top: 0.75rem;
-    flex-wrap: wrap;
-}
-
-.jogador-perfil {
-    text-align: center;
-}
-
-.jogador-perfil img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #1ab480;
-}
-
-.jogador-perfil span {
-    font-size: 0.8rem;
-    display: block;
-    margin-top: 0.25rem;
-}
-
-.sem-jogadores {
-    margin-top: 0.75rem;
-    color: #a0a0a0;
-    font-style: italic;
-}
-
-.btn-participar {
-    width: 100%;
-    padding: 0.9rem;
-    margin-top: 1.5rem;
+.input-with-icon button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
     border: none;
-    border-radius: 12px;
-    background: #1ab480;
-    color: #121212;
-    font-weight: 700;
-    font-size: 1rem;
     cursor: pointer;
-    transition: all 0.3s;
+    color: #a0a0a0;
+    padding: 5px;
 }
-
-.btn-participar:hover {
-    background-color: #8cf271;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(26, 180, 128, 0.3);
+.input-with-icon button:hover {
+    color: #1ab480;
 }
-
-a.details-btn {
-    display: block;
-    width: 100%;
-    padding: 0.85rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    margin-top: 1rem;
-}
-
-a.details-btn:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}};

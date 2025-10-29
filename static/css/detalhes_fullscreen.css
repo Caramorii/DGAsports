@@ -1,0 +1,242 @@
+/* --- Configurações Globais (Herdadas de base.css, mas redefinidas para clareza) --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: 2rem;
+}
+
+/* --- Fundo Animado (Padrão do site) --- */
+.background-shapes {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(circle at 15% 20%, rgba(26, 180, 128, 0.1) 0%, transparent 40%), radial-gradient(circle at 85% 70%, rgba(74, 144, 226, 0.1) 0%, transparent 40%);
+    animation: animateBackground 15s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes animateBackground {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+    50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+}
+
+/* --- Conteúdo Principal --- */
+.content-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- Header da Página --- */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.page-header .back-button {
+    display: flex;
+    align-items: center;
+    color: #1ab480;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.page-header .back-button:hover {
+    color: #8cf271;
+}
+
+.page-header .back-button svg {
+    margin-right: 0.5rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.page-subtitle {
+    width: 100%;
+    text-align: center;
+    color: #a0a0a0;
+    margin-top: -1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* --- Abas Principais (Horários / Localização) --- */
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.tab {
+    padding: 0.75rem 1.5rem;
+    background: rgba(30, 30, 30, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a0a0a0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.tab.active {
+    background: linear-gradient(135deg, #1ab480 0%, #4A90E2 100%);
+    color: #121212;
+    border-color: transparent;
+}
+
+/* --- Conteúdo das Abas --- */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Abas de Esportes --- */
+.tabs-esportes {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+.tab-esporte {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #a0a0a0;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.tab-esporte.active {
+    background-color: rgba(26, 180, 128, 0.2);
+    color: #1ab480;
+    border-color: #1ab480;
+}
+
+/* --- Grade de Horários --- */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.card-horario {
+    background: rgba(30, 30, 30, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.card-horario:hover {
+    transform: translateY(-5px);
+    border-color: rgba(26, 180, 128, 0.5);
+}
+
+.time-slot-time {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.vagas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #a0a0a0;
+    margin-bottom: 0.5rem;
+}
+
+.esporte-travado { font-size: 1.2rem; }
+.contagem { font-weight: 600; color: #fff; }
+
+.barra-vagas {
+    width: 100%; height: 8px; appearance: none; -webkit-appearance: none;
+    border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem;
+}
+.barra-vagas::-webkit-progress-bar { background-color: rgba(0,0,0,0.3); }
+.barra-vagas::-webkit-progress-value { background: linear-gradient(90deg, #1ab480, #4A90E2); }
+
+.btn {
+    width: 100%; padding: 0.85rem; border: none; border-radius: 8px;
+    font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s ease;
+}
+
+.btn-entrar {
+    background: #1ab480;
+    color: #121212;
+}
+.btn-entrar:hover { background: #8cf271; }
+
+.btn-sair {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+.btn-sair:hover { background-color: rgba(255, 255, 255, 0.2); }
+
+/* --- Aba de Localização --- */
+#mapa h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.info-card {
+    background: rgba(30, 30, 30, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.map-container {
+    width: 100%;
+    height: 400px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+    body { padding: 1rem; }
+    .page-title { font-size: 1.5rem; }
+    .schedule-grid { grid-template-columns: 1fr; }
+}

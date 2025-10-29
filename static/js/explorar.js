@@ -1,45 +1,81 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ELEMENTOS DO DOM (APENAS SIDEBAR) ---
-    // Removemos os filtros do topo (filtroEstado, etc.), pois o Flask cuida deles.
+    // --- LÓGICA DO BOTÃO DE GEOLOCALIZAÇÃO ---
+    const geoButton = document.getElementById('btn-geolocate');
+    const localidadeInput = document.getElementById('filtro-localidade');
+ 
+    if (geoButton && localidadeInput) {
+        geoButton.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                alert('Geolocalização não é suportada pelo seu navegador.');
+                return;
+            }
+ 
+            localidadeInput.placeholder = "Buscando...";
+ 
+            function success(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const apiUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`;
+ 
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.address) {
+                            const city = data.address.city || data.address.town || data.address.village || "";
+                            const state = data.address.state || "";
+                            localidadeInput.value = `${city}, ${state}`;
+                        } else {
+                            localidadeInput.placeholder = "Digite a cidade ou estado";
+                            alert('Não foi possível encontrar o nome da sua cidade.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro no Reverse Geocoding:', error);
+                        localidadeInput.placeholder = "Digite a cidade ou estado";
+                        alert('Erro ao buscar nome da localização.');
+                    });
+            }
+ 
+            function error() {
+                localidadeInput.placeholder = "Digite a cidade ou estado";
+                alert('Não foi possível obter sua localização. Verifique as permissões do navegador.');
+            }
+ 
+            navigator.geolocation.getCurrentPosition(success, error);
+        });
+    }
+ 
+    // --- LÓGICA DOS FILTROS DA SIDEBAR ---
     const filtrosTipoQuadra = document.querySelectorAll('input[name="tipo_quadra"]');
     const filtrosOcupacao = document.querySelectorAll('input[name="ocupacao"]');
     const filtroSeguindo = document.getElementById('filtro-seguindo');
-
-    // --- ELEMENTOS DOS RESULTADOS ---
     const statusBusca = document.getElementById('status-busca');
     const quadras = document.querySelectorAll('.court-card');
-    // A mensagem 'semResultados' agora é controlada pelo Jinja2 (Flask)
-    // const semResultados = document.getElementById('sem-resultados'); 
-
-    // --- FUNÇÃO DE FILTRO (Simplificada) ---
+ 
     function filtrarQuadras() {
-        // Pega os valores APENAS da sidebar
         const tipoSelecionado = document.querySelector('input[name="tipo_quadra"]:checked').value;
         const ocupacaoSelecionada = document.querySelector('input[name="ocupacao"]:checked').value;
         const seguindoSelecionado = filtroSeguindo.checked;
-
+ 
         let quadrasVisiveis = 0;
         statusBusca.textContent = "Filtrando resultados...";
-        statusBusca.style.color = "#1CB5E0"; // Cor do seu CSS
-
+        statusBusca.style.color = "#1CB5E0";
+ 
         quadras.forEach(quadra => {
-            // Pega os dados de cada quadra que o Flask renderizou
             const tipoDaQuadra = quadra.dataset.tipo;
             const ocupacaoDaQuadra = parseInt(quadra.dataset.ocupacao, 10);
             const seguindoNaQuadra = quadra.dataset.seguindo === 'true';
-
-            // Verifica APENAS os filtros da sidebar
+ 
             const correspondeTipo = tipoSelecionado === 'qualquer' || tipoDaQuadra === tipoSelecionado;
-
+ 
             let correspondeOcupacao = false;
             if (ocupacaoSelecionada === 'qualquer') { correspondeOcupacao = true; }
             else if (ocupacaoSelecionada === 'vazia' && ocupacaoDaQuadra === 0) { correspondeOcupacao = true; }
             else if (ocupacaoSelecionada === 'poucos' && ocupacaoDaQuadra >= 1 && ocupacaoDaQuadra <= 5) { correspondeOcupacao = true; }
             else if (ocupacaoSelecionada === 'cheia' && ocupacaoDaQuadra > 5) { correspondeOcupacao = true; }
-
+ 
             const correspondeSeguindo = !seguindoSelecionado || seguindoNaQuadra;
-
-            // O Flask já cuidou da Localidade e Esporte.
+ 
             if (correspondeTipo && correspondeOcupacao && correspondeSeguindo) {
                 quadra.style.display = 'block';
                 quadrasVisiveis++;
@@ -47,33 +83,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 quadra.style.display = 'none';
             }
         });
-
-        // Atualiza a mensagem de status
+ 
         setTimeout(() => {
-            // 'quadras.length' é o total que o Flask enviou (que já foram filtrados no backend)
-            // Se 'quadras.length' for 0, o 'else' do Jinja2 (em explorar.html) já mostrou a mensagem.
             if (quadras.length === 0) {
                 statusBusca.textContent = "";
                 return;
             }
-
+ 
             if (quadrasVisiveis > 0) {
                 statusBusca.textContent = `Exibindo ${quadrasVisiveis} de ${quadras.length} resultado(s) encontrados.`;
-                statusBusca.style.color = "#1ab480"; // Verde do seu CSS
+                statusBusca.style.color = "#1ab480";
             } else {
                 statusBusca.textContent = "Nenhum resultado corresponde aos filtros da sidebar.";
-                statusBusca.style.color = "#a0a0a0"; // Cinza do seu CSS
+                statusBusca.style.color = "#a0a0a0";
             }
         }, 300);
     }
-
-    // --- INICIALIZAÇÃO E EVENT LISTENERS (APENAS SIDEBAR) ---
-
-    // Removemos os listeners do formulário do topo, pois o Flask cuida disso
+ 
     filtrosTipoQuadra.forEach(radio => radio.addEventListener('change', filtrarQuadras));
     filtrosOcupacao.forEach(radio => radio.addEventListener('change', filtrarQuadras));
     filtroSeguindo.addEventListener('change', filtrarQuadras);
-
-    // Aplica o filtro inicial da sidebar assim que a página carrega
+ 
     filtrarQuadras();
 });
