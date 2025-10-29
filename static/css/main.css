@@ -1,38 +1,6 @@
 /* ====================================================== */
-/* 1. CONFIGURAÇÃO GLOBAL E VARIÁVEIS                     */
+/* ESTILOS PARA A PÁGINA PRINCIPAL (DGASports.html)       */
 /* ====================================================== */
-:root {
-    /* Paleta de Cores */
-    --primary-green: #70d155;
-    --secondary-green: #1ab480;
-    --dark-bg: #1A202C;
-    --dark-card-bg: #2D3748;
-    --dark-footer-bg: #11151C;
-    --text-primary: #e0e6f0;
-    --text-secondary: #a0aec0;
-    --text-light: #ffffff;
-    --text-dark: #1A202C;
-    --border-color: rgba(112, 209, 85, 0.2);
-
-    /* Tipografia */
-    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* ====================================================== */
-/* 2. RESET E ESTILOS DE BASE                             */
-/* ====================================================== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: var(--font-main);
-    line-height: 1.6;
-    color: var(--text-primary);
-    background-color: var(--dark-bg);
-}
 
 #root {
     max-width: 1400px;
@@ -87,7 +55,6 @@ header h1:hover {
     transform: scale(1.05);
 }
 
-/* CORREÇÃO APLICADA AQUI */
 header h1 span {
     background-image: linear-gradient(135deg, var(--text-light) 0%, var(--text-primary) 100%);
     -webkit-background-clip: text;
@@ -217,12 +184,18 @@ header nav a:hover {
     border-radius: 8px;
     padding: 0 15px;
     min-width: 250px;
+    position: relative; /* Necessário para o botão de geolocalização */
 }
 
 .input-group svg {
     margin-right: 10px;
-    color: var(--primary-green);
+    color: var(--text-secondary); /* Cor neutra para outros ícones */
     flex-shrink: 0;
+}
+
+/* Garante que apenas o ícone de pino de localização seja verde */
+.input-group svg.location-pin-icon {
+    color: var(--primary-green);
 }
 
 .input-group input {
@@ -240,7 +213,28 @@ header nav a:hover {
     color: var(--text-secondary);
 }
 
-.search-form button {
+.input-group input[name="localidade"] {
+    padding-right: 40px; /* Adiciona espaço para o botão */
+}
+
+#btn-geolocate {
+    position: absolute; /* Coloca o botão "dentro" do input */
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent; /* Garante que não haja fundo */
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: var(--text-secondary); /* Cor do ícone */
+    transition: color 0.2s;
+}
+
+#btn-geolocate:hover {
+    color: var(--text-light); /* Cor ao passar o mouse */
+}
+
+.search-form button[type="submit"] {
     background-color: var(--primary-green);
     color: var(--text-dark);
     font-weight: bold;
@@ -252,7 +246,7 @@ header nav a:hover {
     flex-shrink: 0;
 }
 
-.search-form button:hover {
+.search-form button[type="submit"]:hover {
     background-color: #8cf271;
 }
 
@@ -548,9 +542,6 @@ h3::after {
     .hero h2 {
         font-size: 5rem;
     }
-    main {
-        padding: 3rem;
-    }
 }
 
 /* Estilos para Celulares */
@@ -598,45 +589,4 @@ h3::after {
         align-items: flex-start;
         gap: 30px;
     }
-
-    /* Em: static/css/styleproject.css */
-
-/* --- Estilos para o novo botão de Geolocalização --- */
-
-.search-form .input-group {
-    /* Garante que os botões fiquem lado a lado */
-    display: flex;
-    align-items: center;
-    position: relative; /* Necessário para o botão */
 }
-
-.search-form .input-group input {
-    /* Faz o input não passar por baixo do botão */
-    flex-grow: 1;
-    padding-right: 40px; /* Adiciona espaço para o botão */
-}
-
-#btn-geolocate {
-    position: absolute; /* Coloca o botão "dentro" do input */
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    color: #a0aec0; /* Cor do ícone */
-    transition: color 0.2s;
-}
-
-#btn-geolocate:hover {
-    color: #ffffff; /* Cor ao passar o mouse */
-}
-}*{ 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
-}
-
-

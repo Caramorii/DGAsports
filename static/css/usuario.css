@@ -1,16 +1,10 @@
 /* ====================================================== */
-/* 1. CONFIGURAÇÃO GLOBAL E VARIÁVEIS                     */
-/* ====================================================== */
-
-/* ====================================================== */
 /* 2. RESET E ESTILOS DE BASE                             */
 /* ====================================================== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/*
+  As variáveis de cores e resets agora vêm do arquivo 'base.css',
+  que deve ser carregado em todas as páginas antes deste.
+*/
 
 main {
     flex-grow: 1;

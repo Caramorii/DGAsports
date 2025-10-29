@@ -4,296 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@NomeDeUsuario - DGA Social</title>
-    <style>
-        :root {
-            --primary-green: #70d155;
-            --secondary-green: #1ab480;
-            --dark-bg: #12181f;
-            --dark-card-bg: #1c2330;
-            --darker-bg: #0d1117;
-            --text-primary: #e0e6f0;                
-            --text-secondary: #a0aec0;
-            --border-color: rgba(112, 209, 85, 0.2);
-            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: var(--font-main);
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
-
-        /* HEADER */
-        header {
-            background: var(--dark-card-bg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        header h1 {
-            color: var(--primary-green);
-            font-weight: 800;
-            font-size: 1.3rem;
-        }
-
-        header .user-actions {
-            display: flex;
-            gap: 1.2rem;
-        }
-
-        .icon-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.4rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .icon-btn:hover { color: var(--primary-green); }
-
-        /* CONTAINER */
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-        }
-
-        /* PROFILE CARD */
-        .profile-card {
-            background: var(--dark-card-bg);
-            border-radius: 16px;
-            padding: 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            align-items: center;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 0 20px rgba(112,209,85,0.05);
-        }
-
-        .profile-img {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            border: 3px solid var(--primary-green);
-            object-fit: cover;
-        }
-
-        .profile-info {
-            flex: 1;
-        }
-
-        .username {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .verified { color: var(--primary-green); font-size: 1.1rem; }
-
-        .user-level {
-            margin-top: 0.3rem;
-            background: linear-gradient(90deg, var(--secondary-green), var(--primary-green));
-            color: var(--dark-bg);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .bio {
-            margin-top: 0.75rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        .profile-actions {
-            display: flex;
-            gap: 0.6rem;
-            margin-top: 1rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1.3rem;
-            border-radius: 8px;
-            border: 1px solid var(--primary-green);
-            color: var(--primary-green);
-            font-weight: 600;
-            font-size: 0.9rem;
-            background: transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn:hover { background: var(--primary-green); color: var(--dark-bg); }
-
-        /* STATS */
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            text-align: center;
-            margin-top: 1.5rem;
-            padding: 0.8rem 1rem;
-            background: var(--darker-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .stats div span {
-            display: block;
-            font-weight: 700;
-            color: var(--primary-green);
-            font-size: 1.1rem;
-        }
-
-        /* MAP SECTION */
-        .map-section {
-            background: var(--dark-card-bg);
-            border-radius: 16px;
-            margin-top: 2rem;
-            padding: 1.5rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .map-section h2 {
-            color: var(--primary-green);
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-        }
-
-        .fake-map {
-            width: 100%;
-            height: 200px;
-            border-radius: 10px;
-            background: radial-gradient(circle at 30% 50%, rgba(112,209,85,0.2), transparent 70%), 
-                        linear-gradient(135deg, #1c2330, #12181f);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        /* BADGES */
-        .badges {
-            margin-top: 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .badge {
-            background: var(--dark-card-bg);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--primary-green);
-            padding: 1rem;
-            border-radius: 12px;
-            flex: 1 1 calc(33% - 1rem);
-            min-width: 220px;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            transition: 0.3s;
-        }
-
-        .badge:hover { transform: translateY(-5px); border-left-color: var(--secondary-green); }
-
-        .badge-icon {
-            font-size: 1.6rem;
-            color: var(--primary-green);
-        }
-
-        .badge-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .badge-text span:first-child {
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .badge-text span:last-child {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        /* POSTS */
-        .posts-section {
-            margin-top: 2.5rem;
-        }
-
-        .posts-section h2 {
-            color: var(--primary-green);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .posts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 6px;
-        }
-
-        .post-item {
-            position: relative;
-            aspect-ratio: 1;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .post-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform .3s;
-        }
-
-        .post-item:hover img { transform: scale(1.05); }
-
-        .post-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.4);
-            opacity: 0;
-            transition: 0.3s;
-        }
-
-        .post-item:hover .post-overlay { opacity: 1; }
-
-        .post-overlay span {
-            color: white;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .profile-card { flex-direction: column; text-align: center; }
-            .profile-actions { justify-content: center; }
-            .badges { flex-direction: column; }
-        }
-    </style>
+    <!-- Carrega o CSS base e o CSS específico para esta página -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuario.css') }}">
 </head>
 <body>
     <header>
@@ -310,11 +23,12 @@
         <div class="profile-card">
             <img src="https://i.ibb.co/L5kL2jD/avatar-placeholder.png" class="profile-img" alt="Foto de perfil">
             <div class="profile-info">
-                <div class="username">NomeDeUsuario <span class="verified">✓</span></div>
-                <div class="user-level">🏆 Nível 12 - Pro Player</div>
+                <!-- CORREÇÃO: Substituído texto estático por variáveis Jinja2 -->
+                <!-- O backend (app.py) precisará ser ajustado para passar um objeto 'usuario' para este template -->
+                <div class="username">{{ usuario.nome or 'NomeDeUsuario' }} <span class="verified">✓</span></div>
+                <div class="user-level">🏆 Nível {{ usuario.nivel or '1' }} - {{ usuario.titulo or 'Iniciante' }}</div>
                 <p class="bio">
-                    Jogador de fim de semana e apaixonado por futebol.  
-                    Sempre em busca da próxima quadra livre para jogar!
+                    {{ usuario.bio or 'Este usuário ainda não adicionou uma bio.' }}
                 </p>
                 <div class="profile-actions">
                     <button class="btn">Editar perfil</button>
@@ -325,9 +39,9 @@
 
         <!-- Estatísticas -->
         <div class="stats">
-            <div><span>68</span> Partidas</div>
-            <div><span>1.543</span> Seguidores</div>
-            <div><span>74</span> Seguindo</div>
+            <div><span>{{ usuario.stats.partidas or 0 }}</span> Partidas</div>
+            <div><span>{{ usuario.stats.seguidores or 0 }}</span> Seguidores</div>
+            <div><span>{{ usuario.stats.seguindo or 0 }}</span> Seguindo</div>
         </div>
 
         <!-- Mapa -->
@@ -386,4 +100,3 @@
     </div>
 </body>
 </html>
-

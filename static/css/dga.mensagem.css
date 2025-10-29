@@ -1,21 +1,6 @@
-:root {
-    --primary-green: #70d155;
-    --secondary-green: #1ab480;
-    --dark-bg: #1A202C;
-    --dark-card-bg: #2D3748;
-    --text-primary: #e0e6f0;
-    --text-secondary: #a0aec0;
-    --text-light: #ffffff;
-    --border-color: rgba(112, 209, 85, 0.2);
-}
 
-body {
-    background: var(--dark-bg);
-    color: var(--text-primary);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-}
+   
+
 
 .chat-container {
     display: flex;
