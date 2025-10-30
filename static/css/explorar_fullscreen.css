@@ -7,20 +7,12 @@
 
 body {
     font-family: 'Poppins', sans-serif; /* Sobrescreve a fonte base */
-    background-color: #121212;
-    color: #ffffff;
+    background-color: var(--dark-bg);
+    color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
     padding: 2rem;
-}
-
-/* Aplica o gradiente apenas para o tema escuro */
-body:not(.light-theme) {
     background-image: linear-gradient(135deg, #1c3a3a 0%, #1A202C 70%);
-}
-
-body.light-theme {
-    background-image: none;
 }
 
 /* --- Conteúdo --- */
@@ -62,8 +54,8 @@ body.light-theme {
 }
 
 .filter-button {
-    flex-shrink: 0; padding: 0.75rem 2rem; background: linear-gradient(135deg, #1ab480 0%, #4A90E2 100%); border: none;
-    color: white; font-weight: 700; border-radius: 8px; cursor: pointer; align-self: flex-end;    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    flex-shrink: 0; padding: 0.75rem 2rem; background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-blue) 100%); border: none;
+    color: var(--text-dark); font-weight: 700; border-radius: 8px; cursor: pointer; align-self: flex-end;    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .filter-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--shadow-color); }
 
@@ -86,10 +78,10 @@ body.light-theme {
 
 /* --- FILTROS ADICIONAIS NA BARRA LATERAL --- */
 .sidebar-filters {
-    padding: 1.5rem; background: rgba(30, 30, 30, 0.5); border: 1px solid rgba(255, 255, 255, 0.1);    border-radius: 16px; backdrop-filter: blur(10px);
+    padding: 1.5rem; background: var(--dark-card-bg); border: 1px solid var(--border-color);    border-radius: 16px; backdrop-filter: blur(10px);
     transition: background-color 0.3s, border-color 0.3s;
 }
-.sidebar-filters h3 { font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.sidebar-filters h3 { font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
 .filter-section { margin-bottom: 1.5rem; }
 .filter-section:last-child { margin-bottom: 0; }
 .filter-section h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 1rem; }
@@ -97,20 +89,20 @@ body.light-theme {
 /* Estilos Customizados para Radio e Checkbox */
 .custom-radio, .custom-checkbox { display: block; position: relative; padding-left: 30px; margin-bottom: 12px; cursor: pointer; font-size: 1rem; user-select: none; }
 .custom-radio input, .custom-checkbox input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
-.custom-radio label::before, .custom-checkbox label::before { content: ''; position: absolute; left: 0; top: 2px; height: 18px; width: 18px; background-color: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.2s ease; }
+.custom-radio label::before, .custom-checkbox label::before { content: ''; position: absolute; left: 0; top: 2px; height: 18px; width: 18px; background-color: var(--dark-bg); border: 1px solid var(--border-color); transition: all 0.2s ease; }
 .custom-radio label::before { border-radius: 50%; } 
 .custom-checkbox label::before { border-radius: 4px; } 
-.custom-radio input:checked ~ label::before, .custom-checkbox input:checked ~ label::before { background: #1ab480; border-color: #1ab480; }
+.custom-radio input:checked ~ label::before, .custom-checkbox input:checked ~ label::before { background: var(--secondary-green); border-color: var(--secondary-green); }
 .custom-radio label::after, .custom-checkbox label::after { content: ''; position: absolute; display: none; }
 .custom-radio input:checked ~ label::after, .custom-checkbox input:checked ~ label::after { display: block; }
-.custom-radio label::after { top: 7px; left: 5px; width: 8px; height: 8px; border-radius: 50%; background: white; }
-.custom-checkbox label::after { left: 6px; top: 3px; width: 5px; height: 10px; border: solid white; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+.custom-radio label::after { top: 7px; left: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--text-dark); }
+.custom-checkbox label::after { left: 6px; top: 3px; width: 5px; height: 10px; border: solid var(--text-dark); border-width: 0 3px 3px 0; transform: rotate(45deg); }
 
 /* --- Grid de Resultados e Cards --- */
 .status-busca { text-align: left; margin-bottom: 1rem; font-weight: 600; font-size: 1.1rem; height: 20px; transition: color 0.3s ease; }
 .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; animation: fadeInUp 1s ease-out 0.5s backwards; }
-.court-card { background: rgba(30, 30, 30, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; text-align: left; backdrop-filter: blur(10px); transition: all 0.3s ease; }
-.court-card:hover { transform: translateY(-5px); border-color: rgba(26, 180, 128, 0.5); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+.court-card { background: var(--dark-card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; text-align: left; backdrop-filter: blur(10px); transition: all 0.3s ease; }
+.court-card:hover { transform: translateY(-5px); border-color: var(--secondary-green); box-shadow: 0 15px 30px var(--shadow-color); }
 .court-card img { width: 100%; height: 200px; object-fit: cover; }
 .card-details { padding: 1.5rem; }
 .card-details h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
@@ -119,10 +111,10 @@ body.light-theme {
 .schedule-info { margin-bottom: 1.5rem; }
 .schedule-info strong { font-size: 0.9rem; color: var(--text-secondary); }
 .time-slots { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
-.time-slot { background-color: rgba(26, 180, 128, 0.2); color: #1ab480; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; }
-.time-slot.disabled { background-color: rgba(255, 255, 255, 0.1); color: #a0a0a0; text-decoration: line-through; }
-.details-btn { width: 100%; padding: 0.85rem; background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; font-weight: 600; font-size: 1rem; border-radius: 8px; cursor: pointer; transition: background-color 0.2s ease; }
-.details-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
+.time-slot { background-color: var(--hover-bg); color: var(--primary-green); padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; }
+.time-slot.disabled { background-color: var(--border-color); color: var(--text-secondary); text-decoration: line-through; }
+.details-btn { width: 100%; padding: 0.85rem; background-color: var(--dark-bg); border: 1px solid var(--border-color); color: var(--text-primary); font-weight: 600; font-size: 1rem; border-radius: 8px; cursor: pointer; transition: background-color 0.2s ease; }
+.details-btn:hover { background-color: var(--hover-bg); }
 
 /* --- Responsividade --- */
 @media (max-width: 992px) {
@@ -131,8 +123,8 @@ body.light-theme {
     .explorar-header h1 { font-size: 2.5rem; }
 }
 .filter-group input[type="text"] {
-    width: 100%; padding: 0.75rem; background-color: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px; color: white; font-size: 1rem;
+    width: 100%; padding: 0.75rem; background-color: var(--dark-bg); border: 1px solid var(--border-color);
+    border-radius: 8px; color: var(--text-primary); font-size: 1rem;
 }
 .input-with-icon {
     position: relative;
@@ -156,70 +148,10 @@ body.light-theme {
     padding: 5px;
 }
 .input-with-icon button:hover {
-    color: #1ab480;
+    color: var(--secondary-green);
 }
 
 /* --- Sobrescrevendo para o Tema Claro --- */
 body.light-theme {
-    background-color: var(--dark-bg);
-    color: var(--text-primary);
-    /* A paleta clara já é gerenciada pelas variáveis em outros lugares */
-}
-
-/* O restante do CSS já usa variáveis que são trocadas pelo theme_switcher.js */
-/* As cores fixas acima são para o tema escuro específico desta página. */
-
-body.light-theme .filter-panel,
-body.light-theme .sidebar-filters,
-body.light-theme .court-card {
-    background: var(--dark-card-bg);
-    border-color: var(--border-color);
-    box-shadow: 0 8px 24px var(--shadow-color);
-}
-
-body.light-theme .filter-group select,
-body.light-theme .filter-group input[type="text"] {
-    background-color: var(--dark-bg);
-    border-color: var(--border-color);
-    color: var(--text-primary);
-}
-
-body.light-theme .filter-button {
-    background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
-    color: var(--text-dark);
-}
-body.light-theme .filter-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px var(--shadow-color);
-}
-
-body.light-theme .sidebar-filters h3 {
-    border-bottom-color: var(--border-color);
-}
-
-body.light-theme .custom-radio label::before,
-body.light-theme .custom-checkbox label::before {
-    background-color: var(--dark-bg);
-    border-color: var(--border-color);
-}
-
-body.light-theme .custom-radio input:checked ~ label::before,
-body.light-theme .custom-checkbox input:checked ~ label::before {
-    background: var(--primary-green);
-    border-color: var(--primary-green);
-}
-
-body.light-theme .time-slot {
-    background-color: rgba(0, 123, 255, 0.1);
-    color: var(--primary-green);
-}
-
-body.light-theme .details-btn {
-    background-color: var(--dark-bg);
-    border-color: var(--border-color);
-    color: var(--text-primary);
-}
-
-body.light-theme .details-btn:hover {
-    background-color: #e9ecef;
+    background-image: linear-gradient(135deg, #f0f2f5 0%, #ffffff 70%);
 }

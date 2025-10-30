@@ -66,7 +66,7 @@ header nav {
 }
 
 header nav a {
-    color: var(--primary-text);
+    color: var(--text-primary);
     text-decoration: none;
     font-weight: 600;
     padding: 0.75rem 1.5rem;
@@ -82,14 +82,21 @@ header nav a:hover {
 
 .header-actions {
     display: flex;
+    align-items: center;
     gap: 0.75rem;
+}
+
+.user-greeting {
+    color: var(--text-primary);
+    font-weight: 600;
+    white-space: nowrap; /* Evita que o nome quebre em telas menores */
 }
 
 /* Estilo do botão de tema */
 .theme-toggle-btn {
     background: transparent;
     border: 1px solid var(--border-color);
-    color: var(--secondary-text);
+    color: var(--text-secondary);
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -138,8 +145,8 @@ header nav a:hover {
 }
 
 .btn-register:hover {
-    background-color: #8cf271;
-    border-color: #8cf271;    transform: translateY(-2px);
+    background-color: var(--secondary-green);
+    border-color: var(--secondary-green);    transform: translateY(-2px);
     box-shadow: 0 8px 25px var(--shadow-color); /* Corrigido para usar a variável */
 }
 
@@ -448,7 +455,7 @@ h3::after {
 /* 6. RODAPÉ (FOOTER)                                     */
 /* ====================================================== */
 .site-footer {
-    background-color: var(--dark-footer-bg);
+    background-color: var(--dark-bg-start);
     color: var(--text-secondary);
     padding: 60px 0;
     font-size: 14px;
@@ -530,7 +537,7 @@ h3::after {
 
 .footer-divider {
     border: 0;
-    border-top: 1px solid var(--dark-card-bg);
+    border-top: 1px solid var(--border-color);
     margin: 40px 0;
 }
 
