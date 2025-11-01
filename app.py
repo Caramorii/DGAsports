@@ -72,10 +72,11 @@ def register():
         email = request.form['email']
         senha = request.form['senha']
         resultado = cadastrar_usuario(nome, email, senha)
-        flash(resultado)
         if "sucesso" in resultado:
+            flash(resultado, 'success') # Categoria 'success'
             return redirect(url_for('login'))
         else:
+            flash(resultado, 'error') # Categoria 'error'
             return redirect(url_for('register'))
     return render_template('register.html')
 
@@ -89,13 +90,13 @@ def login():
             session['usuario_id'] = usuario['id'] 
             session['usuario_logado'] = usuario['email']
             session['nome_usuario'] = usuario['nome']
-            flash(f"Login bem-sucedido! Bem-vindo(a), {usuario['nome']}!")
+            flash(f"Login bem-sucedido! Bem-vindo(a), {usuario['nome']}!", 'success')
             proxima_pagina = request.args.get('proximo')
             if proxima_pagina:
                 return redirect(proxima_pagina)
             return redirect(url_for('home'))
         else:
-            flash("E-mail ou senha inválidos. Tente novamente.")
+            flash("E-mail ou senha inválidos. Tente novamente.", 'error')
             return redirect(url_for('login'))
     return render_template('login.html')
 

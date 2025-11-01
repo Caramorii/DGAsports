@@ -46,14 +46,13 @@
             </div>
         </header>
 
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        <div class="flash-messages-main"
-            style="background-color: #5fe405; color: #1f2937; text-align: center; padding: 10px; font-weight: bold; margin-bottom: 1rem; border-radius: 8px;">
-            {% for message in messages %}
-            <p>{{ message }}</p>
+            {% for category, message in messages %}
+            <div class="flash-messages-main flash-{{ category }}">
+                <p>{{ message }}</p>
+            </div>
             {% endfor %}
-        </div>
         {% endif %}
         {% endwith %}
 
@@ -96,38 +95,46 @@
             <section>
                 <h3>Esportes em Destaque</h3>
                 <div class="card-container">
-                    <a href="#" class="card-link">
+                    <!-- Card de Futebol -->
+                    <a href="{{ url_for('explorar', esporte='futebol') }}" class="card-link">
                         <div class="card">
                             <img src="{{ url_for('static', filename='assets/1(1).jpg') }}" alt="Futebol">
                             <div class="overlay">
                                 <h4>Futebol</h4>
-                                <p>Jogue partidas competitivas e suba no ranking com a DGA.</p>
+                                <p>Jogue partidas competitivas e suba no ranking.</p>
                             </div>
                         </div>
                     </a>
-                    <a href="#" class="card-link">
+                    <!-- Card de Basquete -->
+                    <a href="{{ url_for('explorar', esporte='basquete') }}" class="card-link">
                         <div class="card">
                             <img src="{{ url_for('static', filename='assets/foto_basquete.jpeg') }}" alt="Basquete">
                             <div class="overlay">
                                 <h4>Basquete</h4>
-                                <p class="frase">Encontre sua melhor quadra e horário.</p>
+                                <p>Encontre sua melhor quadra e horário.</p>
                             </div>
                         </div>
                     </a>
-                    <div class="card">
-                        <img src="{{ url_for('static', filename='assets/volei_foto.jpeg') }}" alt="Volei">
-                        <div class="overlay">
-                            <h4>Vôlei</h4>
-                            <p class="frase">Suba de ranking e jogue com os melhores</p>
+                    <!-- Card de Vôlei -->
+                    <a href="{{ url_for('explorar', esporte='volei') }}" class="card-link">
+                        <div class="card">
+                            <img src="{{ url_for('static', filename='assets/volei_foto.jpeg') }}" alt="Volei">
+                            <div class="overlay">
+                                <h4>Vôlei</h4>
+                                <p>Suba de ranking e jogue com os melhores.</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card">
-                        <img src="{{ url_for('static', filename='assets/bitch_tennis.jpeg') }}" alt="Beach Tennis">
-                        <div class="overlay">
-                            <h4>Beach Tennis</h4>
-                            <p class="frase">Divirta-se.</p>
+                    </a>
+                    <!-- Card de Beach Tennis -->
+                    <a href="{{ url_for('explorar', esporte='beach-tennis') }}" class="card-link">
+                        <div class="card">
+                            <img src="{{ url_for('static', filename='assets/bitch_tennis.jpeg') }}" alt="Beach Tennis">
+                            <div class="overlay">
+                                <h4>Beach Tennis</h4>
+                                <p>Divirta-se na areia.</p>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </section>
 
@@ -170,7 +177,7 @@
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-top">
-                <h2>DGAsports</h2><a href="#">Acesse a Central de Ajuda</a>
+                <h2>DGAsports</h2><a href="{{ url_for('suporte') }}">Acesse a Central de Ajuda</a>
             </div>
             <div class="footer-main">
                 <div class="footer-column">
@@ -212,8 +219,8 @@
             <hr class="footer-divider">
             <div class="footer-bottom">
                 <div class="footer-legal-info">
-                    <p>&copy; 2025 DGAsports Plataforma Esportiva Ltda.</p>
-                    <p>Avenida Esportiva, nº 123, Centro, São Paulo/SP - CEP: 01234-567 | CNPJ: 12.345.678/0001-90</p>
+                    <p>&copy; 2025 DGAsports Plataforma Esportiva </p>
+                    <p>Avenida Dr. Armando Salles Oliveira, 201, Parque Universitário, Franca - SP, CEP 14404-600 </p>
                 </div>
                 <div class="footer-social-media"></div>
             </div>

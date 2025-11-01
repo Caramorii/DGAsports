@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Link para o novo CSS de autenticação -->
+    <title>Login</title>
+    <!-- Links para os arquivos CSS e JS necessários para o tema -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <script src="{{ url_for('static', filename='js/theme_switcher.js') }}" defer></script>
     <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/x-png">
-    <title>Login</title>
 </head>
 <body>
     <div class="container">
         <h1>Login</h1>
-        
-        {% with messages = get_flashed_messages() %}
+
+        <!-- CORREÇÃO: Bloco de mensagens atualizado para usar categorias -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="flash-messages">
-                    {% for message in messages %}
+                {% for category, message in messages %}
+                    <div class="flash-messages flash-{{ category }}">
                         <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
+                    </div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
 
@@ -28,11 +30,13 @@
             <input type="password" name="senha" class="input-field" placeholder="Senha" required>
             <button type="submit" class="submit-btn">Entrar</button>
         </form>
-        <!-- A classe foi unificada para 'bottom-link' -->
+        
         <p class="bottom-link">
             Não tem uma conta? <a href="{{ url_for('register') }}">Cadastre-se</a>
         </p>
+        <p class="bottom-link" style="margin-top: 0.75rem;">
+            <a href="{{ url_for('home') }}">‹ Voltar para a página inicial</a>
+        </p>
     </div>
-    <script src="{{ url_for('static', filename='js/theme_switcher.js') }}" defer></script>
 </body>
 </html>

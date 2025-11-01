@@ -14,13 +14,13 @@
     <div class="container">
         <h1>Criar Conta</h1>
 
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="flash-messages">
-                    {% for message in messages %}
+                {% for category, message in messages %}
+                    <div class="flash-messages flash-{{ category }}">
                         <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
+                    </div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
 
@@ -33,6 +33,9 @@
         
         <p class="bottom-link">
             Já tem uma conta? <a href="{{ url_for('login') }}">Faça login</a>
+        </p>
+        <p class="bottom-link" style="margin-top: 0.75rem;">
+            <a href="{{ url_for('home') }}">‹ Voltar para a página inicial</a>
         </p>
     </div>
 </body>

@@ -13,11 +13,50 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
+<style>
+    .back-button {
+        position: fixed; /* Fixa o botão na tela */
+        top: 20px;
+        left: 20px;
+        z-index: 1001; /* Garante que fique acima de outros elementos */
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        background-color: var(--dark-card-bg);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .back-button:hover {
+        transform: translateY(-2px);
+        background-color: var(--dark-bg);
+        color: var(--primary-green);
+        border-color: var(--primary-green);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    .back-button svg {
+        transition: transform 0.3s ease;
+    }
+    .back-button:hover svg {
+        transform: translateX(-3px);
+    }
+</style>
 <body>
+    <!-- BOTÃO DE VOLTAR MOVIDO PARA O TOPO DA PÁGINA -->
+    <a href="{{ url_for('home') }}" class="back-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        <span>Voltar</span>
+    </a>
     <div class="background-shapes"></div>
     <div class="content-container">
         <header class="explorar-header">
-            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='assets/logo2.png') }}" alt="Logo DGASports" class="explorar-logo"></a>
             <h1>Encontre sua Quadra</h1>
             <p>Use os filtros para achar o lugar perfeito para sua próxima partida.</p>
         </header>
@@ -31,9 +70,11 @@
                 <label for="filtro-esporte">Esporte</label>
                 <select id="filtro-esporte" name="esporte">
                     <option value="">Qualquer</option>
-                    <option value="Futebol" {% if esporte_busca.lower() == 'futebol' %}selected{% endif %}>Futebol</option>
-                    <option value="Basquete" {% if esporte_busca.lower() == 'basquete' %}selected{% endif %}>Basquete</option>
-                    </select>
+                    <option value="futebol" {% if esporte_busca.lower() == 'futebol' %}selected{% endif %}>Futebol</option>
+                    <option value="basquete" {% if esporte_busca.lower() == 'basquete' %}selected{% endif %}>Basquete</option>
+                    <option value="volei" {% if esporte_busca.lower() == 'volei' %}selected{% endif %}>Vôlei</option>
+                    <option value="beach-tennis" {% if esporte_busca.lower() == 'beach-tennis' %}selected{% endif %}>Beach Tennis</option>
+                </select>
             </div>
             <button class="filter-button" type="submit">Buscar</button>
         </form>
