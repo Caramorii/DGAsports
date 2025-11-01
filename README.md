@@ -34,11 +34,17 @@ Comunidade (DGA Social): Uma mini rede social para posts, interações e um sist
 /DGAsports
 |
 |-- app.py                  # Arquivo principal da aplicação Flask (rotas e lógica de negócio)
+
 |-- banco_de_dados.py       # Módulo para toda a interação com o banco de dados SQLite
+
 |
+
 |-- static/                 # Pasta para arquivos estáticos (CSS, JS, Imagens)
+
 |   |-- css/                # Contém todas as folhas de estilo (main.css, auth.css, etc.)
+
 |   |-- js/                 # Contém os scripts JavaScript (theme_switcher.js, detalhes.js, etc.)
+
 |   |-- assets/             # Contém imagens, logos e outros recursos visuais
 |
 |-- templates/              # Pasta para os templates HTML (renderizados pelo Flask)
