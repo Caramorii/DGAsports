@@ -47,14 +47,22 @@ Comunidade (DGA Social): Uma mini rede social para posts, interações e um sist
 
 |   |-- assets/             # Contém imagens, logos e outros recursos visuais
 |
+
 |-- templates/              # Pasta para os templates HTML (renderizados pelo Flask)
+
 |   |-- DGAsports.html      # Página inicial (Home)
+
 |   |-- explorar.html       # Página de busca e listagem de quadras
+
 |   |-- detalhes_quadra.html # Página com detalhes de uma quadra específica
+
 |   |-- login.html          # Formulário de login
+
 |   |-- register.html       # Formulário de cadastro
+
 |   |-- ... (e todas as outras páginas .html)
 |
+
 |-- meu_site.db             # Arquivo do banco de dados SQLite (gerado automaticamente)
 
 ## 👨‍💻 Como rodar
