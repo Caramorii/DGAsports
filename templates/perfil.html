@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfil Social DGA Sports</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/perfil_social.css') }}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="flash-message {{ category }}">{{ message }}</div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <div class="profile-header">
+        {% if perfil.social and perfil.social.foto_perfil %} {% if
+        perfil.social.foto_perfil.startswith('static/') %}
+        <img
+          src="{{ url_for('static', filename=perfil.social.foto_perfil.replace('static/', '')) }}"
+          alt="Foto de Perfil"
+          class="profile-picture"
+        />
+        {% else %}
+        <img
+          src="{{ url_for('uploaded_file', filename=perfil.social.foto_perfil.split('/')[-1]) }}"
+          alt="Foto de Perfil"
+          class="profile-picture"
+        />
+        {% endif %} {% else %}
+        <img
+          src="{{ url_for('static', filename='images/default_avatar.png') }}"
+          alt="Avatar Padrão"
+          class="profile-picture"
+        />
+        {% endif %}
+        <div class="profile-info">
+          <div class="profile-username">
+            {{ perfil.social.usuario_social if perfil.social else perfil.nome }}
+            <a href="{{ url_for('editar_perfil') }}" class="edit-profile-btn">
+              <i class="fas fa-edit"></i> Editar Perfil
+            </a>
+          </div>
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <span>{{ perfil.stats.posts if perfil.stats else 0 }}</span>
+              posts
+            </div>
+            <div class="profile-stat">
+              <span>{{ perfil.stats.seguidores if perfil.stats else 0 }}</span>
+              seguidores
+            </div>
+            <div class="profile-stat">
+              <span>{{ perfil.stats.seguindo if perfil.stats else 0 }}</span>
+              seguindo
+            </div>
+          </div>
+          <p class="profile-bio">
+            {% if perfil.social and perfil.social.bio %} {{ perfil.social.bio }}
+            {% else %} Olá! Bem-vindo(a) ao meu perfil DGA Social. {% endif %}
+          </p>
+          <p class="profile-bio">
+            {% if perfil.social and perfil.social.bio %} {{ perfil.social.bio }}
+            {% else %} Olá! Bem-vindo(a) ao meu perfil DGA Social. {% endif %}
+          </p>
+        </div>
+      </div>
+
+      <div class="new-post-section">
+        <h3>Criar Novo Post</h3>
+        <form
+          action="{{ url_for('criar_post') }}"
+          method="POST"
+          enctype="multipart/form-data"
+          class="new-post-form"
+        >
+          <textarea
+            name="conteudo_post"
+            placeholder="O que você está pensando ou fazendo? Use #hashtags para marcar!"
+            required
+            maxlength="500"
+          ></textarea>
+          <input
+            type="file"
+            name="imagem_post"
+            accept="image/png, image/jpeg, image/jpg"
+          />
+          <button type="submit">
+            <i class="fas fa-plus-circle"></i> Publicar Post
+          </button>
+        </form>
+      </div>
+
+      <h3>Meus Posts</h3>
+      <div class="posts-grid">
+        {% if perfil.posts %} {% for post in perfil.posts %}
+        <div class="post-card">
+          {% if post.imagem_path %}
+          <img
+            src="{{ url_for('uploaded_file', filename=post.imagem_path.split('/')[-1]) }}"
+            alt="Imagem do Post"
+            class="post-image"
+          />
+          {% endif %}
+          <div class="post-content">
+            <p class="post-text">{{ post.conteudo }}</p>
+            {% if post.conteudo %}
+            <p class="post-hashtags">
+              {% for palavra in post.conteudo.split() %} {% if
+              palavra.startswith('#') %}
+              <a href="#">{{ palavra }}</a>
+              {% endif %} {% endfor %}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %} {% else %}
+        <div class="no-posts">
+          <p><i class="fas fa-camera-retro fa-2x"></i></p>
+          <p>
+            Nenhum post ainda. Que tal compartilhar sua primeira atualização?
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>

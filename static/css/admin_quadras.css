@@ -1,0 +1,100 @@
+/* ======== ESTILO GERAL ======== */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #ffffff;
+}
+
+/* ======== TÍTULO ======== */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 28px;
+  letter-spacing: 1px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* ======== FORMULÁRIO ======== */
+form {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 30px;
+  border-radius: 12px;
+  width: 380px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.8s ease;
+}
+
+/* ======== CAMPOS ======== */
+input,
+textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  font-size: 15px;
+  background-color: #ffffffd5;
+  color: #1e3c72;
+  transition: 0.3s;
+}
+
+/* Efeito ao focar */
+input:focus,
+textarea:focus {
+  background: #ffffff;
+  transform: scale(1.02);
+}
+
+/* Textarea */
+textarea {
+  resize: none;
+  height: 80px;
+}
+
+/* ======== LABEL ======== */
+label {
+  font-size: 14px;
+  margin-top: 10px;
+  display: block;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* ======== BOTÃO ======== */
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  background: #00c853;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #00e676;
+  transform: scale(1.05);
+}
+
+/* ======== ANIMAÇÕES ======== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

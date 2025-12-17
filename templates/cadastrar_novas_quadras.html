@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <title>Painel Admin - Nova Quadra</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/admin_quadras.css') }}"
+    />
+  </head>
+  <body>
+    <h1>Cadastrar Nova Unidade</h1>
+    <form
+      action="{{ url_for('admin_cadastrar_quadra') }}"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <input type="text" name="nome" placeholder="Nome da Quadra" required />
+      <textarea name="descricao" placeholder="Descrição da Unidade"></textarea>
+      <input
+        type="text"
+        name="localizacao"
+        placeholder="Endereço (Rua, Número)"
+        required
+      />
+      <div class="form-group">
+        <label>Estado (UF)</label>
+        <input type="text" name="estado" placeholder="Ex: SP" required />
+      </div>
+      <input type="text" name="cidade" placeholder="Cidade" required />
+      <input
+        type="text"
+        name="esporte"
+        placeholder="Esportes (Ex: Futebol, Tênis)"
+        required
+      />
+
+      <label>Foto da Unidade:</label>
+      <input type="file" name="foto" accept="image/*" required />
+
+      <button type="submit">Cadastrar Quadra</button>
+    </form>
+  </body>
+</html>

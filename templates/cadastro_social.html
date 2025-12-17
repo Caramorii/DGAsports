@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Perfil Social - DGA Sports</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/cad_perfil_soc.css') }}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h2>
+        🛠️ {{ 'Completar' if not dados.usuario_social else 'Editar' }} Perfil
+        Social
+      </h2>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="flash-message {{ category }}">{{ message }}</div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <form
+        method="POST"
+        action="{{ url_for('editar_perfil') }}"
+        enctype="multipart/form-data"
+      >
+        <div class="profile-pic-container">
+          <label>Foto de Perfil Atual:</label>
+          {% if dados.foto_perfil %}
+          <img
+            src="{{ url_for('uploaded_file', filename=dados.foto_perfil.split('/')[-1]) }}"
+            alt="Foto de Perfil"
+            class="profile-pic"
+          />
+          {% else %}
+          <img
+            src="{{ url_for('static', filename='images/default_avatar.png') }}"
+            alt="Avatar Padrão"
+            class="profile-pic"
+          />
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="foto_perfil">Alterar Foto de Perfil (JPG, PNG):</label>
+          <input
+            type="file"
+            id="foto_perfil"
+            name="foto_perfil"
+            accept="image/png, image/jpeg, image/jpg"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="usuario_social"
+            >Nome de Usuário Social (Ex: @jogador_raiz):</label
+          >
+          <input
+            type="text"
+            id="usuario_social"
+            name="usuario_social"
+            value="{{ dados.usuario_social or '' }}"
+            required
+            maxlength="50"
+            placeholder="Seu nome de usuário único"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Biografia / Sobre Mim:</label>
+          <textarea
+            id="bio"
+            name="bio"
+            maxlength="300"
+            placeholder="Fale um pouco sobre você e seus esportes favoritos."
+          >
+{{ dados.bio or '' }}</textarea
+          >
+        </div>
+
+        <button type="submit" class="btn-submit">Salvar Perfil Social</button>
+      </form>
+    </div>
+  </body>
+</html>

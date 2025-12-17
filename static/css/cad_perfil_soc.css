@@ -1,0 +1,125 @@
+/* ======== FONTE GLOBAL ======== */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  margin: 0;
+  padding: 0;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* ======== CONTAINER PRINCIPAL ======== */
+.container {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 30px;
+  border-radius: 16px;
+  width: 420px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 1s ease;
+}
+
+/* ======== TÍTULO ======== */
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+/* ======== MENSAGENS FLASH ======== */
+.flash-message {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #00c853;
+  color: white;
+  text-align: center;
+}
+
+/* ======== FORMULÁRIO ======== */
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ======== FOTO DE PERFIL ======== */
+.profile-pic-container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-pic {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #00c853;
+  box-shadow: 0 0 10px rgba(0, 200, 83, 0.5);
+}
+
+/* ======== GRUPOS DE CAMPOS ======== */
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+/* ======== INPUTS E TEXTAREA ======== */
+input[type="text"],
+input[type="file"],
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  background-color: #ffffffd5;
+  color: #1e3c72;
+  transition: 0.3s;
+}
+
+input:focus,
+textarea:focus {
+  background-color: #ffffff;
+  transform: scale(1.02);
+  outline: none;
+}
+
+textarea {
+  resize: none;
+  height: 90px;
+}
+
+/* ======== BOTÃO DE ENVIO ======== */
+.btn-submit {
+  padding: 12px;
+  background-color: #00c853;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-submit:hover {
+  background-color: #00e676;
+  transform: scale(1.05);
+}
+
+/* ======== ANIMAÇÃO ======== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
