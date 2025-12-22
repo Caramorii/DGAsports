@@ -32,13 +32,23 @@ def init_routes(app):
             esporte_busca=esporte_busca_raw
         )
 
-    @app.route('/quadra/<int:id_da_quadra>')
-    def detalhes_quadra(id_da_quadra):
-        usuario_id_atual = session.get('usuario_id')
-        quadra_encontrada = get_detalhes_quadra(id_da_quadra, usuario_id_atual)
-        if quadra_encontrada is None:
-            abort(404) 
-        return render_template('detalhes_quadra.html', quadra=quadra_encontrada, hoje=date.today().isoformat())
+    @app.route('/quadra/<int:quadra_id>') # Alterado de id para quadra_id
+    def detalhes_quadra(quadra_id):
+        # Use quadra_id aqui para garantir que é um número, não a função id()
+        quadra_encontrada = get_detalhes_quadra(quadra_id) 
+        
+        if not quadra_encontrada:
+            return "Quadra não encontrada", 404
+
+        # Lógica para transformar a string de esportes em lista para os emojis
+        if quadra_encontrada.get('esporte'):
+            quadra_encontrada['lista_esportes'] = [e.strip() for e in quadra_encontrada['esporte'].split(',')]
+        else:
+            quadra_encontrada['lista_esportes'] = []
+
+        return render_template('detalhes_quadra.html', 
+                            quadra=quadra_encontrada, 
+                            hoje=date.today().isoformat())
 
     @app.route('/campeonatos')
     def campeonatos():
@@ -81,39 +91,47 @@ def init_routes(app):
     # --- ÁREA ADMINISTRATIVA (CORRIGIDA) ---
     @app.route('/admin/cadastrar_quadra', methods=['GET', 'POST'])
     def admin_cadastrar_quadra():
-        # 1. Verificação de segurança
         if session.get('usuario_logado') != 'admin@gmail.com':
             flash("Acesso restrito!", "error")
             return redirect(url_for('login'))
         
-        # 2. Processamento do formulário (POST)
         if request.method == 'POST':
+            # Dados básicos
             nome = request.form.get('nome')
             descricao = request.form.get('descricao')
             localizacao = request.form.get('localizacao')
             cidade = request.form.get('cidade')
             estado = request.form.get('estado')
             esporte = request.form.get('esporte')
-        
-            # Processamento da Imagem
+            
+            # Dados de horário e preço
+            abertura = request.form.get('hora_abertura')
+            fechamento = request.form.get('hora_fechamento')
+            preco = request.form.get('preco')
+
+            # Upload de Imagem
             file = request.files.get('foto')
             if file and file.filename != '':
-                filename = secure_filename(f"{uuid.uuid4()}_{file.filename}")
-                upload_folder = os.path.join(app.root_path, 'static', 'uploads')
+                # Salvando com UUID para evitar nomes duplicados
+                extensao = os.path.splitext(file.filename)[1]
+                novo_nome = f"{uuid.uuid4()}{extensao}"
+                upload_folder = os.path.join(app.root_path, 'static/uploads')
+                
                 if not os.path.exists(upload_folder):
                     os.makedirs(upload_folder)
-                file.save(os.path.join(upload_folder, filename))
-                foto_path = f"uploads/{filename}"
+                    
+                file.save(os.path.join(upload_folder, novo_nome))
+                # IMPORTANTE: Salve o caminho relativo para o Jinja2 encontrar
+                foto_path = f"uploads/{novo_nome}"
             else:
                 foto_path = "uploads/default_quadra.jpg"
 
-            # CHAMADA COM 7 ARGUMENTOS (DENTRO DO IF POST)
-            cadastrar_nova_quadra(nome, descricao, localizacao, cidade, estado, esporte, foto_path)
+            # Chamada da função atualizada
+            cadastrar_nova_quadra(nome, descricao, localizacao, cidade, estado, esporte, foto_path, abertura, fechamento, preco)
             
-            flash("Quadra cadastrada com sucesso!", "success")
+            flash("Quadra e agenda de 7 dias criadas com sucesso!", "success")
             return redirect(url_for('explorar'))
 
-        # 3. Retorno do Template (FORA DO IF POST, PARA O MÉTODO GET)
         return render_template('cadastrar_novas_quadras.html')
 
     # --- APIs (PARTIDAS) ---
@@ -182,14 +200,42 @@ def init_routes(app):
         if not usuario_id:
             return redirect(url_for('login'))
         
-        from banco_de_dados import get_perfil_social, usuario_tem_perfil_social
+        from banco_de_dados import get_perfil_social, usuario_tem_perfil_social, get_posts_com_usuarios
         
-        if usuario_tem_perfil_social(usuario_id):
-            perfil = get_perfil_social(usuario_id)
-            return render_template('dga.social.html', dados=perfil)
-        else:
-        # IMPORTANTE: Envia um dicionário vazio para não dar erro no template
-            return render_template('cadastro_social.html', dados={})
+        perfil = get_perfil_social(usuario_id) or {}
+        posts = get_posts_com_usuarios()
+        
+        return render_template('dga.social.html', dados=perfil, posts=posts)
+
+    @app.route('/postar', methods=['POST'])
+    def postar():
+        if 'usuario_id' not in session:
+            flash("Faça login para postar", "error")
+            return redirect(url_for('login'))
+
+        texto = request.form.get('texto')
+        file = request.files.get('imagem')
+        
+        # Define se é um post comum ou de divulgação (admin)
+        tipo = 'admin' if session.get('usuario_logado') == 'admin@gmail.com' else 'atleta'
+        
+        foto_path = None
+        if file and file.filename != '':
+            extensao = os.path.splitext(file.filename)[1]
+            novo_nome = f"post_{uuid.uuid4().hex}{extensao}"
+            upload_folder = os.path.join(app.root_path, 'static/uploads/posts')
+            
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+                
+            file.save(os.path.join(upload_folder, novo_nome))
+            foto_path = f"uploads/posts/{novo_nome}"
+
+        from banco_de_dados import salvar_novo_post
+        salvar_novo_post(session['usuario_id'], texto, foto_path, tipo)
+        
+        flash("Postagem realizada!", "success")
+        return redirect(url_for('social'))
     @app.route('/social/editar', methods=['GET', 'POST'])
     def editar_perfil():
         usuario_id = session.get('usuario_id')
@@ -201,9 +247,31 @@ def init_routes(app):
         if request.method == 'POST':
             usuario_social = request.form.get('usuario_social')
             bio = request.form.get('bio')
+            
+            # Pegar o arquivo enviado
+            file = request.files.get('foto_perfil')
+            foto_path = None  # Começa como None
+
+            if file and file.filename != '':
+                # Se o usuário enviou uma foto nova, processamos ela
+                extensao = os.path.splitext(file.filename)[1]
+                novo_nome = f"perfil_{usuario_id}{extensao}"
+                upload_folder = os.path.join(app.root_path, 'static/uploads/perfis')
+                
+                if not os.path.exists(upload_folder):
+                    os.makedirs(upload_folder)
+                    
+                file.save(os.path.join(upload_folder, novo_nome))
+                foto_path = f"uploads/perfis/{novo_nome}"
+
+            # Enviamos para o banco. 
+            # Se foto_path for None, a função salvar_perfil_social que você já tem 
+            # vai ignorar o update da foto e manter a antiga (ou a padrão).
             salvar_perfil_social(usuario_id, usuario_social, bio, foto_path)
-            flash("Perfil salvo!", "success")
+            
+            flash("Perfil atualizado com sucesso!", "success")
             return redirect(url_for('social'))
+
         perfil = get_perfil_social(usuario_id) or {}
         return render_template('cadastro_social.html', dados=perfil)
 

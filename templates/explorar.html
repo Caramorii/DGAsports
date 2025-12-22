@@ -68,12 +68,13 @@
             </div>
             <div class="filter-group">
                 <label for="filtro-esporte">Esporte</label>
-                <select id="filtro-esporte" name="esporte">
-                    <option value="">Qualquer</option>
-                    <option value="futebol" {% if esporte_busca.lower() == 'futebol' %}selected{% endif %}>Futebol</option>
-                    <option value="basquete" {% if esporte_busca.lower() == 'basquete' %}selected{% endif %}>Basquete</option>
-                    <option value="volei" {% if esporte_busca.lower() == 'volei' %}selected{% endif %}>Vôlei</option>
-                    <option value="beach-tennis" {% if esporte_busca.lower() == 'beach-tennis' %}selected{% endif %}>Beach Tennis</option>
+                <select id="filtro-esporte-js" name="esporte">
+                    <option value="Todos" {% if esporte_busca == 'Todos' %}selected{% endif %}>Qualquer</option>
+                    <option value="Futebol" {% if esporte_busca == 'Futebol' %}selected{% endif %}>Futebol</option>
+                    <option value="Basquete" {% if esporte_busca == 'Basquete' %}selected{% endif %}>Basquete</option>
+                    <option value="Volei" {% if esporte_busca == 'Volei' %}selected{% endif %}>Vôlei</option>
+                    <option value="Futevolei" {% if esporte_busca == 'Futevolei' %}selected{% endif %}>Futvôlei</option>
+                    <option value="Beach-Tennis" {% if esporte_busca == 'Beach-Tennis' %}selected{% endif %}>Beach Tennis</option>
                 </select>
             </div>
             <button class="filter-button" type="submit">Buscar</button>
@@ -103,7 +104,7 @@
                          data-ocupacao="{{ quadra.total_jogadores_agora }}"
                          data-seguindo="{{ 'true' if quadra.seguindo else 'false' }}">
                         
-                        <img src="{{ url_for('static', filename=quadra.imagem) }}" alt="{{ quadra.nome }}">
+                        <img src="{{ url_for('static', filename=quadra.foto) }}" alt="{{ quadra.nome }}">
                         <div class="card-details">
                             <h3>{{ quadra.nome }}</h3>
                             <p class="location"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> {{ quadra.cidade }}, {{ quadra.estado }}</p>
@@ -121,7 +122,7 @@
                                     <span class="time-slot">{{ quadra.total_horarios }}</span>
                                 </div>
                             </div>
-                            <a href="{{ url_for('detalhes_quadra', id_da_quadra=quadra.id) }}" class="details-btn">Ver Horários</a>
+                            <a href="{{ url_for('detalhes_quadra', quadra_id=quadra.id) }}" class="details-btn">Ver Horários</a>
                         </div>
                     </div>
                     {% else %}

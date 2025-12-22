@@ -192,13 +192,7 @@
     align-items: flex-start;
     gap: 16px;
 }
-.avatar {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, var(--primary-green) 60%, var(--secondary-green) 100%);
-    border-radius: 50%;
-    margin-top: 2px;
-}
+
 .post-form textarea {
     flex: 1;
     border: none;
@@ -329,7 +323,46 @@
     height: 22px;
     display: block;
 }
+/* Container do Feed */
+.main-feed {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
+/* Cards de Postagem */
+.post-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Identidade Visual do Admin (Dono de Quadra) */
+.post-card.promo-card {
+    border-left: 5px solid #1ab480 !important;
+}
+
+.avatar-small {
+    object-fit: cover;
+    border: 2px solid #1ab480;
+}
+
+/* Botões de Ação */
+.post-actions button {
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.post-actions button:hover {
+    color: #1ab480;
+}
 .post-actions button:hover {
     background: rgba(112, 209, 85, 0.08);
 }

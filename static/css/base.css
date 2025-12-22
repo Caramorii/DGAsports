@@ -70,6 +70,37 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
+    .seletor-esporte-reserva {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 15px;
+        padding: 5px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+    }
+    .btn-esporte-opcao {
+        background: var(--bg-card);
+        border: 2px solid transparent;
+        border-radius: 10px;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.8rem;
+        color: var(--text-color);
+    }
+    .btn-esporte-opcao span { font-size: 1.5rem; margin-bottom: 4px; }
+    .btn-esporte-opcao:hover { transform: translateY(-3px); background: rgba(255,255,255,0.1); }
+    .btn-esporte-opcao.selected {
+        border-color: #00ff88;
+        background: rgba(0, 255, 136, 0.1);
+    }
+    .btn-entrar:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
+
 /* --- COMPONENTES GLOBAIS REUTILIZÁVEIS --- */
 
 /* Fundo animado padrão para páginas internas */

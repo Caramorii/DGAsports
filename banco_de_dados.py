@@ -13,11 +13,12 @@ def conectar():
 # --- CRIAÇÃO DAS TABELAS ---
 
 def criar_tabelas_iniciais():
-    """Cria todas as tabelas com todas as colunas necessárias de uma só vez."""
+    """Cria todas as tabelas necessárias para o sistema DGA Sports."""
+    conn = None
     try:
         conn, cursor = conectar()
         
-        # Tabela de Usuários
+        # 1. Tabela de Usuários
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS usuarios (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,7 +29,7 @@ def criar_tabelas_iniciais():
             );
         """)
         
-        # Tabela de Quadras (Incluindo coluna ESTADO)
+        # 2. Tabela de Quadras
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS quadras (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,7 +43,7 @@ def criar_tabelas_iniciais():
             );
         """)
 
-        # Tabela de Horários
+        # 3. Tabela de Horários
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS horarios (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +57,7 @@ def criar_tabelas_iniciais():
             );
         """)
         
-        # Tabela de Reservas
+        # 4. Tabela de Reservas (Quem vai jogar em qual horário)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS reservas_jogadores (
                 usuario_id INTEGER NOT NULL,
@@ -67,26 +68,38 @@ def criar_tabelas_iniciais():
             );
         """)
 
-        # Tabela de Perfis Sociais (Incluindo USUARIO_SOCIAL e BIO)
+        # 5. Tabela de Perfis Sociais (Bio e Foto de Perfil)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS perfis_sociais (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario_id INTEGER NOT NULL,
+                usuario_id INTEGER NOT NULL UNIQUE,
                 usuario_social TEXT,
                 bio TEXT,
-                foto_perfil TEXT,
+                foto_perfil TEXT DEFAULT 'images/default_avatar.png',
+                FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+            );
+        """)
+
+        # 6. Tabela de Posts (Feed da Comunidade e Promoções)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS posts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                usuario_id INTEGER NOT NULL,
+                texto TEXT,
+                imagem TEXT,
+                tipo TEXT DEFAULT 'atleta', -- 'atleta' para comum, 'admin' para dono de quadra
+                data_postagem DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
             );
         """)
         
         conn.commit()
-        print("✅ Tabelas sincronizadas com sucesso!")
+        print("✅ Todas as tabelas (incluindo Posts e Perfis) foram sincronizadas!")
     except sqlite3.Error as e:
         print(f"❌ Erro ao criar tabelas: {e}")
     finally:
         if conn:
             conn.close()
-
 # --- FUNÇÕES DE PERFIL SOCIAL ---
 
 def usuario_tem_perfil_social(usuario_id):
@@ -97,28 +110,43 @@ def usuario_tem_perfil_social(usuario_id):
     return perfil is not None
 
 def get_perfil_social(usuario_id):
-    """Retorna o perfil como dicionário para o Jinja2 ou None."""
     conn, cursor = conectar()
     cursor.execute("SELECT * FROM perfis_sociais WHERE usuario_id = ?", (usuario_id,))
     linha = cursor.fetchone()
     conn.close()
     return dict(linha) if linha else None
 
-def salvar_perfil_social(usuario_id, usuario_social, bio, foto_path):
+def salvar_perfil_social(usuario_id, usuario_social, bio, foto_perfil):
     conn, cursor = conectar()
-    cursor.execute("SELECT id FROM perfis_sociais WHERE usuario_id = ?", (usuario_id,))
-    existe = cursor.fetchone()
+    # Verifica se o perfil já existe
+    cursor.execute("SELECT foto_perfil FROM perfis_sociais WHERE usuario_id = ?", (usuario_id,))
+    perfil_existente = cursor.fetchone()
 
-    if existe:
-        if foto_path:
-            cursor.execute("UPDATE perfis_sociais SET usuario_social=?, bio=?, foto_perfil=? WHERE usuario_id=?", 
-                           (usuario_social, bio, foto_path, usuario_id))
+    if perfil_existente:
+        # --- CENÁRIO: ATUALIZAÇÃO ---
+        if foto_perfil:
+            # Se uma nova foto foi enviada, atualiza tudo inclusive a foto
+            cursor.execute("""
+                UPDATE perfis_sociais 
+                SET usuario_social=?, bio=?, foto_perfil=? 
+                WHERE usuario_id=?
+            """, (usuario_social, bio, foto_perfil, usuario_id))
         else:
-            cursor.execute("UPDATE perfis_sociais SET usuario_social=?, bio=? WHERE usuario_id=?", 
-                           (usuario_social, bio, usuario_id))
+            # Se foto_perfil for None ou vazio, atualiza apenas texto
+            # Assim a foto antiga que já está no banco permanece intacta!
+            cursor.execute("""
+                UPDATE perfis_sociais 
+                SET usuario_social=?, bio=? 
+                WHERE usuario_id=?
+            """, (usuario_social, bio, usuario_id))
     else:
-        cursor.execute("INSERT INTO perfis_sociais (usuario_id, usuario_social, bio, foto_perfil) VALUES (?, ?, ?, ?)",
-                       (usuario_id, usuario_social, bio, foto_path or 'images/default_avatar.png'))
+        # --- CENÁRIO: NOVO PERFIL ---
+        # Se não enviou foto no primeiro cadastro, usa a default
+        foto_final = foto_perfil if foto_perfil else 'images/default_avatar.png'
+        cursor.execute("""
+            INSERT INTO perfis_sociais (usuario_id, usuario_social, bio, foto_perfil) 
+            VALUES (?, ?, ?, ?)
+        """, (usuario_id, usuario_social, bio, foto_final))
     
     conn.commit()
     conn.close()
@@ -164,8 +192,8 @@ def _hash_senha(senha):
 
 def cadastrar_usuario(nome, cidade, email, senha):
     senha_hash = _hash_senha(senha)
+    conn, cursor = conectar()
     try:
-        conn, cursor = conectar()
         cursor.execute("INSERT INTO usuarios (nome, cidade, email, senha_hash) VALUES (?, ?, ?, ?)", (nome, cidade, email, senha_hash))
         conn.commit()
         return "Usuário cadastrado com sucesso!"
@@ -193,15 +221,34 @@ def criar_usuario_admin():
 
 # --- GERENCIAMENTO ---
 
-def cadastrar_nova_quadra(nome, descricao, localizacao, cidade, estado, esporte, foto_path):
-    """Recebe exatamente 7 argumentos das rotas."""
+def cadastrar_nova_quadra(nome, descricao, localizacao, cidade, estado, esporte, foto_path, abertura, fechamento, preco):
     conn, cursor = conectar()
-    cursor.execute("""
-        INSERT INTO quadras (nome, descricao, localizacao, cidade, estado, esporte, foto)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (nome, descricao, localizacao, cidade, estado, esporte, foto_path))
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute("""
+            INSERT INTO quadras (nome, descricao, localizacao, cidade, estado, esporte, foto)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (nome, descricao, localizacao, cidade, estado, esporte, foto_path))
+        
+        id_quadra = cursor.lastrowid
+        h_inicio = int(abertura.split(':')[0])
+        h_fim = int(fechamento.split(':')[0])
+        hoje = date.today()
+
+        for i in range(7):
+            data_atual = (hoje + timedelta(days=i)).isoformat()
+            for hora in range(h_inicio, h_fim):
+                texto_horario = f"{hora:02d}:00 - {hora+1:02d}:00"
+                cursor.execute("""
+                    INSERT INTO horarios (quadra_id, data, hora_texto, max_jogadores, preco)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (id_quadra, data_atual, texto_horario, 12, preco))
+        
+        conn.commit()
+    except Exception as e:
+        print(f"Erro ao cadastrar quadra e horários: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
 
 # --- CONSULTAS (GETTERS) ---
 
@@ -224,25 +271,45 @@ def get_quadras(localidade_busca=None, esporte_busca=None):
     return quadras
 
 def get_detalhes_quadra(id_quadra, usuario_id=None):
+    """
+    IMPORTANTE: Esta função resolve o problema da imagem anterior.
+    Ela garante que id_quadra seja usado corretamente e retorna a estrutura
+    esperada pelas rotas do Flask.
+    """
     conn, cursor = conectar()
-    cursor.execute("SELECT * FROM quadras WHERE id = ?", (id_quadra,))
-    quadra = cursor.fetchone()
-    if not quadra: return None
-    
-    q_dict = dict(quadra)
-    cursor.execute("SELECT * FROM horarios WHERE quadra_id = ? ORDER BY data, hora_texto", (id_quadra,))
-    q_dict['horarios'] = [dict(row) for row in cursor.fetchall()]
-    q_dict['datas_disponiveis'] = sorted(list(set(h['data'] for h in q_dict['horarios'])))
-    
-    conn.close()
-    return q_dict
+    try:
+        cursor.execute("SELECT * FROM quadras WHERE id = ?", (id_quadra,))
+        quadra = cursor.fetchone()
+        if not quadra: 
+            return None
+        
+        q_dict = dict(quadra)
+        
+        if q_dict.get('esporte'):
+            q_dict['lista_esportes'] = [e.strip() for e in q_dict['esporte'].split(',')]
+        else:
+            q_dict['lista_esportes'] = []
+
+        cursor.execute("""
+            SELECT h.*, 
+            (SELECT COUNT(*) FROM reservas_jogadores WHERE horario_id = h.id) as jogadores_atuais,
+            (SELECT COUNT(*) FROM reservas_jogadores WHERE horario_id = h.id AND usuario_id = ?) as usuario_na_partida
+            FROM horarios h WHERE h.quadra_id = ? ORDER BY h.data, h.hora_texto
+        """, (usuario_id, id_quadra))
+        
+        q_dict['horarios'] = [dict(row) for row in cursor.fetchall()]
+        q_dict['datas_disponiveis'] = sorted(list(set(h['data'] for h in q_dict['horarios'])))
+        
+        return q_dict
+    finally:
+        conn.close()
 
 def get_horarios_por_data(quadra_id, data_sel, usuario_id):
     conn, cursor = conectar()
     cursor.execute("""
         SELECT h.*, 
         (SELECT COUNT(*) FROM reservas_jogadores WHERE horario_id = h.id) as jogadores_atuais,
-        (SELECT 1 FROM reservas_jogadores WHERE horario_id = h.id AND usuario_id = ?) as usuario_na_partida
+        (SELECT COUNT(*) FROM reservas_jogadores WHERE horario_id = h.id AND usuario_id = ?) as usuario_na_partida
         FROM horarios h WHERE quadra_id = ? AND data = ?
     """, (usuario_id, quadra_id, data_sel))
     res = [dict(row) for row in cursor.fetchall()]
@@ -257,7 +324,8 @@ def get_detalhes_reserva(horario_id):
     """, (horario_id,))
     row = cursor.fetchone()
     conn.close()
-    if not row: return None
+    if not row: 
+        return None
     
     data = dict(row)
     return {
@@ -271,10 +339,20 @@ def adicionar_jogador_partida(u_id, h_id, esporte=None):
     conn, cursor = conectar()
     try:
         cursor.execute("INSERT INTO reservas_jogadores (usuario_id, horario_id) VALUES (?, ?)", (u_id, h_id))
+        
+        if esporte:
+            cursor.execute("""
+                UPDATE horarios 
+                SET esporte_reservado = ? 
+                WHERE id = ? AND (esporte_reservado IS NULL OR esporte_reservado = '')
+            """, (esporte, h_id))
+            
         conn.commit()
         return {'status': 'sucesso'}
-    except:
-        return {'status': 'erro', 'mensagem': 'Você já está nesta partida ou ocorreu um erro.'}
+    except sqlite3.IntegrityError:
+        return {'status': 'erro', 'mensagem': 'Você já está nesta partida.'}
+    except Exception as e:
+        return {'status': 'erro', 'mensagem': f'Ocorreu um erro: {e}'}
     finally:
         conn.close()
 
@@ -284,3 +362,31 @@ def remover_jogador_partida(u_id, h_id):
     conn.commit()
     conn.close()
     return {'status': 'sucesso'}
+def salvar_novo_post(usuario_id, texto, imagem, tipo):
+    conn, cursor = conectar()
+    cursor.execute("""
+        INSERT INTO posts (usuario_id, texto, imagem, tipo) 
+        VALUES (?, ?, ?, ?)
+    """, (usuario_id, texto, imagem, tipo))
+    conn.commit()
+    conn.close()
+
+def get_posts_com_usuarios():
+    conn, cursor = conectar()
+    # O JOIN busca o nome e a foto do usuário que criou o post
+    cursor.execute("""
+        SELECT p.*, u.nome as nome_usuario, ps.usuario_social, ps.foto_perfil
+        FROM posts p
+        JOIN usuarios u ON p.usuario_id = u.id
+        LEFT JOIN perfis_sociais ps ON u.id = ps.usuario_id
+        ORDER BY p.data_postagem DESC
+    """)
+    posts = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return posts
+
+# --- INICIALIZAÇÃO DO BANCO ---
+if __name__ == "__main__":
+    criar_tabelas_iniciais()
+    popular_dados_iniciais()
+    criar_usuario_admin()

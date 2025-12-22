@@ -38,3 +38,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Garante que os ícones estejam corretos no carregamento da página
     updateIcons();
 });
+document.addEventListener('DOMContentLoaded', function() {
+    // Lógica para selecionar o emoji
+    const cards = document.querySelectorAll('.card-horario');
+
+    cards.forEach(card => {
+        const botoesEsporte = card.querySelectorAll('.btn-esporte-opcao');
+        const btnEntrar = card.querySelector('.btn-entrar');
+
+        botoesEsporte.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove seleção dos outros emojis do mesmo card
+                botoesEsporte.forEach(b => b.classList.remove('selected'));
+                // Seleciona o atual
+                this.classList.add('selected');
+                
+                // Ativa o botão de reserva e guarda o esporte escolhido
+                if (btnEntrar) {
+                    btnEntrar.disabled = false;
+                    card.setAttribute('data-esporte-selecionado', this.getAttribute('data-esporte'));
+                }
+            });
+        });
+    });
+});
+
+// Ao clicar no botão Entrar/Reservar, certifique-se de enviar o esporte:
+// No seu arquivo detalhes.js, na função que faz o fetch para '/quadra/entrar':
+/*
+    const esporte = card.getAttribute('data-esporte-selecionado') || card.getAttribute('data-esporte-reservado');
+    body: JSON.stringify({
+        horario_id: id,
+        esporte_selecionado: esporte
+    })
+*/

@@ -1,141 +1,424 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DGA Social - Comunidade</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dga.social.css') }}">
-</head>
-<body>
-    <!-- Sidebar Esquerda -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DGA Social - Comunidade Esportiva</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/base.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dga.social.css') }}"
+    />
+    <style>
+      /* Estilos para as novas funcionalidades */
+      .live-scores-section {
+        background: #1e2530;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        color: white;
+      }
+      .scores-wrapper {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+      .score-card {
+        background: #2a3441;
+        padding: 12px;
+        border-radius: 8px;
+        min-width: 160px;
+        text-align: center;
+        border-bottom: 3px solid #1ab480;
+      }
+      .live-indicator {
+        color: #ff4757;
+        font-size: 10px;
+        font-weight: bold;
+        display: block;
+        margin-top: 5px;
+        animation: blink 1.5s infinite;
+      }
+      .btn-perfil-post {
+        font-size: 12px;
+        border: 1px solid #1ab480;
+        color: #1ab480;
+        padding: 4px 12px;
+        border-radius: 15px;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+      .btn-perfil-post:hover {
+        background: #1ab480;
+        color: white;
+      }
+      .promo-card {
+        border: 2px solid #1ab480 !important;
+        background-color: #f0fff9 !important;
+        position: relative;
+      }
+      .promo-badge {
+        background: #1ab480;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 4px 12px;
+        border-radius: 0 0 10px 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
     <aside class="sidebar-left">
-        <a href="{{ url_for('home') }}" class="logo">DGA<span>Social</span></a>
-        <nav class="nav-menu">
-            <a href="{{ url_for('home') }}" class="nav-item active" onclick="location.reload(); return false;">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
-                <span>Início</span>
-            </a>
-<!-- ...existing code... -->
-            </a>
-            <a href="{{ url_for('mensagem') }}" class="nav-item">
-    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <span>Mensagens</span>
-</a>
-<!-- ...existing code... -->
-            </a>
-            <a href="#" class="nav-item">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                <span>Notificações</span>
-            </a>
-            <a href="#" class="nav-item">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>
-                <span>Perfil</span>
-            </a>
-        </nav>
-        <button class="post-btn">+ Novo Post</button>
+      <a href="{{ url_for('home') }}" class="logo">DGA<span>Social</span></a>
+
+      <div class="user-mini-card">
+        <img
+          src="{{ url_for('static', filename=dados.foto_perfil or 'images/default_avatar.png') }}"
+          alt="Foto de Perfil"
+          class="avatar-img"
+        />
+        <div class="user-info" style="margin-top: 10px">
+          <strong style="display: block">{{ session.nome_usuario }}</strong>
+          <span style="color: #666; font-size: 0.9em"
+            >@{{ dados.usuario_social or 'atleta' }}</span
+          >
+        </div>
+        <a
+          href="{{ url_for('editar_perfil') }}"
+          style="font-size: 12px; color: #1ab480; text-decoration: none"
+          >Editar Perfil</a
+        >
+      </div>
+
+      <nav class="nav-menu">
+        <a href="{{ url_for('explorar') }}" class="nav-item">
+          <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+          <span>Reservar Quadra</span>
+        </a>
+        <a href="{{ url_for('social') }}" class="nav-item active">
+          <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <circle cx="19" cy="11" r="2" />
+          </svg>
+          <span>Comunidade</span>
+        </a>
+        <a href="{{ url_for('mensagem') }}" class="nav-item">
+          <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            />
+          </svg>
+          <span>Mensagens</span>
+        </a>
+      </nav>
     </aside>
 
-    <!-- Conteúdo Principal -->
     <main class="main-feed">
-        <!-- Topo fixo com busca -->
-        <header class="topbar">
-            <div class="search-bar">
-                <input type="text" placeholder="Buscar atletas, times, posts...">
+      <header class="topbar">
+        <div class="search-bar">
+          <input
+            type="text"
+            placeholder="Buscar atletas, promoções ou placares..."
+          />
+        </div>
+      </header>
+
+      <section class="live-scores-section">
+        <h3
+          style="
+            font-size: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          "
+        >
+          🏆 Placares em Tempo Real
+        </h3>
+        <div class="scores-wrapper">
+          <div class="score-card">
+            <span
+              style="font-size: 10px; color: #aaa; text-transform: uppercase"
+              >Futebol - Quadra 1</span
+            >
+            <div style="font-size: 16px; font-weight: bold; margin: 8px 0">
+              🔴 Time A 2 x 1 Time B
             </div>
-        </header>
+            <span class="live-indicator">● AO VIVO</span>
+          </div>
+          <div class="score-card">
+            <span
+              style="font-size: 10px; color: #aaa; text-transform: uppercase"
+              >Basquete - Quadra 3</span
+            >
+            <div style="font-size: 16px; font-weight: bold; margin: 8px 0">
+              🏀 Wolves 45 x 42 Bulls
+            </div>
+            <span class="live-indicator">● AO VIVO</span>
+          </div>
+        </div>
+      </section>
 
-        <!-- Formulário de novo post -->
-        <section class="new-post-card">
-            <form class="post-form" enctype="multipart/form-data" method="post" action="/postar">
-                <div class="form-row">
-                    <div class="avatar"></div>
-                    <textarea name="texto" placeholder="Compartilhe algo com a comunidade..."></textarea>
-                </div>
-                <div class="form-actions">
-<!-- ...existing code... -->
-<label for="imagem" class="upload-label">
-    <!-- Novo ícone de clipe de papel (anexar) -->
-    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;" viewBox="0 0 24 24">
-        <path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l10.6-10.6a3 3 0 0 1 4.24 4.24l-10.6 10.6a1 1 0 0 1-1.42-1.42l9.19-9.19"/>
-    </svg>
-    <span>Anexar</span>
-    <input id="imagem" type="file" name="imagem" accept="image/*" style="display:none;">
-</label>
-<!-- ...existing code... -->
-<!-- ...existing code... -->
-                    <button type="submit" class="send-btn">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                        Postar
-                    </button>
-                    <button type="button" class="live-btn" onclick="alert('Funcionalidade de live em breve!')">
-                        <span style="display:inline-block;width:12px;height:12px;background:#ff3333;border-radius:50%;margin-right:8px;vertical-align:middle;"></span>
-                        Live
-                    </button>
-<!-- ...existing code... -->
-                </div>
-            </form>
-        </section>
+      <section class="new-post-card">
+        <form
+          class="post-form"
+          enctype="multipart/form-data"
+          method="post"
+          action="/postar"
+        >
+          <div class="form-row">
+            <img
+              src="{{ url_for('static', filename=dados.foto_perfil or 'images/default_avatar.png') }}"
+              class="avatar-small"
+              style="width: 40px; height: 40px; border-radius: 50%"
+            />
+            <textarea
+              name="texto"
+              placeholder="Compartilhe um resultado, desafio ou promoção..."
+            ></textarea>
+          </div>
+          <div
+            class="form-actions"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding-top: 10px;
+              border-top: 1px solid #eee;
+            "
+          >
+            <label
+              for="imagem"
+              class="upload-label"
+              style="cursor: pointer; color: #666; font-size: 14px"
+            >
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="vertical-align: middle; margin-right: 5px"
+              >
+                <path
+                  d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l10.6-10.6a3 3 0 0 1 4.24 4.24l-10.6 10.6a1 1 0 0 1-1.42-1.42l9.19-9.19"
+                />
+              </svg>
+              Anexar Foto
+              <input
+                id="imagem"
+                type="file"
+                name="imagem"
+                accept="image/*"
+                style="display: none"
+              />
+            </label>
+            <button
+              type="submit"
+              class="send-btn"
+              style="
+                background: #1ab480;
+                color: white;
+                border: none;
+                padding: 8px 25px;
+                border-radius: 20px;
+                font-weight: bold;
+                cursor: pointer;
+              "
+            >
+              Postar
+            </button>
+          </div>
+        </form>
+      </section>
 
-        <!-- Feed de posts -->
-        <section class="feed">
-            <!-- Exemplo de post -->
-            <article class="post-card">
-                <div class="post-header">
-                    <div class="avatar"></div>
-                    <div>
-                        <span class="username">Atleta Exemplo</span>
-                        <span class="timestamp">Agora mesmo</span>
-                    </div>
-                </div>
-                <div class="post-content">
-                    <p>Olá, comunidade! Pronto para o treino de hoje?</p>
-                    <img src="https://placehold.co/600x300/1ab480/fff?text=Foto+do+Post" alt="Foto do post">
-                </div>
-                <div class="post-actions">
-                    <button title="Curtir"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-                    <button title="Comentar"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
-                    <button title="Compartilhar"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
-                </div>
-                <div class="comments">
-                    <div class="comment">
-                        <div class="avatar"></div>
-                        <div class="comment-body">Muito bom!</div>
-                    </div>
-                    <form class="comment-form">
-                        <input type="text" placeholder="Comente aqui...">
-                        <button type="submit">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            Comentar
-                        </button>
-                    </form>
-                </div>
-            </article>
-            <!-- Fim do exemplo de post -->
-        </section>
+      <section class="feed">
+        {% if posts %} {% for post in posts %}
+        <article class="post-card {{ 'promo-card' if post.tipo == 'admin' }}">
+          {% if post.tipo == 'admin' %}
+          <div class="promo-badge">PROMOÇÃO / EVENTO</div>
+          {% endif %}
+
+          <div
+            class="post-header"
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 12px">
+              <img
+                src="{{ url_for('static', filename=post.foto_perfil or 'images/default_avatar.png') }}"
+                class="avatar"
+                style="
+                  width: 45px;
+                  height: 45px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                "
+              />
+              <div>
+                <strong style="display: block"
+                  >{{ post.nome_usuario }} {% if post.tipo == 'admin' %}<span
+                    class="verified-check"
+                    >✔</span
+                  >{% endif %}</strong
+                >
+                <span style="font-size: 12px; color: #999"
+                  >{{ post.data_postagem }}</span
+                >
+              </div>
+            </div>
+            <a
+              href="{{ url_for('perfil_publico', id=post.usuario_id) }}"
+              class="btn-perfil-post"
+              >Ver Perfil</a
+            >
+          </div>
+
+          <div class="post-content" style="margin-top: 15px">
+            <p style="font-size: 15px; line-height: 1.5; color: #333">
+              {{ post.texto }}
+            </p>
+            {% if post.imagem %}
+            <img
+              src="{{ url_for('static', filename=post.imagem) }}"
+              alt="Imagem do Post"
+              style="
+                width: 100%;
+                border-radius: 12px;
+                margin-top: 12px;
+                display: block;
+              "
+            />
+            {% endif %}
+          </div>
+
+          <div
+            class="post-actions"
+            style="
+              margin-top: 15px;
+              display: flex;
+              gap: 20px;
+              border-top: 1px solid #f0f0f0;
+              padding-top: 10px;
+            "
+          >
+            <button
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #666;
+                font-size: 14px;
+              "
+            >
+              ❤️ Curtir
+            </button>
+            <button
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #666;
+                font-size: 14px;
+              "
+            >
+              💬 Comentar
+            </button>
+          </div>
+        </article>
+        {% endfor %} {% else %}
+        <div style="text-align: center; padding: 60px; color: #bbb">
+          <p>Ainda não há postagens nesta comunidade. Seja o primeiro!</p>
+        </div>
+        {% endif %}
+      </section>
     </main>
 
-    <!-- Sidebar Direita (Sugestões, Trends, etc) -->
     <aside class="sidebar-right">
-        <section class="suggestions">
-            <h3>Sugestões para você</h3>
-            <!-- Exemplo de sugestão -->
-            <div class="suggestion">
-                <div class="avatar"></div>
-                <div>
-                    <span class="username">@usuario1</span>
-                    <button class="follow-btn">Seguir</button>
-                </div>
-            </div>
-        </section>
-        <section class="trends">
-            <h3>Trends</h3>
-            <ul>
-                <li>#TreinoDoDia</li>
-                <li>#DGAChallenge</li>
-                <li>#EsporteÉVida</li>
-            </ul>
-        </section>
+      <section class="next-match-card">
+        <h3 style="font-size: 16px; margin-bottom: 15px">
+          📅 Seu Próximo Jogo
+        </h3>
+        <div class="match-info">
+          <div class="match-date"><strong>24</strong><span>DEZ</span></div>
+          <div class="match-details">
+            <strong style="display: block">Arena Amazonas</strong>
+            <span style="font-size: 13px; color: #666">19:00 - Futebol</span>
+          </div>
+        </div>
+        <a
+          href="{{ url_for('perfil') }}"
+          style="
+            display: block;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #1ab480;
+            text-decoration: none;
+            font-weight: bold;
+          "
+          >Ver minhas reservas →</a
+        >
+      </section>
+
+      <section class="trends" style="margin-top: 30px">
+        <h3 style="font-size: 16px; margin-bottom: 15px">Em Alta</h3>
+        <ul style="list-style: none; padding: 0">
+          <li style="margin-bottom: 12px">
+            <a
+              href="#"
+              style="color: #1ab480; text-decoration: none; font-weight: bold"
+              >#CopaFranca2024</a
+            ><br />
+            <small style="color: #999">120 postagens</small>
+          </li>
+          <li style="margin-bottom: 12px">
+            <a
+              href="#"
+              style="color: #1ab480; text-decoration: none; font-weight: bold"
+              >#DesafioVolei</a
+            ><br />
+            <small style="color: #999">45 postagens</small>
+          </li>
+        </ul>
+      </section>
     </aside>
-</body>
+  </body>
 </html>
