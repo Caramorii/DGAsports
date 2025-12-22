@@ -13,7 +13,15 @@
       href="{{ url_for('static', filename='css/dga.social.css') }}"
     />
     <style>
-      /* Estilos para as novas funcionalidades */
+      /* Estilos críticos para correção de layout e avatares */
+      .avatar-img,
+      .avatar,
+      .avatar-small {
+        object-fit: cover !important;
+        border-radius: 50% !important;
+      }
+
+      /* Novas funcionalidades */
       .live-scores-section {
         background: #1e2530;
         padding: 20px;
@@ -83,11 +91,12 @@
     <aside class="sidebar-left">
       <a href="{{ url_for('home') }}" class="logo">DGA<span>Social</span></a>
 
-      <div class="user-mini-card">
+      <div class="user-mini-card" style="text-align: center; padding: 10px">
         <img
           src="{{ url_for('static', filename=dados.foto_perfil or 'images/default_avatar.png') }}"
           alt="Foto de Perfil"
           class="avatar-img"
+          style="width: 80px; height: 80px; border: 3px solid #1ab480"
         />
         <div class="user-info" style="margin-top: 10px">
           <strong style="display: block">{{ session.nome_usuario }}</strong>
@@ -205,7 +214,7 @@
             <img
               src="{{ url_for('static', filename=dados.foto_perfil or 'images/default_avatar.png') }}"
               class="avatar-small"
-              style="width: 40px; height: 40px; border-radius: 50%"
+              style="width: 40px; height: 40px"
             />
             <textarea
               name="texto"
@@ -286,12 +295,7 @@
               <img
                 src="{{ url_for('static', filename=post.foto_perfil or 'images/default_avatar.png') }}"
                 class="avatar"
-                style="
-                  width: 45px;
-                  height: 45px;
-                  border-radius: 50%;
-                  object-fit: cover;
-                "
+                style="width: 45px; height: 45px"
               />
               <div>
                 <strong style="display: block"
@@ -305,9 +309,7 @@
                 >
               </div>
             </div>
-            <a
-              href="{{ url_for('perfil_publico', id=post.usuario_id) }}"
-              class="btn-perfil-post"
+            <a href="/perfil/{{ post.usuario_id }}" class="btn-perfil-post"
               >Ver Perfil</a
             >
           </div>
@@ -377,8 +379,22 @@
         <h3 style="font-size: 16px; margin-bottom: 15px">
           📅 Seu Próximo Jogo
         </h3>
-        <div class="match-info">
-          <div class="match-date"><strong>24</strong><span>DEZ</span></div>
+        <div
+          class="match-info"
+          style="display: flex; gap: 10px; align-items: center"
+        >
+          <div
+            class="match-date"
+            style="
+              background: #1ab480;
+              color: white;
+              padding: 5px 10px;
+              border-radius: 8px;
+              text-align: center;
+            "
+          >
+            <strong style="display: block">24</strong><span>DEZ</span>
+          </div>
           <div class="match-details">
             <strong style="display: block">Arena Amazonas</strong>
             <span style="font-size: 13px; color: #666">19:00 - Futebol</span>
