@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suporte</title>
+    <!-- Adiciona o CSS base e o script de tema -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <script src="{% static 'js/theme_switcher.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'css/suporte.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Central de Suporte</h1>
+        <p class="description">
+            Tem alguma dúvida ou encontrou um problema?
+            Preencha o formulário abaixo e entraremos em contato.
+        </p>
+
+        <!-- CORREÇÃO: O 'action' agora aponta para a rota 'suporte' do Flask. -->
+        <form action="{% url 'suporte' %}" method="POST" id="support-form">
+{% csrf_token %}
+            <input type="text" name="name" class="input-field" placeholder="Seu nome" required>
+            <input type="email" name="email" class="input-field" placeholder="Seu e-mail" required>
+            <input type="text" name="subject" class="input-field" placeholder="Assunto" required>
+            <textarea name="message" class="input-field" placeholder="Sua mensagem..." required></textarea>
+            
+            <button type="submit" class="submit-btn">
+                Enviar Mensagem
+            </button>
+        </form>
+        
+        <p class="back-link">
+            <!-- O JavaScript cuidará da ação de voltar, então href="#" é adequado. -->
+            <a href="#">Voltar</a>
+        </p>
+    </div>
+
+    <!-- CORREÇÃO: O caminho do arquivo em 'filename' deve ser relativo à pasta 'static'. -->
+    <script src="{% static 'js/suporte.js' %}"></script>
+</body>
+</html>

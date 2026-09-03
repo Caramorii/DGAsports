@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encontre sua Quadra - DGA Sports</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="icon" href="{% static 'assets/logo.png' %}" type="image/x-png">
+    <!-- Carrega o script do tema no head para evitar 'flash' -->
+    <script src="{% static 'js/theme_switcher.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'css/explorar_fullscreen.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<style>
+    .back-button {
+        position: fixed; /* Fixa o botão na tela */
+        top: 20px;
+        left: 20px;
+        z-index: 1001; /* Garante que fique acima de outros elementos */
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        background-color: var(--dark-card-bg);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .back-button:hover {
+        transform: translateY(-2px);
+        background-color: var(--dark-bg);
+        color: var(--primary-green);
+        border-color: var(--primary-green);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    .back-button svg {
+        transition: transform 0.3s ease;
+    }
+    .back-button:hover svg {
+        transform: translateX(-3px);
+    }
+</style>
+<body>
+    <!-- BOTÃO DE VOLTAR MOVIDO PARA O TOPO DA PÁGINA -->
+    <a href="{% url 'home' %}" class="back-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        <span>Voltar</span>
+    </a>
+    <div class="background-shapes"></div>
+    <div class="content-container">
+        <header class="explorar-header">
+            <h1>Encontre sua Quadra</h1>
+            <p>Use os filtros para achar o lugar perfeito para sua próxima partida.</p>
+        </header>
+
+        <form class="filter-panel" action="{% url 'explorar' %}" method="GET">
+            <div class="filter-group">
+                <label for="filtro-localidade">Localidade</label>
+                <input type="text" name="localidade" id="filtro-localidade" placeholder="Digite a cidade ou estado" value="{{ localidade_busca }}">
+            </div>
+            <div class="filter-group">
+                <label for="filtro-esporte">Esporte</label>
+                <select id="filtro-esporte-js" name="esporte">
+                    <option value="Todos" {% if esporte_busca == 'Todos' %}selected{% endif %}>Qualquer</option>
+                    <option value="Futebol" {% if esporte_busca == 'Futebol' %}selected{% endif %}>Futebol</option>
+                    <option value="Basquete" {% if esporte_busca == 'Basquete' %}selected{% endif %}>Basquete</option>
+                    <option value="Volei" {% if esporte_busca == 'Volei' %}selected{% endif %}>Vôlei</option>
+                    <option value="Futevolei" {% if esporte_busca == 'Futevolei' %}selected{% endif %}>Futvôlei</option>
+                    <option value="Beach-Tennis" {% if esporte_busca == 'Beach-Tennis' %}selected{% endif %}>Beach Tennis</option>
+                </select>
+            </div>
+            <button class="filter-button" type="submit">Buscar</button>
+        </form>
+
+
+        <div class="explorar-container">
+            <aside class="sidebar">
+                <div class="sidebar-filters">
+                    <h3>Filtros Adicionais</h3>
+                    <div class="filter-section"><h4>Tipo de Quadra</h4><div class="custom-radio"><input type="radio" id="tipo-qualquer" name="tipo_quadra" value="qualquer" checked><label for="tipo-qualquer">Qualquer</label></div><div class="custom-radio"><input type="radio" id="tipo-publica" name="tipo_quadra" value="publica"><label for="tipo-publica">Pública</label></div><div class="custom-radio"><input type="radio" id="tipo-privada" name="tipo_quadra" value="privada"><label for="tipo-privada">Privada</label></div></div>
+                    <div class="filter-section"><h4>Ocupação</h4><div class="custom-radio"><input type="radio" id="ocup-qualquer" name="ocupacao" value="qualquer" checked><label for="ocup-qualquer">Qualquer</label></div><div class="custom-radio"><input type="radio" id="ocup-vazia" name="ocupacao" value="vazia"><label for="ocup-vazia">Vazia (0 pessoas)</label></div><div class="custom-radio"><input type="radio" id="ocup-poucos" name="ocupacao" value="poucos"><label for="ocup-poucos">Poucos (1-5 pessoas)</label></div><div class="custom-radio"><input type="radio" id="ocup-cheia" name="ocupacao" value="cheia"><label for="ocup-cheia">Cheia (+5 pessoas)</label></div></div>
+                    <div class="filter-section"><h4>Comunidade</h4><div class="custom-checkbox"><input type="checkbox" id="filtro-seguindo"><label for="filtro-seguindo">Com pessoas que sigo</label></div></div>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <p id="status-busca" class="status-busca"></p>
+                <div class="results-grid">
+                    
+                    {% for quadra in quadras %}
+                    <div class="court-card" 
+                         data-estado="{{ quadra.estado }}" 
+                         data-cidade="{{ quadra.cidade }}" 
+                         data-esportes="{{ quadra.lista_esportes|join:',' }}" 
+                         data-tipo="{{ quadra.tipo|default:"publica" }}" 
+                         data-ocupacao="{{ quadra.total_jogadores_agora|default:0 }}"
+                         data-seguindo="{% if quadra.seguindo %}true{% else %}false{% endif %}">
+                        
+                        <img src="{% static quadra.foto %}" alt="{{ quadra.nome }}">
+                        <div class="card-details">
+                            <h3>{{ quadra.nome }}</h3>
+                            <p class="location"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> {{ quadra.cidade }}, {{ quadra.estado }}</p>
+                            <div class="sports-icons">
+                                {% if 'Futebol' in quadra.lista_esportes %}<span title="Futebol">⚽</span>{% endif %}
+                                {% if 'Basquete' in quadra.lista_esportes %}<span title="Basquete">🏀</span>{% endif %}
+                            </div>
+                            <div class="schedule-info">
+                                <strong>Jogadores:</strong>
+                                <div class="time-slots">
+                                    <span class="time-slot">{{ quadra.total_jogadores_agora|default:0 }}</span>
+                                </div>
+                                <strong style="margin-left: 10px;">Horários:</strong>
+                                <div class="time-slots">
+                                    <span class="time-slot">{{ quadra.total_horarios|default:0 }}</span>
+                                </div>
+                            </div>
+                            <a href="{% url 'detalhes_quadra' quadra.id %}" class="details-btn">Ver Horários</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div id="sem-resultados" style="text-align: center; margin-top: 3rem; grid-column: 1 / -1; color: white;">
+                        <h2>Nenhuma quadra encontrada</h2>
+                        <p>Tente ajustar os filtros para encontrar mais resultados.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

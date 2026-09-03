@@ -1,0 +1,157 @@
+/* --- Configurações Globais --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif; /* Sobrescreve a fonte base */
+    background-color: var(--dark-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: 2rem;
+    background-image: linear-gradient(135deg, #1c3a3a 0%, #1A202C 70%);
+}
+
+/* --- Conteúdo --- */
+.content-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.explorar-header {
+    text-align: center; margin-bottom: 2rem;
+    animation: fadeInDown 1s ease-out;
+}
+.explorar-logo { width: 60px; margin-bottom: 1rem; filter: drop-shadow(0 0 15px rgba(26, 180, 128, 0.5)); }
+.explorar-header h1 { font-size: 3rem; font-weight: 700; }
+.explorar-header p { font-size: 1.1rem; color: var(--text-secondary); margin-top: 0.5rem; }
+
+/* MUDANÇA: ESTILO DO FILTRO PRINCIPAL NO TOPO */
+.filter-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--dark-card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    margin-bottom: 2rem; /* Reduzido o espaço inferior */
+    backdrop-filter: blur(10px);
+    animation: fadeInUp 1s ease-out 0.2s backwards;    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.filter-group { flex: 1; min-width: 150px; text-align: left; }
+.filter-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem; padding-left: 0.5rem; }
+.filter-group select {
+    width: 100%; padding: 0.75rem; background-color: var(--dark-bg); border: 1px solid var(--border-color);
+    color: var(--text-primary); border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 1rem; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a0a0a0' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.75rem center;
+}
+
+.filter-button {
+    flex-shrink: 0; padding: 0.75rem 2rem; background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-blue) 100%); border: none;
+    color: var(--text-dark); font-weight: 700; border-radius: 8px; cursor: pointer; align-self: flex-end;    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.filter-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--shadow-color); }
+
+/* --- LAYOUT DE DUAS COLUNAS PARA O CONTEÚDO --- */
+.explorar-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.sidebar {
+    flex: 0 0 250px; /* Largura fixa para a barra lateral, um pouco menor */
+    position: sticky;
+    top: 2rem;
+}
+
+.main-content {
+    flex: 1;
+}
+
+/* --- FILTROS ADICIONAIS NA BARRA LATERAL --- */
+.sidebar-filters {
+    padding: 1.5rem; background: var(--dark-card-bg); border: 1px solid var(--border-color);    border-radius: 16px; backdrop-filter: blur(10px);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.sidebar-filters h3 { font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+.filter-section { margin-bottom: 1.5rem; }
+.filter-section:last-child { margin-bottom: 0; }
+.filter-section h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 1rem; }
+
+/* Estilos Customizados para Radio e Checkbox */
+.custom-radio, .custom-checkbox { display: block; position: relative; padding-left: 30px; margin-bottom: 12px; cursor: pointer; font-size: 1rem; user-select: none; }
+.custom-radio input, .custom-checkbox input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+.custom-radio label::before, .custom-checkbox label::before { content: ''; position: absolute; left: 0; top: 2px; height: 18px; width: 18px; background-color: var(--dark-bg); border: 1px solid var(--border-color); transition: all 0.2s ease; }
+.custom-radio label::before { border-radius: 50%; } 
+.custom-checkbox label::before { border-radius: 4px; } 
+.custom-radio input:checked ~ label::before, .custom-checkbox input:checked ~ label::before { background: var(--secondary-green); border-color: var(--secondary-green); }
+.custom-radio label::after, .custom-checkbox label::after { content: ''; position: absolute; display: none; }
+.custom-radio input:checked ~ label::after, .custom-checkbox input:checked ~ label::after { display: block; }
+.custom-radio label::after { top: 7px; left: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--text-dark); }
+.custom-checkbox label::after { left: 6px; top: 3px; width: 5px; height: 10px; border: solid var(--text-dark); border-width: 0 3px 3px 0; transform: rotate(45deg); }
+
+/* --- Grid de Resultados e Cards --- */
+.status-busca { text-align: left; margin-bottom: 1rem; font-weight: 600; font-size: 1.1rem; height: 20px; transition: color 0.3s ease; }
+.results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; animation: fadeInUp 1s ease-out 0.5s backwards; }
+.court-card { background: var(--dark-card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; text-align: left; backdrop-filter: blur(10px); transition: all 0.3s ease; }
+.court-card:hover { transform: translateY(-5px); border-color: var(--secondary-green); box-shadow: 0 15px 30px var(--shadow-color); }
+.court-card img { width: 100%; height: 200px; object-fit: cover; }
+.card-details { padding: 1.5rem; }
+.card-details h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.location { display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); margin-bottom: 1rem; }
+.sports-icons { display: flex; gap: 0.75rem; font-size: 1.5rem; margin-bottom: 1rem; }
+.schedule-info { margin-bottom: 1.5rem; }
+.schedule-info strong { font-size: 0.9rem; color: var(--text-secondary); }
+.time-slots { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.time-slot { background-color: var(--hover-bg); color: var(--primary-green); padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; }
+.time-slot.disabled { background-color: var(--border-color); color: var(--text-secondary); text-decoration: line-through; }
+.details-btn { width: 100%; padding: 0.85rem; background-color: var(--dark-bg); border: 1px solid var(--border-color); color: var(--text-primary); font-weight: 600; font-size: 1rem; border-radius: 8px; cursor: pointer; transition: background-color 0.2s ease; }
+.details-btn:hover { background-color: var(--hover-bg); }
+
+/* --- Responsividade --- */
+@media (max-width: 992px) {
+    .explorar-container { flex-direction: column; }
+    .sidebar { position: static; width: 100%; }
+    .explorar-header h1 { font-size: 2.5rem; }
+}
+.filter-group input[type="text"] {
+    width: 100%; padding: 0.75rem; background-color: var(--dark-bg); border: 1px solid var(--border-color);
+    border-radius: 8px; color: var(--text-primary); font-size: 1rem;
+}
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon input {
+    padding-right: 40px; /* Espaço para o botão */
+}
+
+.input-with-icon button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary); /* Garante que a cor do ícone mude com o tema */
+    padding: 5px;
+}
+.input-with-icon button:hover {
+    color: var(--secondary-green);
+}
+
+/* --- Sobrescrevendo para o Tema Claro --- */
+body.light-theme {
+    background-image: linear-gradient(135deg, #f0f2f5 0%, #ffffff 70%);
+}

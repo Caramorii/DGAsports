@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro</title>
+    <!-- Links para os arquivos CSS e JS necessários para o tema -->
+    <link
+      rel="stylesheet"
+      href="{% static 'css/base.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'css/auth.css' %}"
+    />
+    <script
+      src="{% static 'js/theme_switcher.js' %}"
+      defer
+    ></script>
+    <link
+      rel="icon"
+      href="{% static 'assets/logo.png' %}"
+      type="image/x-png"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Criar Conta</h1>
+
+       {% if messages %} {% for message in messages %}
+      <div class="flash-messages flash-{{ message.tags }}">
+        <p>{{ message }}</p>
+      </div>
+      {% endfor %} {% endif %} 
+
+      <form action="{% url 'register' %}" method="POST">
+{% csrf_token %}
+        <input
+          type="text"
+          name="nome"
+          class="input-field"
+          placeholder="Nome completo"
+          required
+        />
+        <input
+          type="text"
+          name="cidade"
+          class="input-field"
+          placeholder="Cidade"
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          class="input-field"
+          placeholder="E-mail"
+          required
+        />
+        <input
+          type="password"
+          name="senha"
+          class="input-field"
+          placeholder="Senha"
+          required
+        />
+        <button type="submit" class="submit-btn">Cadastrar</button>
+      </form>
+
+      <p class="bottom-link">
+        Já tem uma conta? <a href="{% url 'login' %}">Faça login</a>
+      </p>
+      <p class="bottom-link" style="margin-top: 0.75rem">
+        <a href="{% url 'home' %}">‹ Voltar para a página inicial</a>
+      </p>
+    </div>
+  </body>
+</html>

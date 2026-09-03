@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DGA SPORTS</title>
+    <!-- 1. Carrega o CSS base com as variáveis e resets -->
+    <link
+      rel="stylesheet"
+      href="{% static 'css/base.css' %}"
+    />
+    <!-- 2. Carrega o CSS específico para a página principal -->
+    <link
+      rel="stylesheet"
+      href="{% static 'css/main.css' %}"
+    />
+    <!-- 3. Carrega o script do tema no head para evitar 'flash' -->
+    <script
+      src="{% static 'js/theme_switcher.js' %}"
+      defer
+    ></script>
+    <link
+      rel="icon"
+      href="{% static 'assets/logo.png' %}"
+      type="image/x-png"
+    />
+  </head>
+
+  <body>
+    <nav>
+      {% if user.is_authenticated and user.email == 'admin@gmail.com' %}
+      <a
+        href="{% url 'admin_cadastrar_quadra' %}"
+        style="
+          background-color: #ffcc00;
+          color: #000;
+          padding: 5px 10px;
+          border-radius: 5px;
+          font-weight: bold;
+        "
+      >
+        + Cadastrar Nova Quadra
+      </a>
+      {% endif %}
+    </nav>
+    <div id="root">
+      <header>
+        <div class="logo-container">
+          <img
+            src="{% static 'assets/logo2.png' %}"
+            alt="Logo DGASports"
+            class="header-logo"
+          />
+          <h1>DGA<span>Sports</span></h1>
+        </div>
+        <nav>
+          <a href="{% url 'explorar' %}">Explorar</a>
+          <a href="{% url 'social' %}">Comunidade</a>
+          <a href="{% url 'campeonatos' %}">Campeonatos</a>
+          <a href="{% url 'suporte' %}">Suporte</a>
+        </nav>
+        <div class="header-actions">
+          <button id="theme-toggle" class="theme-toggle-btn" title="Mudar tema">
+            <!-- Ícone de Sol -->
+            <svg
+              class="sun-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <!-- Ícone de Lua -->
+            <svg
+              class="moon-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
+          {% if user.is_authenticated %}
+          <span class="user-greeting">Olá, {{ user.nome }}!</span>
+          <a href="{% url 'logout' %}"
+            ><button class="btn btn-login">Sair</button></a
+          >
+          {% else %}
+          <a href="{% url 'login' %}"
+            ><button class="btn btn-login">Entrar</button></a
+          >
+          <a href="{% url 'register' %}"
+            ><button class="btn btn-register">Cadastrar</button></a
+          >
+          {% endif %}
+        </div>
+      </header>
+
+       {% if messages %} {% for message in messages %}
+      <div class="flash-messages-main flash-{{ message.tags }}">
+        <p>{{ message }}</p>
+      </div>
+      {% endfor %} {% endif %} 
+
+      <main>
+        <section class="hero">
+          <h2>Encontre a partida ideal para você</h2>
+          <form
+            class="search-form"
+            action="{% url 'explorar' %}"
+            method="GET"
+          >
+            <div class="input-group">
+              <!-- O ícone de pino de localização -->
+              <svg
+                class="location-pin-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                width="24"
+                height="24"
+              >
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                ></path>
+              </svg>
+
+              <input
+                type="text"
+                name="localidade"
+                id="input-localidade"
+                placeholder="Digite a cidade, estado ou localização"
+              />
+
+              <!-- O botão de geolocalização -->
+              <button
+                type="button"
+                id="btn-geolocate"
+                title="Usar minha localização"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div class="input-group">
+              <!-- Ícone de seta para o seletor -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"
+                ></path>
+              </svg>
+              <!-- Campo de seleção de esporte -->
+              <select name="esporte" required>
+                <option value="" disabled selected>Escolha um esporte</option>
+                <option value="futebol">Futebol</option>
+                <option value="basquete">Basquete</option>
+                <option value="volei">Vôlei</option>
+                <option value="beach-tennis">Beach Tennis</option>
+              </select>
+            </div>
+            <button type="submit">Procurar Partidas</button>
+          </form>
+        </section>
+        <section>
+          <h3>Esportes em Destaque</h3>
+          <div class="card-container">
+            <!-- Card de Futebol -->
+            <a
+              href="{% url 'explorar' %}?esporte=futebol"
+              class="card-link"
+            >
+              <div class="card">
+                <img
+                  src="{% static 'assets/1(1).jpg' %}"
+                  alt="Futebol"
+                />
+                <div class="overlay">
+                  <h4>Futebol</h4>
+                  <p>Jogue partidas competitivas e suba no ranking.</p>
+                </div>
+              </div>
+            </a>
+            <!-- Card de Basquete -->
+            <a
+              href="{% url 'explorar' %}?esporte=basquete"
+              class="card-link"
+            >
+              <div class="card">
+                <img
+                  src="{% static 'assets/foto_basquete.jpeg' %}"
+                  alt="Basquete"
+                />
+                <div class="overlay">
+                  <h4>Basquete</h4>
+                  <p>Encontre sua melhor quadra e horário.</p>
+                </div>
+              </div>
+            </a>
+            <!-- Card de Vôlei -->
+            <a
+              href="{% url 'explorar' %}?esporte=volei"
+              class="card-link"
+            >
+              <div class="card">
+                <img
+                  src="{% static 'assets/volei_foto.jpeg' %}"
+                  alt="Volei"
+                />
+                <div class="overlay">
+                  <h4>Vôlei</h4>
+                  <p>Suba de ranking e jogue com os melhores.</p>
+                </div>
+              </div>
+            </a>
+            <!-- Card de Beach Tennis -->
+            <a
+              href="{% url 'explorar' %}?esporte=beach-tennis"
+              class="card-link"
+            >
+              <div class="card">
+                <img
+                  src="{% static 'assets/bitch_tennis.jpeg' %}"
+                  alt="Beach Tennis"
+                />
+                <div class="overlay">
+                  <h4>Beach Tennis</h4>
+                  <p>Divirta-se na areia.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <section>
+          <h3>Recursos para a comunidade.</h3>
+          <div class="features-container">
+            <div class="feature-card">
+              <div>
+                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M10 2a8 8 0 100 16 8 8 0 000-16zM6 10a4 4 0 118 0 4 4 0 01-8 0z"
+                  ></path>
+                </svg>
+                <h4>Fórum da comunidade</h4>
+              </div>
+              <p>Converse com outros atletas e times.</p>
+            </div>
+            <div class="feature-card">
+              <div>
+                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M12 2a10 10 0 00-9.9 8.24l-2.1 2.1a1 1 0 000 1.41l2.1 2.1a10 10 0 0015.6-11.89l-2.1-2.1a1 1 0 00-1.41 0l-2.1 2.1a8 8 0 01-11.28-11.28z"
+                  ></path>
+                </svg>
+                <h4>Aulas e Dicas</h4>
+              </div>
+              <p>
+                Aprenda com aulas de profissionais e domine as táticas do seu
+                esporte favorito.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div>
+                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM6 10a4 4 0 118 0 4 4 0 01-8 0z"
+                  ></path>
+                </svg>
+                <h4>Ligas e Premiações</h4>
+              </div>
+              <p>
+                Participe de campeonatos diários e ganhe prêmios exclusivos para
+                o seu time.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-top">
+          <h2>DGAsports</h2>
+          <a href="{% url 'suporte' %}">Acesse a Central de Ajuda</a>
+        </div>
+        <div class="footer-main">
+          <div class="footer-column">
+            <h3>Institucional</h3>
+            <ul>
+              <li><a href="#">Quem Somos</a></li>
+              <li><a href="#">Nossas Lojas</a></li>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Trabalhe Conosco</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Plataforma</h3>
+            <ul>
+              <li><a href="#">Futebol</a></li>
+              <li><a href="#">Basquete</a></li>
+              <li><a href="#">Vôlei</a></li>
+              <li><a href="#">Beach Tennis</a></li>
+              <li><a href="#">Campeonatos</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Suporte</h3>
+            <ul>
+              <li><a href="#">Fale Conosco</a></li>
+              <li><a href="#">Dúvidas Frequentes</a></li>
+              <li><a href="#">Segurança da Conta</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Legal</h3>
+            <ul>
+              <li><a href="#">Termos de Uso</a></li>
+              <li><a href="#">Política de Privacidade</a></li>
+              <li><a href="#">Regras da Comunidade</a></li>
+            </ul>
+          </div>
+        </div>
+        <hr class="footer-divider" />
+        <div class="footer-bottom">
+          <div class="footer-legal-info">
+            <p>&copy; 2025 DGAsports Plataforma Esportiva</p>
+            <p>
+              Avenida Dr. Armando Salles Oliveira, 201, Parque Universitário,
+              Franca - SP, CEP 14404-600
+            </p>
+          </div>
+          <div class="footer-social-media"></div>
+        </div>
+      </div>
+    </footer>
+    <script src="{% static 'js/interaction_dga.js' %}"></script>
+  </body>
+</html>

@@ -1,0 +1,667 @@
+/* ====================================================== */
+/* ESTILOS PARA A PÁGINA PRINCIPAL (DGASports.html)       */
+/* ====================================================== */
+
+#root {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* ====================================================== */
+/* 3. HEADER E NAVEGAÇÃO                                  */
+/* ====================================================== */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2rem;
+    background-color: var(--header-bg-transparent);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 1rem;
+    z-index: 1000;
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    margin: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.header-logo {
+    width: 100px;
+    height: auto;
+}
+
+header h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    background-image: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.03em;    filter: drop-shadow(0 2px 8px var(--shadow-color));
+    transition: transform 0.3s ease;
+}
+
+header h1:hover {
+    transform: scale(1.05);
+}
+
+header h1 span {
+    background-image: linear-gradient(135deg, var(--text-light) 0%, var(--text-primary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+header nav {
+    display: none; /* Aparece em telas maiores, veja media queries */
+    gap: 0.5rem;
+}
+
+header nav a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    transition: color 0.3s, background-color 0.3s, transform 0.3s;
+}
+ 
+header nav a:hover {
+    background-color: var(--hover-bg);
+    color: var(--primary-green);
+    transform: translateY(-2px);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-greeting {
+    color: var(--text-primary);
+    font-weight: 600;
+    white-space: nowrap; /* Evita que o nome quebre em telas menores */
+}
+
+/* Estilo do botão de tema */
+.theme-toggle-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+.theme-toggle-btn:hover {
+    color: var(--primary-green);
+    border-color: var(--primary-green);
+}
+.theme-toggle-btn .moon-icon { display: none; }
+.theme-toggle-btn .sun-icon { display: block; }
+
+
+.btn {
+    padding: 0.85rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    border: 2px solid transparent; /* Garante consistência de tamanho */
+}
+
+.btn-login {
+    background-color: transparent;
+    color: var(--text-primary);
+    border-color: var(--primary-green);
+}
+
+.btn-login:hover {
+    background-color: var(--primary-green);
+    color: var(--text-dark);
+    transform: translateY(-2px);    box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.btn-register {
+    background-color: var(--primary-green);
+    color: var(--text-dark);
+    border-color: var(--primary-green);
+    box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.btn-register:hover {
+    background-color: var(--secondary-green);
+    border-color: var(--secondary-green);    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--shadow-color); /* Corrigido para usar a variável */
+}
+
+/* ====================================================== */
+/* 3.1 MENSAGENS FLASH (SUCESSO/ERRO) NA PÁGINA PRINCIPAL */
+/* ====================================================== */
+.flash-messages-main {
+    text-align: center;
+    padding: 12px;
+    font-weight: 600;
+    margin: 0 1rem 1rem 1rem; /* Alinha com o header */
+    border-radius: 12px;
+    border: 1px solid transparent;
+}
+
+.flash-success {
+    background-color: rgba(26, 180, 128, 0.15);
+    color: var(--secondary-green);
+    border-color: rgba(26, 180, 128, 0.3);
+}
+
+.flash-error {
+    background-color: rgba(229, 62, 62, 0.15);
+    color: #e53e3e;
+    border-color: rgba(229, 62, 62, 0.3);
+}
+
+/* ====================================================== */
+/* 4. SEÇÃO HERO E FORMULÁRIO DE BUSCA                    */
+/* ====================================================== */
+.hero {
+    background-image: var(--hero-gradient);
+    border-radius: 32px;
+    padding: 6rem 2rem;
+    text-align: center;
+    margin-bottom: 5rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--background-shapes);
+    animation: pulse-glow 4s ease-in-out infinite;
+}
+
+.hero h2 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 2rem;
+    color: var(--text-light);
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.search-form {
+    background-color: var(--card-bg);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    max-width: 800px;
+    margin: 0 auto;
+    animation: fadeInUp 0.8s ease-out 0.4s backwards;
+    z-index: 1;
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+
+.input-group {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    background-color: var(--dark-bg-start);
+    border-radius: 8px;
+    padding: 0 15px;
+    min-width: 250px;
+    position: relative; /* Necessário para o botão de geolocalização */
+}
+
+.input-group svg {
+    margin-right: 10px;
+    color: var(--text-secondary); /* Cor neutra para outros ícones */
+    flex-shrink: 0;
+}
+
+/* Garante que apenas o ícone de pino de localização seja verde */
+.input-group svg.location-pin-icon {
+    color: var(--primary-green);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px 0;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.input-group input::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Estilo para o <select> de esportes */
+.input-group select {
+    width: 100%;
+    padding: 15px 0;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    cursor: pointer;
+    -webkit-appearance: none; /* Remove a aparência padrão no Chrome/Safari */
+    -moz-appearance: none;    /* Remove a aparência padrão no Firefox */
+    appearance: none;          /* Remove a aparência padrão em outros navegadores */
+}
+
+/* Cor do placeholder para o <select> */
+.input-group select:invalid { color: var(--text-secondary); }
+
+.input-group input[name="localidade"] {
+    padding-right: 40px; /* Adiciona espaço para o botão */
+}
+
+#btn-geolocate {
+    position: absolute; /* Coloca o botão "dentro" do input */
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent; /* Garante que não haja fundo */
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: var(--text-secondary); /* Cor do ícone */
+    transition: color 0.2s;
+}
+
+#btn-geolocate:hover {
+    color: var(--text-light); /* Cor ao passar o mouse */
+}
+
+.search-form button[type="submit"] {
+    background-color: var(--primary-green);
+    color: var(--text-dark);
+    font-weight: bold;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.search-form button[type="submit"]:hover {
+    background-color: #8cf271;
+}
+
+/* ====================================================== */
+/* 5. CONTEÚDO PRINCIPAL (TÍTULOS E CARDS)                */
+/* ====================================================== */
+h3 {
+    font-size: 3rem;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 4rem;
+    background-image: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    letter-spacing: -0.02em;
+}
+
+h3::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background-image: linear-gradient(90deg, var(--primary-green), var(--secondary-green));
+    border-radius: 4px;    box-shadow: 0 2px 10px var(--shadow-color);
+}
+
+/* Estilo Base Comum para todos os Cards */
+.card, .feature-card {
+    background-color: var(--card-bg);
+    border-radius: 24px;    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.4s, box-shadow 0.4s, border-color 0.4s;
+    animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.card:hover, .feature-card:hover {
+    box-shadow: 0 20px 50px var(--shadow-color);
+    border-color: var(--primary-green);
+}
+
+/* Cards de Esportes em Destaque */
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 5rem;
+}
+.card {
+    height: 24rem;
+    transform: translateY(0); /* Reseta a transformação inicial */
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.card:hover img {
+    transform: scale(1.1);
+}
+
+.card .overlay {
+    position: absolute;
+    inset: 0;
+    padding: 1.75rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 40%, transparent 80%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+.card:hover .overlay {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 10%, transparent 100%);
+}
+
+.card .overlay h4 {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    color: #ffffff; /* Forçado para branco para garantir contraste com o overlay escuro */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+    transform: translateY(10px);
+    transition: transform 0.4s ease;
+}
+
+.card .overlay p {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #e0e6f0; /* Forçado para um cinza claro para garantir contraste */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    transition-delay: 0.1s;
+}
+
+.card:hover .overlay h4,
+.card:hover .overlay p {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Cards de Recursos da Comunidade */
+.features-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 5rem;
+}
+
+.feature-card {
+    padding: 2.5rem;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+}
+
+.feature-card div {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.feature-card .icon {
+    width: 3rem;
+    height: 3rem;
+    color: var(--primary-green);
+    transition: transform 0.4s, color 0.4s;    filter: drop-shadow(0 2px 8px var(--shadow-color));
+    flex-shrink: 0;
+}
+
+.feature-card:hover .icon {
+    transform: scale(1.15) rotate(-5deg);
+    color: var(--secondary-green);
+}
+
+.feature-card h4 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-light);
+    letter-spacing: -0.01em;
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+}
+
+/* ====================================================== */
+/* 6. RODAPÉ (FOOTER)                                     */
+/* ====================================================== */
+.site-footer {
+    background-color: var(--dark-bg-start);
+    color: var(--text-secondary);
+    padding: 60px 0;
+    font-size: 14px;
+    margin-top: 5rem;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-top {
+    margin-bottom: 40px;
+}
+
+.footer-top h2 {
+    font-size: 28px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    font-weight: 900;
+}
+
+.footer-top a {
+    color: var(--primary-green);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.footer-main {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.footer-column {
+    flex: 1;
+    min-width: 180px;
+}
+
+.footer-column h3 {
+    font-size: 16px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    font-weight: bold;
+    /* Correção: Reseta o efeito de gradiente herdado de h3 */
+    background-image: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: unset;
+    text-align: left;
+    letter-spacing: normal;
+}
+
+.footer-column h3::after {
+    display: none; /* Remove a linha inferior dos títulos no rodapé */
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 12px;
+}
+
+.footer-column ul li a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+.footer-column ul li a:hover {
+    color: var(--primary-green);
+    text-decoration: underline;
+}
+
+.footer-divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 40px 0;
+}
+
+.footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    gap: 20px;
+}
+
+.footer-legal-info p {
+    margin: 5px 0;
+}
+
+/* ====================================================== */
+/* 7. ANIMAÇÕES E DELAYS                                  */
+/* ====================================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-glow {
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Atraso na animação para entrada escalonada dos cards */
+.card:nth-child(1), .feature-card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2), .feature-card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3), .feature-card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+
+/* ====================================================== */
+/* 8. MEDIA QUERIES (RESPONSIVIDADE)                      */
+/* ====================================================== */
+
+/* Estilos para Tablets e Desktops */
+@media (min-width: 768px) {
+    header nav {
+        display: flex;
+    }
+    .hero h2 {
+        font-size: 5rem;
+    }
+}
+
+/* Estilos para Celulares */
+@media (max-width: 767px) {
+    header {
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 1.25rem 1.5rem;
+        top: 0;
+        border-radius: 0;
+        margin: 0;
+        max-width: 100%;
+    }
+    header h1 {
+        font-size: 2.2rem;
+    }
+    .hero {
+        padding: 4rem 1.5rem;
+        border-radius: 24px;
+    }
+    .hero h2 {
+        font-size: 2.8rem;
+    }
+    .card-container,
+    .features-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .search-form {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    h3 {
+        font-size: 2.5rem;
+    }
+    .card {
+        height: 20rem;
+    }
+    .feature-card {
+        padding: 2rem;
+    }
+    .footer-main,
+    .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 30px;
+    }
+}

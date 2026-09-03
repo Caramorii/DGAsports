@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil - DGA Sports</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="icon" href="{% static 'assets/logo.png' %}" type="image/png">
+</head>
+<body>
+  <header style="padding:1rem;">
+    <a href="{% url 'home' %}">DGA Sports</a> |
+    <a href="{% url 'social' %}">Comunidade</a>
+  </header>
+  <main style="max-width:600px;margin:2rem auto;padding:1rem;">
+    {% if user.is_authenticated %}
+      <h1>{{ user.nome }}</h1>
+      <p>{{ user.email }} — {{ user.cidade }}</p>
+      <p><a href="{% url 'editar_perfil' %}">Editar perfil social</a></p>
+      <p><a href="{% url 'logout' %}">Sair</a></p>
+    {% else %}
+      <p><a href="{% url 'login' %}">Faça login</a></p>
+    {% endif %}
+  </main>
+</body>
+</html>

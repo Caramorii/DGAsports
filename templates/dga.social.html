@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DGA Social - Comunidade Esportiva</title>
+    <link
+      rel="stylesheet"
+      href="{% static 'css/base.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'css/dga.social.css' %}"
+    />
+    <style>
+      /* Estilos críticos para correção de layout e avatares */
+      .avatar-img,
+      .avatar,
+      .avatar-small {
+        object-fit: cover !important;
+        border-radius: 50% !important;
+      }
+
+      /* Novas funcionalidades */
+      .live-scores-section {
+        background: #1e2530;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        color: white;
+      }
+      .scores-wrapper {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+      .score-card {
+        background: #2a3441;
+        padding: 12px;
+        border-radius: 8px;
+        min-width: 160px;
+        text-align: center;
+        border-bottom: 3px solid #1ab480;
+      }
+      .live-indicator {
+        color: #ff4757;
+        font-size: 10px;
+        font-weight: bold;
+        display: block;
+        margin-top: 5px;
+        animation: blink 1.5s infinite;
+      }
+      .btn-perfil-post {
+        font-size: 12px;
+        border: 1px solid #1ab480;
+        color: #1ab480;
+        padding: 4px 12px;
+        border-radius: 15px;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+      .btn-perfil-post:hover {
+        background: #1ab480;
+        color: white;
+      }
+      .promo-card {
+        border: 2px solid #1ab480 !important;
+        background-color: #f0fff9 !important;
+        position: relative;
+      }
+      .promo-badge {
+        background: #1ab480;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 4px 12px;
+        border-radius: 0 0 10px 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar-left">
+      <a href="{% url 'home' %}" class="logo">DGA<span>Social</span></a>
+
+      <div class="user-mini-card" style="text-align: center; padding: 10px">
+        <img
+          src="{% if dados.foto_perfil %}{% static dados.foto_perfil %}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+          alt="Foto de Perfil"
+          class="avatar-img"
+          style="width: 80px; height: 80px; border: 3px solid #1ab480"
+        />
+        <div class="user-info" style="margin-top: 10px">
+          <strong style="display: block">{{ user.nome }}</strong>
+          <span style="color: #666; font-size: 0.9em"
+            >@{{ dados.usuario_social|default:'atleta' }}</span
+          >
+        </div>
+        <a
+          href="{% url 'editar_perfil' %}"
+          style="font-size: 12px; color: #1ab480; text-decoration: none"
+          >Editar Perfil</a
+        >
+      </div>
+
+      <nav class="nav-menu">
+        <a href="{% url 'explorar' %}" class="nav-item">
+          <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+          <span>Reservar Quadra</span>
+        </a>
+        <a href="{% url 'social' %}" class="nav-item active">
+          <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <circle cx="19" cy="11" r="2" />
+          </svg>
+          <span>Comunidade</span>
+        </a>
+        <a href="{% url 'mensagem' %}" class="nav-item">
+          <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            />
+          </svg>
+          <span>Mensagens</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-feed">
+      <header class="topbar">
+        <div class="search-bar">
+          <input
+            type="text"
+            placeholder="Buscar atletas, promoções ou placares..."
+          />
+        </div>
+      </header>
+
+      <section class="live-scores-section">
+        <h3
+          style="
+            font-size: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          "
+        >
+          🏆 Placares em Tempo Real
+        </h3>
+        <div class="scores-wrapper">
+          <div class="score-card">
+            <span
+              style="font-size: 10px; color: #aaa; text-transform: uppercase"
+              >Futebol - Quadra 1</span
+            >
+            <div style="font-size: 16px; font-weight: bold; margin: 8px 0">
+              🔴 Time A 2 x 1 Time B
+            </div>
+            <span class="live-indicator">● AO VIVO</span>
+          </div>
+          <div class="score-card">
+            <span
+              style="font-size: 10px; color: #aaa; text-transform: uppercase"
+              >Basquete - Quadra 3</span
+            >
+            <div style="font-size: 16px; font-weight: bold; margin: 8px 0">
+              🏀 Wolves 45 x 42 Bulls
+            </div>
+            <span class="live-indicator">● AO VIVO</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="new-post-card">
+        <form
+          class="post-form"
+          enctype="multipart/form-data"
+          method="post"
+          action="/postar"
+        >
+{% csrf_token %}
+          <div class="form-row">
+            <img
+              src="{% if dados.foto_perfil %}{% static dados.foto_perfil %}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+              class="avatar-small"
+              style="width: 40px; height: 40px"
+            />
+            <textarea
+              name="texto"
+              placeholder="Compartilhe um resultado, desafio ou promoção..."
+            ></textarea>
+          </div>
+          <div
+            class="form-actions"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding-top: 10px;
+              border-top: 1px solid #eee;
+            "
+          >
+            <label
+              for="imagem"
+              class="upload-label"
+              style="cursor: pointer; color: #666; font-size: 14px"
+            >
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="vertical-align: middle; margin-right: 5px"
+              >
+                <path
+                  d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l10.6-10.6a3 3 0 0 1 4.24 4.24l-10.6 10.6a1 1 0 0 1-1.42-1.42l9.19-9.19"
+                />
+              </svg>
+              Anexar Foto
+              <input
+                id="imagem"
+                type="file"
+                name="imagem"
+                accept="image/*"
+                style="display: none"
+              />
+            </label>
+            <button
+              type="submit"
+              class="send-btn"
+              style="
+                background: #1ab480;
+                color: white;
+                border: none;
+                padding: 8px 25px;
+                border-radius: 20px;
+                font-weight: bold;
+                cursor: pointer;
+              "
+            >
+              Postar
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="feed">
+        {% if posts %} {% for post in posts %}
+        <article class="post-card {% if post.tipo == 'admin' %}promo-card{% endif %}">
+          {% if post.tipo == 'admin' %}
+          <div class="promo-badge">PROMOÇÃO / EVENTO</div>
+          {% endif %}
+
+          <div
+            class="post-header"
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 12px">
+              <img
+                src="{% if post.foto_perfil %}{% static post.foto_perfil %}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+                class="avatar"
+                style="width: 45px; height: 45px"
+              />
+              <div>
+                <strong style="display: block"
+                  >{{ post.nome_usuario }} {% if post.tipo == 'admin' %}<span
+                    class="verified-check"
+                    >✔</span
+                  >{% endif %}</strong
+                >
+                <span style="font-size: 12px; color: #999"
+                  >{{ post.data_postagem }}</span
+                >
+              </div>
+            </div>
+            <a href="/perfil/{{ post.usuario_id }}" class="btn-perfil-post"
+              >Ver Perfil</a
+            >
+          </div>
+
+          <div class="post-content" style="margin-top: 15px">
+            <p style="font-size: 15px; line-height: 1.5; color: #333">
+              {{ post.texto }}
+            </p>
+            {% if post.imagem %}
+            <img
+              src="{% if post.imagem %}{% static post.imagem %}{% endif %}"
+              alt="Imagem do Post"
+              style="
+                width: 100%;
+                border-radius: 12px;
+                margin-top: 12px;
+                display: block;
+              "
+            />
+            {% endif %}
+          </div>
+
+          <div
+            class="post-actions"
+            style="
+              margin-top: 15px;
+              display: flex;
+              gap: 20px;
+              border-top: 1px solid #f0f0f0;
+              padding-top: 10px;
+            "
+          >
+            <button
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #666;
+                font-size: 14px;
+              "
+            >
+              ❤️ Curtir
+            </button>
+            <button
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #666;
+                font-size: 14px;
+              "
+            >
+              💬 Comentar
+            </button>
+          </div>
+        </article>
+        {% endfor %} {% else %}
+        <div style="text-align: center; padding: 60px; color: #bbb">
+          <p>Ainda não há postagens nesta comunidade. Seja o primeiro!</p>
+        </div>
+        {% endif %}
+      </section>
+    </main>
+
+    <aside class="sidebar-right">
+      <section class="next-match-card">
+        <h3 style="font-size: 16px; margin-bottom: 15px">
+          📅 Seu Próximo Jogo
+        </h3>
+        <div
+          class="match-info"
+          style="display: flex; gap: 10px; align-items: center"
+        >
+          <div
+            class="match-date"
+            style="
+              background: #1ab480;
+              color: white;
+              padding: 5px 10px;
+              border-radius: 8px;
+              text-align: center;
+            "
+          >
+            <strong style="display: block">24</strong><span>DEZ</span>
+          </div>
+          <div class="match-details">
+            <strong style="display: block">Arena Amazonas</strong>
+            <span style="font-size: 13px; color: #666">19:00 - Futebol</span>
+          </div>
+        </div>
+        <a
+          href="{% url 'perfil' %}"
+          style="
+            display: block;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #1ab480;
+            text-decoration: none;
+            font-weight: bold;
+          "
+          >Ver minhas reservas →</a
+        >
+      </section>
+
+      <section class="trends" style="margin-top: 30px">
+        <h3 style="font-size: 16px; margin-bottom: 15px">Em Alta</h3>
+        <ul style="list-style: none; padding: 0">
+          <li style="margin-bottom: 12px">
+            <a
+              href="#"
+              style="color: #1ab480; text-decoration: none; font-weight: bold"
+              >#CopaFranca2024</a
+            ><br />
+            <small style="color: #999">120 postagens</small>
+          </li>
+          <li style="margin-bottom: 12px">
+            <a
+              href="#"
+              style="color: #1ab480; text-decoration: none; font-weight: bold"
+              >#DesafioVolei</a
+            ><br />
+            <small style="color: #999">45 postagens</small>
+          </li>
+        </ul>
+      </section>
+    </aside>
+  </body>
+</html>

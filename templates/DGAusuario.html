@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@NomeDeUsuario - DGA Social</title>
+    <!-- Carrega o CSS base e o CSS específico para esta página -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/usuario.css' %}">
+</head>
+<body>
+    <header>
+        <h1>DGA Social ⚽</h1>
+        <div class="user-actions">
+            <button class="icon-btn">💬</button>
+            <button class="icon-btn">➕</button>
+            <button class="icon-btn">☰</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Perfil -->
+        <div class="profile-card">
+            <img src="https://i.ibb.co/L5kL2jD/avatar-placeholder.png" class="profile-img" alt="Foto de perfil">
+            <div class="profile-info">
+                <!-- CORREÇÃO: Substituído texto estático por variáveis Jinja2 -->
+                <!-- O backend (app.py) precisará ser ajustado para passar um objeto 'usuario' para este template -->
+                <div class="username">{{ usuario.nome|default:'NomeDeUsuario' }} <span class="verified">✓</span></div>
+                <div class="user-level">🏆 Nível {{ usuario.nivel|default:'1' }} - {{ usuario.titulo|default:'Iniciante' }}</div>
+                <p class="bio">
+                    {{ usuario.bio|default:'Este usuário ainda não adicionou uma bio.' }}
+                </p>
+                <div class="profile-actions">
+                    <button class="btn">Editar perfil</button>
+                    <button class="btn">Configurações</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="stats">
+            <div><span>{{ usuario.stats.partidas|default:0 }}</span> Partidas</div>
+            <div><span>{{ usuario.stats.seguidores|default:0 }}</span> Seguidores</div>
+            <div><span>{{ usuario.stats.seguindo|default:0 }}</span> Seguindo</div>
+        </div>
+
+        <!-- Mapa -->
+        <div class="map-section">
+            <h2>Quadras próximas 🏀</h2>
+            <div class="fake-map">Mapa interativo em desenvolvimento...</div>
+        </div>
+
+        <!-- Badges -->
+        <div class="badges">
+            <div class="badge">
+                <div class="badge-icon">⚽</div>
+                <div class="badge-text">
+                    <span>Craque da Semana</span>
+                    <span>Mais vitórias na sua região</span>
+                </div>
+            </div>
+            <div class="badge">
+                <div class="badge-icon">🏆</div>
+                <div class="badge-text">
+                    <span>Top Jogador</span>
+                    <span>5 jogos consecutivos ganhos</span>
+                </div>
+            </div>
+            <div class="badge">
+                <div class="badge-icon">🔥</div>
+                <div class="badge-text">
+                    <span>Ativo na Comunidade</span>
+                    <span>Participa de torneios locais</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Postagens -->
+        <div class="posts-section">
+            <h2>Publicações Recentes</h2>
+            <div class="posts-grid">
+                <div class="post-item">
+                    <img src="https://i.ibb.co/q7776zX/post-thumb-1.jpg" alt="">
+                    <div class="post-overlay"><span>❤️ 245</span></div>
+                </div>
+                <div class="post-item">
+                    <img src="https://i.ibb.co/q7776zX/post-thumb-1.jpg" alt="">
+                    <div class="post-overlay"><span>💬 32</span></div>
+                </div>
+                <div class="post-item">
+                    <img src="https://i.ibb.co/q7776zX/post-thumb-1.jpg" alt="">
+                    <div class="post-overlay"><span>❤️ 158</span></div>
+                </div>
+                <div class="post-item">
+                    <img src="https://i.ibb.co/q7776zX/post-thumb-1.jpg" alt="">
+                    <div class="post-overlay"><span>💬 11</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
