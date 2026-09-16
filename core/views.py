@@ -128,8 +128,8 @@ def admin_cadastrar_quadra(request):
         return redirect('login')
 
     if request.method == 'POST':
-        nome = request.POST.get('nome')
-        descricao = request.POST.get('descricao')
+        nome = request.POST.get('nome_quadra')
+        descricao = request.POST.get('descricao_quadra')
         localizacao = request.POST.get('localizacao')
         cidade = request.POST.get('cidade')
         estado = request.POST.get('estado')

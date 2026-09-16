@@ -1,103 +1,96 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <head>
-    {% load static %}
-    <meta charset="UTF-8" />
-    <title>Painel Admin - Nova Quadra</title>
-    <link
-      rel="stylesheet"
-      href="{% static 'css/admin_quadras.css' %}"
-    />
-  </head>
-  <body>
-    <h1>Cadastrar Nova Unidade</h1>
-    <form
-      action="{% url 'admin_cadastrar_quadra' %}"
-      method="POST"
-      enctype="multipart/form-data"
-    >
-{% csrf_token %}
-      <input type="text" id="cep" name="cep" placeholder="CEP (Ex: 14400-000)" maxlength="9" required />
 
-<!-- Endereço dividido em Rua e Número -->
-      <div class="form-group">
-        <input type="text" id="logradouro" name="localizacao" placeholder="Endereço / Rua" required />
-        <input type="text" id="numero" name="numero" placeholder="Nº" style="flex: 2;" required />
-      </div>
+<head>
+  {% load static %}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Admin - Nova Quadra</title>
+  <link rel="stylesheet" href="{% static 'css/admin_quadras.css' %}" />
+</head>
 
-      <div class="form-group">
-        <input type="text" id="cidade" name="cidade" placeholder="Cidade" required />
-        <input type="text" id="estado" name="estado" placeholder="Estado (Ex: SP)" maxlength="2" required />
-      </div>
+<body>
+  <h1>Cadastrar Nova Unidade</h1>
+  
+  <form action="{% url 'admin_cadastrar_quadra' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
 
-      <input
-        type="text"
-        name="esporte"
-        placeholder="Esportes (Ex: Futebol, Tênis)"
-        required
-      />
+    <!-- Identificação da Quadra -->
+    <input type="text" id="nome" name="nome" placeholder="Nome da Quadra" required />
+    <textarea id="descricao" name="descricao" placeholder="Descrição da Unidade"></textarea>
+    <input type="text" name="esporte" placeholder="Esportes (Ex: Futebol, Tênis)" required />
 
-      <hr />
-      <h3>Configuração de Horários</h3>
-      <div class="form-group">
-        <label>Abertura:</label>
-        <input type="time" name="hora_abertura" required />
+    <hr />
+    <h3>Endereço</h3>
 
-        <label>Fechamento:</label>
-        <input type="time" name="hora_fechamento" required />
-      </div>
+    <!-- CEP -->
+    <input type="text" id="cep" name="cep" placeholder="CEP (Ex: 14400-000)" maxlength="9" required />
 
-      <label>Preço por Hora (R$):</label>
-      <input
-        type="number"
-        step="0.01"
-        name="preco"
-        placeholder="Ex: 100.00"
-        required
-      />
+    <!-- Rua e Número -->
+    <div class="form-group">
+      <input type="text" id="logradouro" name="localizacao" placeholder="Endereço / Rua" required />
+      <input type="text" id="numero" name="numero" placeholder="Nº" required />
+    </div>
 
-      <label>Foto da Unidade:</label>
-      <input type="file" name="foto" accept="image/*" required />
+    <!-- Cidade e Estado -->
+    <div class="form-group">
+      <input type="text" id="cidade" name="cidade" placeholder="Cidade" required />
+      <input type="text" id="estado" name="estado" placeholder="Estado (Ex: SP)" maxlength="2" required />
+    </div>
 
-      <button type="submit">Cadastrar Quadra e Gerar Agenda</button>
-    </form>
-
-    <script>
-      const cepInput = document.getElementById('cep');
-      const logradouroInput = document.getElementById('logradouro');
-      const numeroInput = document.getElementById('numero');
-      const cidadeInput = document.getElementById('cidade');
-      const estadoInput = document.getElementById('estado');
+    <hr />
+    <h3>Configuração de Horários</h3>
     
-      cepInput.addEventListener('blur', () => {
-        // Remove qualquer caractere que não seja número
-        const cep = cepInput.value.replace(/\D/g, '');
-    
-        // Verifica se possui exatamente 8 dígitos
-        if (cep.length === 8) {
-          logradouroInput.value = 'Buscando...';
-    
-          fetch(`https://viacep.com.br/ws/${cep}/json/`)
-            .then(response => response.json())
-            .then(data => {
-              if (!data.erro) {
-                logradouroInput.value = data.logradouro;
-                cidadeInput.value = data.localidade;
-                estadoInput.value = data.uf;
-    
-                // Move o cursor direto para o campo de número
-                numeroInput.focus();
-              } else {
-                alert('CEP não encontrado.');
-                logradouroInput.value = '';
-              }
-            })
-            .catch(() => {
-              alert('Erro ao consultar o CEP.');
+    <div class="form-group">
+      <label>Abertura:</label>
+      <input type="time" name="hora_abertura" required />
+
+      <label>Fechamento:</label>
+      <input type="time" name="hora_fechamento" required />
+    </div>
+
+    <label>Preço por Hora (R$):</label>
+    <input type="number" step="0.01" name="preco" placeholder="Ex: 100.00" required />
+
+    <label>Foto da Unidade:</label>
+    <input type="file" name="foto" accept="image/*" required />
+
+    <button type="submit">Cadastrar Quadra e Gerar Agenda</button>
+  </form>
+
+  <script>
+    const cepInput = document.getElementById('cep');
+    const logradouroInput = document.getElementById('logradouro');
+    const numeroInput = document.getElementById('numero');
+    const cidadeInput = document.getElementById('cidade');
+    const estadoInput = document.getElementById('estado');
+
+    cepInput.addEventListener('blur', () => {
+      const cep = cepInput.value.replace(/\D/g, '');
+
+      if (cep.length === 8) {
+        logradouroInput.value = 'Buscando...';
+
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+          .then(response => response.json())
+          .then(data => {
+            if (!data.erro) {
+              logradouroInput.value = data.logradouro;
+              cidadeInput.value = data.localidade;
+              estadoInput.value = data.uf;
+              numeroInput.focus();
+            } else {
+              alert('CEP não encontrado.');
               logradouroInput.value = '';
-            });
-        }
-      });
-    </script>
-  </body>
+            }
+          })
+          .catch(() => {
+            alert('Erro ao consultar o CEP.');
+            logradouroInput.value = '';
+          });
+      }
+    });
+  </script>
+</body>
+
 </html>

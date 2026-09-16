@@ -124,9 +124,28 @@ textarea {
   width: 100%;
 }
 
-.form-group input[name="cidade"] { flex: 2; }
-.form-group input[name="estado"] { flex: 1; }
+/* Proporção Rua x Número */
+.form-group input[name="localizacao"] {
+  flex: 3;
+}
 
+.form-group input[name="numero"] {
+  flex: 1;
+  min-width: 85px; /* Evita que o campo de número seja esmagado */
+}
+
+/* Proporção Cidade x Estado */
+.form-group input[name="cidade"] { 
+  flex: 2; 
+}
+
+.form-group input[name="estado"] { 
+  flex: 1; 
+  min-width: 70px;
+  text-transform: uppercase;
+}
+
+/* Horários */
 .form-group label {
   white-space: nowrap;
   font-size: 0.85rem;
