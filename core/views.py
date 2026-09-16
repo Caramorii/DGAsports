@@ -7,6 +7,7 @@ from django.http import JsonResponse, Http404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.db.models import Q
 from datetime import date, timedelta
 import uuid
 import os
@@ -28,16 +29,24 @@ def home(request):
 def explorar(request):
     localidade_busca = request.GET.get('localidade', '').strip()
     esporte_busca = request.GET.get('esporte', '').strip()
+    tipo_busca = request.GET.get('tipo', '').strip()  # Captura privada / publica
+
     qs = Quadra.objects.all()
+
     if localidade_busca:
-        from django.db.models import Q
         qs = qs.filter(Q(cidade__icontains=localidade_busca) | Q(estado__icontains=localidade_busca))
-    if esporte_busca:
+
+    if esporte_busca and esporte_busca != 'Todos':
         qs = qs.filter(esporte__icontains=esporte_busca)
+
+    if tipo_busca and tipo_busca != 'todos':
+        qs = qs.filter(tipo__iexact=tipo_busca)  # Certifique-se de ter o campo 'tipo' no Model Quadra
+
     return render(request, 'explorar.html', {
         'quadras': qs,
         'localidade_busca': localidade_busca,
         'esporte_busca': esporte_busca,
+        'tipo_busca': tipo_busca,  # Devolve para manter o select selecionado
     })
 
 
