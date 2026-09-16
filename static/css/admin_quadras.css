@@ -1,100 +1,186 @@
-/* ======== ESTILO GERAL ======== */
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  color: #ffffff;
+/* ====================================================== */
+/* CORES E VARIÁVEIS GLOBAIS                              */
+/* ====================================================== */
+:root {
+  --dark-bg: #1A202C;
+  --dark-bg-start: #21293a;
+  --card-bg: #2D3748;
+  --text-primary: #e0e6f0;
+  --text-secondary: #a0aec0;
+  --text-light: #ffffff;
+  --text-dark: #1A202C;
+  --primary-green: #70d155;
+  --border-color: rgba(112, 209, 85, 0.2);
+  --shadow-color: rgba(112, 209, 85, 0.2);
+  --hover-bg: rgba(112, 209, 85, 0.15);
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ======== TÍTULO ======== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ======== FUNDO E CORPO ======== */
+body {
+  font-family: var(--font-main);
+  background-color: var(--dark-bg);
+  background-image: linear-gradient(135deg, var(--dark-bg-start) 0%, var(--dark-bg) 100%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 15px;
+}
+
+/* ======== TÍTULO PRINCIPAL ======== */
 h1 {
   text-align: center;
   margin-bottom: 20px;
-  font-size: 28px;
-  letter-spacing: 1px;
-  animation: fadeIn 1s ease-in-out;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-light);
 }
 
-/* ======== FORMULÁRIO ======== */
+/* ======== CARD DO FORMULÁRIO ======== */
 form {
-  background: rgba(255, 255, 255, 0.12);
-  padding: 30px;
-  border-radius: 12px;
-  width: 380px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.8s ease;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 32px 28px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 15px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* ======== CAMPOS ======== */
-input,
+h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--primary-green);
+  margin-top: 6px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 10px 0;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ======== INPUTS E TEXTAREA ======== */
+input[type="text"],
+input[type="number"],
+input[type="time"],
 textarea {
   width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: none;
+  padding: 12px 14px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   outline: none;
-  font-size: 15px;
-  background-color: #ffffffd5;
-  color: #1e3c72;
-  transition: 0.3s;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Efeito ao focar */
-input:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="time"]:focus,
 textarea:focus {
-  background: #ffffff;
-  transform: scale(1.02);
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 3px var(--hover-bg);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Textarea */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
 textarea {
-  resize: none;
-  height: 80px;
+  resize: vertical;
+  min-height: 80px;
 }
 
-/* ======== LABEL ======== */
-label {
-  font-size: 14px;
-  margin-top: 10px;
-  display: block;
-  font-weight: bold;
-  color: #ffffff;
+/* ======== CAMPOS LADO A LADO ======== */
+.form-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+
+.form-group input[name="cidade"] { flex: 2; }
+.form-group input[name="estado"] { flex: 1; }
+
+.form-group label {
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.form-group input[type="time"] {
+  flex: 1;
+  color-scheme: dark;
+}
+
+/* ======== INPUT DE ARQUIVO ======== */
+input[type="file"] {
+  width: 100%;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: var(--primary-green);
+  color: var(--text-dark);
 }
 
 /* ======== BOTÃO ======== */
-button {
+button[type="submit"] {
   width: 100%;
-  padding: 12px;
-  margin-top: 15px;
-  background: #00c853;
+  padding: 13px;
+  margin-top: 10px;
+  background: var(--primary-green);
   border: none;
   border-radius: 8px;
-  font-size: 16px;
-  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
   cursor: pointer;
-  transition: 0.3s;
-  font-weight: bold;
+  box-shadow: 0 4px 14px var(--shadow-color);
+  transition: filter 0.2s, transform 0.2s;
 }
 
-button:hover {
-  background: #00e676;
-  transform: scale(1.05);
-}
-
-/* ======== ANIMAÇÕES ======== */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+button[type="submit"]:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
 }
