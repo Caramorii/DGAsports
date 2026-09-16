@@ -128,9 +128,15 @@ def admin_cadastrar_quadra(request):
         return redirect('login')
 
     if request.method == 'POST':
-        nome = request.POST.get('nome_quadra')
-        descricao = request.POST.get('descricao_quadra')
-        localizacao = request.POST.get('localizacao')
+        # Captura garantindo compatibilidade com 'nome' ou 'nome_quadra'
+        nome = request.POST.get('nome') or request.POST.get('nome_quadra')
+        descricao = request.POST.get('descricao') or request.POST.get('descricao_quadra')
+        
+        # Junta a rua com o número digitado manualmente
+        rua = request.POST.get('localizacao', '').strip()
+        numero = request.POST.get('numero', '').strip()
+        localizacao = f"{rua}, {numero}" if numero else rua
+
         cidade = request.POST.get('cidade')
         estado = request.POST.get('estado')
         esporte = request.POST.get('esporte')
@@ -139,6 +145,7 @@ def admin_cadastrar_quadra(request):
         preco = request.POST.get('preco') or 0
         cep = request.POST.get('cep')
 
+        # Upload da foto
         file = request.FILES.get('foto')
         if file and file.name:
             extensao = os.path.splitext(file.name)[1]
@@ -152,11 +159,18 @@ def admin_cadastrar_quadra(request):
         else:
             foto_path = "uploads/default_quadra.jpg"
 
+        # 1. Criação ÚNICA da quadra no banco de dados
         quadra = Quadra.objects.create(
-            nome=nome, descricao=descricao, localizacao=localizacao,
-            cidade=cidade, estado=estado, esporte=esporte, foto=foto_path
+            nome=nome,
+            descricao=descricao,
+            localizacao=localizacao,
+            cidade=cidade,
+            estado=estado,
+            esporte=esporte,
+            foto=foto_path
         )
 
+        # 2. Geração da grade de horários para 7 dias
         try:
             h_inicio = int(abertura.split(':')[0])
             h_fim = int(fechamento.split(':')[0])
@@ -169,8 +183,11 @@ def admin_cadastrar_quadra(request):
             for hora in range(h_inicio, h_fim):
                 texto_horario = f"{hora:02d}:00 - {hora+1:02d}:00"
                 Horario.objects.create(
-                    quadra=quadra, data=data_atual, hora_texto=texto_horario,
-                    max_jogadores=12, preco=preco
+                    quadra=quadra,
+                    data=data_atual,
+                    hora_texto=texto_horario,
+                    max_jogadores=12,
+                    preco=preco
                 )
 
         messages.success(request, 'Quadra e agenda de 7 dias criadas com sucesso!')
