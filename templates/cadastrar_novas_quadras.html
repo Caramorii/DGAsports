@@ -17,23 +17,17 @@
       enctype="multipart/form-data"
     >
 {% csrf_token %}
-      <input type="text" name="nome" placeholder="Nome da Quadra" required />
-      <textarea name="descricao" placeholder="Descrição da Unidade"></textarea>
-      <input
-        type="text"
-        name="localizacao"
-        placeholder="Endereço (Rua, Número)"
-        required
-      />
+      <input type="text" id="cep" name="cep" placeholder="CEP (Ex: 14400-000)" maxlength="9" required />
+
+<!-- Endereço dividido em Rua e Número -->
+      <div class="form-group">
+        <input type="text" id="logradouro" name="localizacao" placeholder="Endereço / Rua" required />
+        <input type="text" id="numero" name="numero" placeholder="Nº" style="flex: 2;" required />
+      </div>
 
       <div class="form-group">
-        <input type="text" name="cidade" placeholder="Cidade" required />
-        <input
-          type="text"
-          name="estado"
-          placeholder="Estado (Ex: SP)"
-          required
-        />
+        <input type="text" id="cidade" name="cidade" placeholder="Cidade" required />
+        <input type="text" id="estado" name="estado" placeholder="Estado (Ex: SP)" maxlength="2" required />
       </div>
 
       <input
@@ -67,5 +61,43 @@
 
       <button type="submit">Cadastrar Quadra e Gerar Agenda</button>
     </form>
+
+    <script>
+      const cepInput = document.getElementById('cep');
+      const logradouroInput = document.getElementById('logradouro');
+      const numeroInput = document.getElementById('numero');
+      const cidadeInput = document.getElementById('cidade');
+      const estadoInput = document.getElementById('estado');
+    
+      cepInput.addEventListener('blur', () => {
+        // Remove qualquer caractere que não seja número
+        const cep = cepInput.value.replace(/\D/g, '');
+    
+        // Verifica se possui exatamente 8 dígitos
+        if (cep.length === 8) {
+          logradouroInput.value = 'Buscando...';
+    
+          fetch(`https://viacep.com.br/ws/${cep}/json/`)
+            .then(response => response.json())
+            .then(data => {
+              if (!data.erro) {
+                logradouroInput.value = data.logradouro;
+                cidadeInput.value = data.localidade;
+                estadoInput.value = data.uf;
+    
+                // Move o cursor direto para o campo de número
+                numeroInput.focus();
+              } else {
+                alert('CEP não encontrado.');
+                logradouroInput.value = '';
+              }
+            })
+            .catch(() => {
+              alert('Erro ao consultar o CEP.');
+              logradouroInput.value = '';
+            });
+        }
+      });
+    </script>
   </body>
 </html>

@@ -137,6 +137,7 @@ def admin_cadastrar_quadra(request):
         abertura = request.POST.get('hora_abertura')
         fechamento = request.POST.get('hora_fechamento')
         preco = request.POST.get('preco') or 0
+        cep = request.POST.get('cep')
 
         file = request.FILES.get('foto')
         if file and file.name:
