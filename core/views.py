@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.conf import settings
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Avg, Sum
 from django.db import transaction
 from django.utils.http import url_has_allowed_host_and_scheme
 from datetime import date, timedelta
@@ -15,7 +15,7 @@ import os
 import io
 import base64
 
-from .models import Usuario, Quadra, Horario, ReservaJogador, PerfilSocial, Post
+from .models import Usuario, Quadra, Horario, ReservaJogador, PerfilSocial, Post, Avaliacao
 
 try:
     import qrcode
@@ -35,7 +35,8 @@ def explorar(request):
     qs = Quadra.objects.annotate(
         total_horarios=Count('horarios', distinct=True),
         total_jogadores_agora=Count('horarios__reservas', distinct=True),
-    )
+        nota_media=Avg('avaliacoes__nota'),
+    ).order_by('-destaque', '-nota_media', 'nome')
 
     if localidade_busca:
         qs = qs.filter(Q(cidade__icontains=localidade_busca) | Q(estado__icontains=localidade_busca))
@@ -57,6 +58,10 @@ def explorar(request):
 def detalhes_quadra(request, quadra_id):
     quadra = get_object_or_404(Quadra, pk=quadra_id)
     usuario_id = request.user.id if request.user.is_authenticated else None
+    avaliacoes = quadra.avaliacoes.select_related('usuario').all()[:5]
+    pode_avaliar = bool(usuario_id and ReservaJogador.objects.filter(
+        usuario_id=usuario_id, horario__quadra=quadra
+    ).exists())
 
     horarios = Horario.objects.filter(quadra=quadra).order_by('data', 'hora_texto')
     horarios_list = []
@@ -93,6 +98,9 @@ def detalhes_quadra(request, quadra_id):
     return render(request, 'detalhes_quadra.html', {
         'quadra': quadra_dict,
         'hoje': date.today().isoformat(),
+        'avaliacoes': avaliacoes,
+        'nota_media': quadra.avaliacoes.aggregate(media=Avg('nota'))['media'],
+        'pode_avaliar': pode_avaliar,
     })
 
 
@@ -191,6 +199,7 @@ def admin_cadastrar_quadra(request):
             estado=estado,
             esporte=esporte,
             tipo=tipo,
+            proprietario=request.user,
             foto=foto_path
         )
 
@@ -534,3 +543,70 @@ def suporte(request):
         messages.success(request, 'Sua mensagem foi enviada com sucesso!')
         return redirect('home')
     return render(request, 'suporte.html')
+
+
+@login_required(login_url='login')
+def minhas_reservas(request):
+    reservas = ReservaJogador.objects.filter(usuario=request.user).select_related('horario__quadra').order_by(
+        'horario__data', 'horario__hora_texto'
+    )
+    return render(request, 'minhas_reservas.html', {'reservas': reservas, 'hoje': date.today()})
+
+
+@login_required(login_url='login')
+@require_POST
+def cancelar_reserva(request, reserva_id):
+    reserva = get_object_or_404(ReservaJogador, pk=reserva_id, usuario=request.user)
+    if reserva.horario.data < date.today():
+        messages.error(request, 'Não é possível cancelar uma reserva já realizada.')
+    else:
+        horario = reserva.horario
+        reserva.delete()
+        if not horario.reservas.exists():
+            horario.esporte_reservado = None
+            horario.save(update_fields=['esporte_reservado'])
+        messages.success(request, 'Reserva cancelada e vaga liberada.')
+    return redirect('minhas_reservas')
+
+
+@login_required(login_url='login')
+@require_POST
+def avaliar_quadra(request, quadra_id):
+    quadra = get_object_or_404(Quadra, pk=quadra_id)
+    if not ReservaJogador.objects.filter(usuario=request.user, horario__quadra=quadra).exists():
+        messages.error(request, 'Você só pode avaliar quadras em que participou.')
+        return redirect('detalhes_quadra', quadra_id=quadra.id)
+    try:
+        nota = int(request.POST.get('nota', 0))
+    except (TypeError, ValueError):
+        nota = 0
+    if nota not in range(1, 6):
+        messages.error(request, 'Escolha uma nota de 1 a 5.')
+        return redirect('detalhes_quadra', quadra_id=quadra.id)
+    Avaliacao.objects.update_or_create(
+        usuario=request.user,
+        quadra=quadra,
+        defaults={'nota': nota, 'comentario': request.POST.get('comentario', '').strip()[:1000]},
+    )
+    messages.success(request, 'Obrigado pela sua avaliação!')
+    return redirect('detalhes_quadra', quadra_id=quadra.id)
+
+
+@login_required(login_url='login')
+def painel_proprietario(request):
+    filtro_quadras = Q(proprietario=request.user)
+    if request.user.is_staff:
+        filtro_quadras |= Q(proprietario__isnull=True)
+    quadras = Quadra.objects.filter(filtro_quadras).annotate(
+        reservas_total=Count('horarios__reservas', distinct=True),
+        nota_media=Avg('avaliacoes__nota'),
+    ).order_by('nome')
+    reservas_recentes = ReservaJogador.objects.filter(
+        horario__quadra__in=quadras
+    ).select_related('usuario', 'horario__quadra').order_by('-horario__data', '-horario__hora_texto')[:12]
+    receita_estimada = sum(reserva.horario.preco for reserva in reservas_recentes)
+    return render(request, 'painel_proprietario.html', {
+        'quadras': quadras,
+        'reservas_recentes': reservas_recentes,
+        'receita_estimada': receita_estimada,
+    })

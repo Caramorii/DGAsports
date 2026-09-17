@@ -54,6 +54,10 @@ class Quadra(models.Model):
     estado = models.CharField(max_length=50, blank=True, null=True)
     esporte = models.CharField(max_length=200, blank=True, null=True)
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='publica')
+    proprietario = models.ForeignKey(
+        Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='quadras'
+    )
+    destaque = models.BooleanField(default=False)
     foto = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
@@ -141,3 +145,19 @@ class Post(models.Model):
 
     def __str__(self):
         return f"Post de {self.usuario.nome} - {self.data_postagem}"
+
+
+class Avaliacao(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='avaliacoes')
+    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='avaliacoes')
+    nota = models.PositiveSmallIntegerField()
+    comentario = models.TextField(blank=True)
+    criada_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'avaliacoes'
+        unique_together = ('usuario', 'quadra')
+        ordering = ['-criada_em']
+
+    def __str__(self):
+        return f"{self.quadra.nome}: {self.nota}/5"

@@ -95,6 +95,7 @@
       </header>
 
       <p class="page-subtitle">{{ quadra.cidade }}, {{ quadra.estado }}</p>
+      <p class="page-subtitle">Avaliação: {% if nota_media %}{{ nota_media|floatformat:1 }}/5{% else %}Ainda sem avaliações{% endif %}</p>
 
       <div class="tabs">
         <button class="tab active" data-tab="reserva">🕐 Horários</button>
@@ -169,6 +170,20 @@
           {% endfor %}
         </div>
       </div>
+
+      <section class="info-card" style="margin-top: 2rem;">
+        <h2>Avaliações</h2>
+        {% if pode_avaliar %}
+        <form method="post" action="{% url 'avaliar_quadra' quadra.id %}" style="display:grid; gap:10px; max-width:540px;">
+          {% csrf_token %}
+          <label for="nota">Sua nota</label>
+          <select id="nota" name="nota" required><option value="5">5 - Excelente</option><option value="4">4 - Muito bom</option><option value="3">3 - Bom</option><option value="2">2 - Regular</option><option value="1">1 - Ruim</option></select>
+          <textarea name="comentario" maxlength="1000" placeholder="Conte como foi sua experiência (opcional)"></textarea>
+          <button class="btn" type="submit">Enviar avaliação</button>
+        </form>
+        {% elif not user.is_authenticated %}<p>Entre na sua conta e participe de uma partida para avaliar esta quadra.</p>{% endif %}
+        {% for avaliacao in avaliacoes %}<article style="margin-top:1rem; border-top:1px solid var(--border-color); padding-top:1rem;"><strong>{{ avaliacao.usuario.nome }}</strong> · {{ avaliacao.nota }}/5<br>{{ avaliacao.comentario }}</article>{% empty %}<p>Nenhuma avaliação até o momento.</p>{% endfor %}
+      </section>
 
       <div id="mapa" class="tab-content">
         <h2>Como Chegar</h2>

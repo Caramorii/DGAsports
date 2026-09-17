@@ -29,7 +29,7 @@
 
   <body>
     <nav>
-      {% if user.is_authenticated and user.email == 'admin@gmail.com' %}
+      {% if user.is_authenticated and user.is_staff %}
       <a
         href="{% url 'admin_cadastrar_quadra' %}"
         style="
@@ -59,6 +59,7 @@
           <a href="{% url 'social' %}">Comunidade</a>
           <a href="{% url 'campeonatos' %}">Campeonatos</a>
           <a href="{% url 'suporte' %}">Suporte</a>
+          {% if user.is_authenticated %}<a href="{% url 'minhas_reservas' %}">Minhas reservas</a><a href="{% url 'painel_proprietario' %}">Minha arena</a>{% endif %}
         </nav>
         <div class="header-actions">
           <button id="theme-toggle" class="theme-toggle-btn" title="Mudar tema">
@@ -104,6 +105,7 @@
 
           {% if user.is_authenticated %}
           <span class="user-greeting">Olá, {{ user.nome }}!</span>
+          <a href="{% url 'perfil' %}"><button class="btn btn-login">Perfil</button></a>
           <a href="{% url 'logout' %}"
             ><button class="btn btn-login">Sair</button></a
           >

@@ -18,6 +18,8 @@
       <h1>{{ user.nome }}</h1>
       <p>{{ user.email }} — {{ user.cidade }}</p>
       <p><a href="{% url 'editar_perfil' %}">Editar perfil social</a></p>
+      <p><a href="{% url 'minhas_reservas' %}">Minhas reservas</a></p>
+      <p><a href="{% url 'painel_proprietario' %}">Painel da minha arena</a></p>
       <p><a href="{% url 'logout' %}">Sair</a></p>
     {% else %}
       <p><a href="{% url 'login' %}">Faça login</a></p>

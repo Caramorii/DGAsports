@@ -22,4 +22,8 @@ urlpatterns = [
     path('mensagem/', views.mensagem, name='mensagem'),
     path('perfil/', views.perfil, name='perfil'),
     path('suporte/', views.suporte, name='suporte'),
+    path('minhas-reservas/', views.minhas_reservas, name='minhas_reservas'),
+    path('minhas-reservas/<int:reserva_id>/cancelar/', views.cancelar_reserva, name='cancelar_reserva'),
+    path('quadra/<int:quadra_id>/avaliar/', views.avaliar_quadra, name='avaliar_quadra'),
+    path('painel-proprietario/', views.painel_proprietario, name='painel_proprietario'),
 ]

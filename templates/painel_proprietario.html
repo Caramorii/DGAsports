@@ -1,0 +1,20 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Painel do proprietário | DGA Sports</title><link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <style>
+    main{max-width:1100px;margin:3rem auto;padding:0 1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}.card{background:var(--dark-card-bg);border:1px solid var(--border-color);border-radius:14px;padding:1.25rem}.numero{font-size:2rem;font-weight:800;color:var(--primary-green)}table{width:100%;border-collapse:collapse;margin-top:1rem}td,th{padding:.8rem;text-align:left;border-bottom:1px solid var(--border-color)}.meta{color:var(--text-secondary)}.link{color:var(--primary-green);font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body><main>
+  <p><a class="link" href="{% url 'home' %}">← Início</a></p><h1>Painel do proprietário</h1><p class="meta">Acompanhe a operação das quadras vinculadas à sua conta. A receita é uma estimativa das reservas registradas, não uma confirmação de pagamento.</p>
+  <section class="grid">
+    <article class="card"><p class="meta">Quadras cadastradas</p><p class="numero">{{ quadras|length }}</p></article>
+    <article class="card"><p class="meta">Receita estimada recente</p><p class="numero">R$ {{ receita_estimada|floatformat:2 }}</p></article>
+    <article class="card"><p class="meta">Como anunciar</p><p>Use o cadastro de quadra para configurar horários, preço e tipo de acesso.</p>{% if user.is_staff %}<a class="link" href="{% url 'admin_cadastrar_quadra' %}">Cadastrar quadra</a>{% endif %}</article>
+  </section>
+  <h2 style="margin-top:2rem">Suas quadras</h2><section class="grid">{% for quadra in quadras %}<article class="card"><h3>{{ quadra.nome }}</h3><p class="meta">{{ quadra.cidade }} · {{ quadra.get_tipo_display }}</p><p><strong>{{ quadra.reservas_total }}</strong> reservas · Nota {{ quadra.nota_media|default:0|floatformat:1 }}/5</p><a class="link" href="{% url 'detalhes_quadra' quadra.id %}">Ver agenda</a></article>{% empty %}<article class="card">Nenhuma quadra vinculada à sua conta ainda.</article>{% endfor %}</section>
+  <h2 style="margin-top:2rem">Reservas recentes</h2><article class="card"><table><thead><tr><th>Atleta</th><th>Quadra</th><th>Data</th><th>Valor</th></tr></thead><tbody>{% for reserva in reservas_recentes %}<tr><td>{{ reserva.usuario.nome }}</td><td>{{ reserva.horario.quadra.nome }}</td><td>{{ reserva.horario.data|date:'d/m/Y' }} {{ reserva.horario.hora_texto }}</td><td>R$ {{ reserva.horario.preco|floatformat:2 }}</td></tr>{% empty %}<tr><td colspan="4">Ainda não há reservas.</td></tr>{% endfor %}</tbody></table></article>
+</main></body></html>

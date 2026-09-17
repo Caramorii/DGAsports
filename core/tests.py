@@ -42,3 +42,18 @@ class ReservaPartidaTests(TestCase):
         )
         self.assertEqual(response.status_code, 409)
         self.assertEqual(ReservaJogador.objects.count(), 1)
+
+    def test_avaliacao_exige_participacao_na_quadra(self):
+        self.client.force_login(self.usuario)
+        response = self.client.post(reverse('avaliar_quadra', args=[self.quadra.id]), {'nota': 5})
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(self.quadra.avaliacoes.exists())
+
+    def test_avaliacao_depois_de_reserva(self):
+        ReservaJogador.objects.create(usuario=self.usuario, horario=self.horario)
+        self.client.force_login(self.usuario)
+        response = self.client.post(
+            reverse('avaliar_quadra', args=[self.quadra.id]), {'nota': 5, 'comentario': 'Ótima quadra'}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.quadra.avaliacoes.get().nota, 5)

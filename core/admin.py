@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import Usuario, Quadra, Horario, ReservaJogador, PerfilSocial, Post
+from .models import Usuario, Quadra, Horario, ReservaJogador, PerfilSocial, Post, Avaliacao
 
 
 @admin.register(Usuario)
@@ -23,7 +23,7 @@ class UsuarioAdmin(BaseUserAdmin):
 
 @admin.register(Quadra)
 class QuadraAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'cidade', 'estado', 'esporte')
+    list_display = ('nome', 'cidade', 'estado', 'esporte', 'tipo', 'proprietario', 'destaque')
     search_fields = ('nome', 'cidade')
 
 
@@ -47,3 +47,9 @@ class PerfilSocialAdmin(admin.ModelAdmin):
 class PostAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'tipo', 'data_postagem')
     list_filter = ('tipo',)
+
+
+@admin.register(Avaliacao)
+class AvaliacaoAdmin(admin.ModelAdmin):
+    list_display = ('quadra', 'usuario', 'nota', 'criada_em')
+    list_filter = ('nota',)
