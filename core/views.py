@@ -3,11 +3,12 @@ from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.db import transaction
+from django.utils.http import url_has_allowed_host_and_scheme
 from datetime import date, timedelta
 import uuid
 import os
@@ -31,7 +32,10 @@ def explorar(request):
     esporte_busca = request.GET.get('esporte', '').strip()
     tipo_busca = request.GET.get('tipo', '').strip()  # Captura privada / publica
 
-    qs = Quadra.objects.all()
+    qs = Quadra.objects.annotate(
+        total_horarios=Count('horarios', distinct=True),
+        total_jogadores_agora=Count('horarios__reservas', distinct=True),
+    )
 
     if localidade_busca:
         qs = qs.filter(Q(cidade__icontains=localidade_busca) | Q(estado__icontains=localidade_busca))
@@ -40,7 +44,7 @@ def explorar(request):
         qs = qs.filter(esporte__icontains=esporte_busca)
 
     if tipo_busca and tipo_busca != 'todos':
-        qs = qs.filter(tipo__iexact=tipo_busca)  # Certifique-se de ter o campo 'tipo' no Model Quadra
+        qs = qs.filter(tipo=tipo_busca)
 
     return render(request, 'explorar.html', {
         'quadras': qs,
@@ -80,6 +84,7 @@ def detalhes_quadra(request, quadra_id):
         'cidade': quadra.cidade,
         'estado': quadra.estado,
         'esporte': quadra.esporte,
+        'tipo': quadra.tipo,
         'foto': quadra.foto,
         'lista_esportes': quadra.lista_esportes,
         'horarios': horarios_list,
@@ -97,10 +102,13 @@ def campeonatos(request):
 
 def register_view(request):
     if request.method == 'POST':
-        nome = request.POST.get('nome')
-        email = request.POST.get('email')
+        nome = request.POST.get('nome', '').strip()
+        email = request.POST.get('email', '').strip()
         senha = request.POST.get('senha')
-        cidade = request.POST.get('cidade')
+        cidade = request.POST.get('cidade', '').strip()
+        if not all([nome, email, senha, cidade]):
+            messages.error(request, 'Preencha todos os campos obrigatórios.')
+            return redirect('register')
         if Usuario.objects.filter(email=email).exists():
             messages.error(request, 'Este e-mail já existe.')
             return redirect('register')
@@ -119,7 +127,9 @@ def login_view(request):
             login(request, user)
             messages.success(request, f'Bem-vindo, {user.nome}!')
             proximo = request.GET.get('proximo') or request.POST.get('proximo')
-            return redirect(proximo or 'home')
+            if proximo and url_has_allowed_host_and_scheme(proximo, {request.get_host()}):
+                return redirect(proximo)
+            return redirect('home')
         messages.error(request, 'E-mail ou senha inválidos.')
     return render(request, 'login.html')
 
@@ -132,7 +142,7 @@ def logout_view(request):
 
 @login_required(login_url='login')
 def admin_cadastrar_quadra(request):
-    if request.user.email != 'admin@gmail.com':
+    if not request.user.is_staff:
         messages.error(request, 'Acesso restrito!')
         return redirect('login')
 
@@ -149,6 +159,7 @@ def admin_cadastrar_quadra(request):
         cidade = request.POST.get('cidade')
         estado = request.POST.get('estado')
         esporte = request.POST.get('esporte')
+        tipo = request.POST.get('tipo', 'publica')
         abertura = request.POST.get('hora_abertura')
         fechamento = request.POST.get('hora_fechamento')
         preco = request.POST.get('preco') or 0
@@ -169,6 +180,9 @@ def admin_cadastrar_quadra(request):
             foto_path = "uploads/default_quadra.jpg"
 
         # 1. Criação ÚNICA da quadra no banco de dados
+        if tipo not in dict(Quadra.TIPO_CHOICES):
+            tipo = 'publica'
+
         quadra = Quadra.objects.create(
             nome=nome,
             descricao=descricao,
@@ -176,6 +190,7 @@ def admin_cadastrar_quadra(request):
             cidade=cidade,
             estado=estado,
             esporte=esporte,
+            tipo=tipo,
             foto=foto_path
         )
 
@@ -205,7 +220,6 @@ def admin_cadastrar_quadra(request):
     return render(request, 'cadastrar_novas_quadras.html')
 
 
-@csrf_exempt
 @require_POST
 def entrar_na_partida(request):
     if not request.user.is_authenticated:
@@ -217,6 +231,27 @@ def entrar_na_partida(request):
         dados = request.POST
     horario_id = dados.get('horario_id')
     esporte = dados.get('esporte_selecionado')
+    try:
+        with transaction.atomic():
+            horario = Horario.objects.select_for_update().select_related('quadra').get(pk=horario_id)
+            if horario.data < date.today():
+                return JsonResponse({'status': 'erro', 'mensagem': 'Este horário já passou.'}, status=400)
+            if esporte not in horario.quadra.lista_esportes:
+                return JsonResponse({'status': 'erro', 'mensagem': 'Esporte inválido para esta quadra.'}, status=400)
+            if horario.esporte_reservado and horario.esporte_reservado != esporte:
+                return JsonResponse({'status': 'erro', 'mensagem': 'Este horário já foi reservado para outro esporte.'}, status=400)
+            if ReservaJogador.objects.filter(usuario=request.user, horario=horario).exists():
+                return JsonResponse({'status': 'erro', 'mensagem': 'Você já está nesta partida.'}, status=409)
+            if horario.reservas.count() >= horario.max_jogadores:
+                return JsonResponse({'status': 'erro', 'mensagem': 'Este horário está lotado.'}, status=409)
+            if not horario.esporte_reservado:
+                horario.esporte_reservado = esporte
+                horario.save(update_fields=['esporte_reservado'])
+            ReservaJogador.objects.create(usuario=request.user, horario=horario)
+            return JsonResponse({'status': 'sucesso', 'nova_contagem': horario.reservas.count()})
+    except Horario.DoesNotExist:
+        return JsonResponse({'status': 'erro', 'mensagem': 'Horário não encontrado.'}, status=404)
+
     try:
         horario = Horario.objects.get(pk=horario_id)
         ReservaJogador.objects.create(usuario=request.user, horario=horario)
@@ -230,7 +265,6 @@ def entrar_na_partida(request):
         return JsonResponse({'status': 'erro', 'mensagem': str(e)})
 
 
-@csrf_exempt
 @require_POST
 def sair_da_partida(request):
     if not request.user.is_authenticated:
@@ -241,6 +275,21 @@ def sair_da_partida(request):
     except json.JSONDecodeError:
         dados = request.POST
     horario_id = dados.get('horario_id')
+    try:
+        with transaction.atomic():
+            horario = Horario.objects.select_for_update().get(pk=horario_id)
+            removidos, _ = ReservaJogador.objects.filter(usuario=request.user, horario=horario).delete()
+            if not removidos:
+                return JsonResponse({'status': 'erro', 'mensagem': 'Você não está nesta partida.'}, status=400)
+            nova_contagem = horario.reservas.count()
+            esporte_destravado = nova_contagem == 0
+            if esporte_destravado:
+                horario.esporte_reservado = None
+                horario.save(update_fields=['esporte_reservado'])
+            return JsonResponse({'status': 'sucesso', 'nova_contagem': nova_contagem, 'esporte_destravado': esporte_destravado})
+    except Horario.DoesNotExist:
+        return JsonResponse({'status': 'erro', 'mensagem': 'Horário não encontrado.'}, status=404)
+
     ReservaJogador.objects.filter(usuario=request.user, horario_id=horario_id).delete()
     return JsonResponse({'status': 'sucesso'})
 
@@ -270,6 +319,16 @@ def api_get_horarios_por_data(request, quadra_id, data_selecionada):
 @login_required(login_url='login')
 def reservar(request, horario_id):
     horario = get_object_or_404(Horario, pk=horario_id)
+    esporte = request.GET.get('esporte', '').strip()
+    if horario.data < date.today() or horario.reservas.count() >= horario.max_jogadores:
+        messages.error(request, 'Este horário não está mais disponível.')
+        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+    if esporte not in horario.quadra.lista_esportes:
+        messages.error(request, 'Selecione um esporte válido para esta quadra.')
+        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+    if horario.esporte_reservado and horario.esporte_reservado != esporte:
+        messages.error(request, 'Este horário já está reservado para outro esporte.')
+        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
     reserva = {
         'quadra': {
             'nome': horario.quadra.nome,
@@ -285,7 +344,8 @@ def reservar(request, horario_id):
     }
     return render(request, 'reserva_privada.html', {
         'reserva': reserva,
-        'esporte_selecionado': request.GET.get('esporte'),
+        'esporte_selecionado': esporte,
+        'usuario_atual': request.user,
     })
 
 
@@ -295,6 +355,16 @@ def confirmar_reserva(request):
     metodo = request.POST.get('metodo')
     horario_id = request.POST.get('horario_id')
     esporte = request.POST.get('esporte_selecionado')
+    horario = get_object_or_404(Horario, pk=horario_id)
+    if horario.data < date.today() or horario.reservas.count() >= horario.max_jogadores:
+        messages.error(request, 'Este horário não está mais disponível.')
+        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+    if esporte not in horario.quadra.lista_esportes:
+        messages.error(request, 'Esporte inválido para esta quadra.')
+        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+    if horario.esporte_reservado and horario.esporte_reservado != esporte:
+        messages.error(request, 'Este horário já está reservado para outro esporte.')
+        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
 
     if metodo == 'pix':
         chave_pix = str(uuid.uuid4())
@@ -330,6 +400,14 @@ def finalizar_pix(request):
     esporte = request.POST.get('esporte_selecionado')
     try:
         horario = Horario.objects.get(pk=horario_id)
+        if horario.data < date.today():
+            raise ValueError('Este horário já passou.')
+        if esporte not in horario.quadra.lista_esportes:
+            raise ValueError('Esporte inválido para esta quadra.')
+        if horario.esporte_reservado and horario.esporte_reservado != esporte:
+            raise ValueError('Este horário já está reservado para outro esporte.')
+        if horario.reservas.count() >= horario.max_jogadores and not horario.reservas.filter(usuario=request.user).exists():
+            raise ValueError('Este horário está lotado.')
         ReservaJogador.objects.get_or_create(usuario=request.user, horario=horario)
         if esporte and not horario.esporte_reservado:
             horario.esporte_reservado = esporte

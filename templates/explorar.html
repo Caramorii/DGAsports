@@ -86,7 +86,7 @@
             <aside class="sidebar">
                 <div class="sidebar-filters">
                     <h3>Filtros Adicionais</h3>
-                    <div class="filter-section"><h4>Tipo de Quadra</h4><div class="custom-radio"><input type="radio" id="tipo-qualquer" name="tipo_quadra" value="qualquer" checked><label for="tipo-qualquer">Qualquer</label></div><div class="custom-radio"><input type="radio" id="tipo-publica" name="tipo_quadra" value="publica"><label for="tipo-publica">Pública</label></div><div class="custom-radio"><input type="radio" id="tipo-privada" name="tipo_quadra" value="privada"><label for="tipo-privada">Privada</label></div></div>
+                    <div class="filter-section"><h4>Tipo de Quadra</h4><div class="custom-radio"><input type="radio" id="tipo-qualquer" name="tipo_quadra" value="qualquer" {% if not tipo_busca or tipo_busca == 'todos' %}checked{% endif %}><label for="tipo-qualquer">Qualquer</label></div><div class="custom-radio"><input type="radio" id="tipo-publica" name="tipo_quadra" value="publica" {% if tipo_busca == 'publica' %}checked{% endif %}><label for="tipo-publica">Pública</label></div><div class="custom-radio"><input type="radio" id="tipo-privada" name="tipo_quadra" value="privada" {% if tipo_busca == 'privada' %}checked{% endif %}><label for="tipo-privada">Privada</label></div></div>
                     <div class="filter-section"><h4>Ocupação</h4><div class="custom-radio"><input type="radio" id="ocup-qualquer" name="ocupacao" value="qualquer" checked><label for="ocup-qualquer">Qualquer</label></div><div class="custom-radio"><input type="radio" id="ocup-vazia" name="ocupacao" value="vazia"><label for="ocup-vazia">Vazia (0 pessoas)</label></div><div class="custom-radio"><input type="radio" id="ocup-poucos" name="ocupacao" value="poucos"><label for="ocup-poucos">Poucos (1-5 pessoas)</label></div><div class="custom-radio"><input type="radio" id="ocup-cheia" name="ocupacao" value="cheia"><label for="ocup-cheia">Cheia (+5 pessoas)</label></div></div>
                     <div class="filter-section"><h4>Comunidade</h4><div class="custom-checkbox"><input type="checkbox" id="filtro-seguindo"><label for="filtro-seguindo">Com pessoas que sigo</label></div></div>
                 </div>
@@ -136,5 +136,6 @@
             </main>
         </div>
     </div>
+    <script src="{% static 'js/explorar.js' %}"></script>
 </body>
 </html>

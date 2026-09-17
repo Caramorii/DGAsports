@@ -92,14 +92,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (grid) {
         grid.addEventListener('click', async (event) => {
+            const opcaoEsporte = event.target.closest('.btn-esporte-opcao');
+            if (opcaoEsporte) {
+                const card = opcaoEsporte.closest('.card-horario');
+                card.querySelectorAll('.btn-esporte-opcao').forEach((opcao) => opcao.classList.remove('selected'));
+                opcaoEsporte.classList.add('selected');
+                card.dataset.esporteSelecionado = opcaoEsporte.dataset.esporte;
+                const botaoReserva = card.querySelector('.btn-entrar');
+                if (botaoReserva) botaoReserva.disabled = false;
+                return;
+            }
+
             const botao = event.target.closest('.btn-entrar, .btn-sair');
             if (!botao) return;
 
             const cardPai = botao.closest('.card-horario') || botao.closest('.court-card');
             const idDoHorario = cardPai.dataset.horarioId;
+            const esporteSelecionado = cardPai.dataset.esporteSelecionado || esporteAtivo || cardPai.dataset.esporteReservado;
 
             // Se por algum motivo nenhum esporte estiver ativo ou for "Todos", impede a entrada.
-            if (!esporteAtivo || esporteAtivo === 'Todos') {
+            if (!esporteSelecionado || esporteSelecionado === 'Todos') {
                 alert('Por favor, selecione um esporte específico para continuar.');
                 return;
             }
@@ -113,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // --- LÓGICA DE ENTRAR ---
                 if (quadraTipo === 'privada') {
                     // Envia o esporte selecionado na URL
-                    window.location.href = `/reservar/${idDoHorario}?esporte=${esporteAtivo}`;
+                    window.location.href = `/reservar/${idDoHorario}?esporte=${encodeURIComponent(esporteSelecionado)}`;
                 } else {
                     // Pública: chama a API de entrar
                     try {
@@ -122,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
                             body: JSON.stringify({
                                 horario_id: parseInt(idDoHorario),
-                                esporte_selecionado: esporteAtivo
+                                esporte_selecionado: esporteSelecionado
                             })
                         });
                         const dados = await resposta.json();
@@ -146,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 barra.value = dados.nova_contagem;
                             }
                             // Atualiza o data-attribute para o filtro funcionar
-                            cardPai.dataset.esporteReservado = esporteAtivo;
+                            cardPai.dataset.esporteReservado = esporteSelecionado;
                             cardPai.dataset.usuarioNaPartida = 'true';
                         } else {
                             alert(dados.mensagem);
@@ -259,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const iconeEsporte = icones[esporteReservado] || '';
 
             let botaoHtml;
-            if (horario.usuario_esta_na_partida) {
+            if (horario.usuario_na_partida) {
                 botaoHtml = '<button class="btn btn-sair">Sair da Partida</button>';
             } else {
                 let textoBotao = 'Entrar na Partida';

@@ -42,12 +42,18 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
 
 class Quadra(models.Model):
+    TIPO_CHOICES = [
+        ('publica', 'Pública'),
+        ('privada', 'Privada'),
+    ]
+
     nome = models.CharField(max_length=200)
     descricao = models.TextField(blank=True, null=True)
     localizacao = models.CharField(max_length=255, blank=True, null=True)
     cidade = models.CharField(max_length=100, blank=True, null=True)
     estado = models.CharField(max_length=50, blank=True, null=True)
     esporte = models.CharField(max_length=200, blank=True, null=True)
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='publica')
     foto = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
