@@ -42,7 +42,12 @@ def explorar(request):
         qs = qs.filter(Q(cidade__icontains=localidade_busca) | Q(estado__icontains=localidade_busca))
 
     if esporte_busca and esporte_busca != 'Todos':
-        qs = qs.filter(esporte__icontains=esporte_busca)
+        if esporte_busca == 'Vôlei':
+            qs = qs.filter(Q(esporte__icontains='Vôlei') | Q(esporte__icontains='Volei'))
+        elif esporte_busca == 'Futevôlei':
+            qs = qs.filter(Q(esporte__icontains='Futevôlei') | Q(esporte__icontains='Futevolei'))
+        else:
+            qs = qs.filter(esporte__icontains=esporte_busca)
 
     if tipo_busca and tipo_busca != 'todos':
         qs = qs.filter(tipo=tipo_busca)

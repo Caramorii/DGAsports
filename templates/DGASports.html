@@ -28,40 +28,26 @@
   </head>
 
   <body>
-    <nav>
-      {% if user.is_authenticated and user.is_staff %}
-      <a
-        href="{% url 'admin_cadastrar_quadra' %}"
-        style="
-          background-color: #ffcc00;
-          color: #000;
-          padding: 5px 10px;
-          border-radius: 5px;
-          font-weight: bold;
-        "
-      >
-        + Cadastrar Nova Quadra
-      </a>
-      {% endif %}
-    </nav>
     <div id="root">
-      <header>
-        <div class="logo-container">
-          <img
-            src="{% static 'assets/logo2.png' %}"
-            alt="Logo DGASports"
-            class="header-logo"
-          />
-          <h1>DGA<span>Sports</span></h1>
-        </div>
-        <nav>
-          <a href="{% url 'explorar' %}">Explorar</a>
+      <header class="site-header">
+        <a class="brand" href="{% url 'home' %}" aria-label="DGA Sports - Início">DGA<span>sports</span></a>
+        <nav class="primary-nav" aria-label="Navegação principal">
+          <a href="{% url 'explorar' %}">Encontrar quadra</a>
           <a href="{% url 'social' %}">Comunidade</a>
           <a href="{% url 'campeonatos' %}">Campeonatos</a>
-          <a href="{% url 'suporte' %}">Suporte</a>
-          {% if user.is_authenticated %}<a href="{% url 'minhas_reservas' %}">Minhas reservas</a><a href="{% url 'painel_proprietario' %}">Minha arena</a>{% endif %}
+          <details class="nav-more">
+            <summary>Mais <span aria-hidden="true">⌄</span></summary>
+            <div class="nav-menu">
+              <a href="{% url 'suporte' %}">Central de ajuda</a>
+              {% if user.is_authenticated %}
+              <a href="{% url 'minhas_reservas' %}">Minhas reservas</a>
+              <a href="{% url 'painel_proprietario' %}">Minha arena</a>
+              {% endif %}
+            </div>
+          </details>
         </nav>
         <div class="header-actions">
+          <a class="locale-link" href="{% url 'explorar' %}">◉ PT-BR</a>
           <button id="theme-toggle" class="theme-toggle-btn" title="Mudar tema">
             <!-- Ícone de Sol -->
             <svg
@@ -104,18 +90,11 @@
           </button>
 
           {% if user.is_authenticated %}
-          <span class="user-greeting">Olá, {{ user.nome }}!</span>
-          <a href="{% url 'perfil' %}"><button class="btn btn-login">Perfil</button></a>
-          <a href="{% url 'logout' %}"
-            ><button class="btn btn-login">Sair</button></a
-          >
+          <a class="account-link" href="{% url 'perfil' %}">Olá, {{ user.nome }}</a>
+          <a class="header-link" href="{% url 'logout' %}">Sair</a>
           {% else %}
-          <a href="{% url 'login' %}"
-            ><button class="btn btn-login">Entrar</button></a
-          >
-          <a href="{% url 'register' %}"
-            ><button class="btn btn-register">Cadastrar</button></a
-          >
+          <a class="header-link" href="{% url 'login' %}">Fazer login</a>
+          <a class="register-pill" href="{% url 'register' %}">Cadastre-se</a>
           {% endif %}
         </div>
       </header>
@@ -189,12 +168,13 @@
                 ></path>
               </svg>
               <!-- Campo de seleção de esporte -->
-              <select name="esporte" required>
-                <option value="" disabled selected>Escolha um esporte</option>
-                <option value="futebol">Futebol</option>
-                <option value="basquete">Basquete</option>
-                <option value="volei">Vôlei</option>
-                <option value="beach-tennis">Beach Tennis</option>
+              <select name="esporte" aria-label="Escolha um esporte">
+                <option value="Todos" selected>Todos os esportes</option>
+                <option value="Futebol">⚽ Futebol</option>
+                <option value="Basquete">🏀 Basquete</option>
+                <option value="Vôlei">🏐 Vôlei</option>
+                <option value="Futevolei">⚽🏐 Futevôlei</option>
+                <option value="Beach-Tennis">🎾 Beach Tennis</option>
               </select>
             </div>
             <button type="submit">Procurar Partidas</button>
@@ -205,8 +185,8 @@
           <div class="card-container">
             <!-- Card de Futebol -->
             <a
-              href="{% url 'explorar' %}?esporte=futebol"
-              class="card-link"
+              href="{% url 'explorar' %}?esporte=Futebol"
+              class="card-link sport-card sport-futebol"
             >
               <div class="card">
                 <img
@@ -221,8 +201,8 @@
             </a>
             <!-- Card de Basquete -->
             <a
-              href="{% url 'explorar' %}?esporte=basquete"
-              class="card-link"
+              href="{% url 'explorar' %}?esporte=Basquete"
+              class="card-link sport-card sport-basquete"
             >
               <div class="card">
                 <img
@@ -237,8 +217,8 @@
             </a>
             <!-- Card de Vôlei -->
             <a
-              href="{% url 'explorar' %}?esporte=volei"
-              class="card-link"
+              href="{% url 'explorar' %}?esporte=Vôlei"
+              class="card-link sport-card sport-volei"
             >
               <div class="card">
                 <img
@@ -253,8 +233,8 @@
             </a>
             <!-- Card de Beach Tennis -->
             <a
-              href="{% url 'explorar' %}?esporte=beach-tennis"
-              class="card-link"
+              href="{% url 'explorar' %}?esporte=Beach-Tennis"
+              class="card-link sport-card sport-tenis"
             >
               <div class="card">
                 <img
