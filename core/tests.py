@@ -57,3 +57,25 @@ class ReservaPartidaTests(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.quadra.avaliacoes.get().nota, 5)
+
+    def test_confirmacao_de_reserva_privada(self):
+        self.quadra.tipo = 'privada'
+        self.quadra.save(update_fields=['tipo'])
+        self.client.force_login(self.usuario)
+        response = self.client.post(reverse('confirmar_reserva'), {
+            'metodo': 'cartao',
+            'horario_id': self.horario.id,
+            'esporte_selecionado': 'Futebol',
+        })
+        self.assertRedirects(response, reverse('minhas_reservas'))
+        self.assertTrue(ReservaJogador.objects.filter(usuario=self.usuario, horario=self.horario).exists())
+
+    def test_cancelamento_libera_modalidade(self):
+        reserva = ReservaJogador.objects.create(usuario=self.usuario, horario=self.horario)
+        self.horario.esporte_reservado = 'Futebol'
+        self.horario.save(update_fields=['esporte_reservado'])
+        self.client.force_login(self.usuario)
+        response = self.client.post(reverse('cancelar_reserva', args=[reserva.id]))
+        self.assertRedirects(response, reverse('minhas_reservas'))
+        self.horario.refresh_from_db()
+        self.assertIsNone(self.horario.esporte_reservado)

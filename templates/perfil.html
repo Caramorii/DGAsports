@@ -19,7 +19,11 @@
       <p>{{ user.email }} — {{ user.cidade }}</p>
       <p><a href="{% url 'editar_perfil' %}">Editar perfil social</a></p>
       <p><a href="{% url 'minhas_reservas' %}">Minhas reservas</a></p>
+      {% if tem_quadra %}
       <p><a href="{% url 'painel_proprietario' %}">Painel da minha arena</a></p>
+      {% else %}
+      <p>Conta de atleta: encontre quadras, faça reservas e avalie suas partidas.</p>
+      {% endif %}
       <p><a href="{% url 'logout' %}">Sair</a></p>
     {% else %}
       <p><a href="{% url 'login' %}">Faça login</a></p>

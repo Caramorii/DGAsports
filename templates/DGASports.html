@@ -41,7 +41,7 @@
               <a href="{% url 'suporte' %}">Central de ajuda</a>
               {% if user.is_authenticated %}
               <a href="{% url 'minhas_reservas' %}">Minhas reservas</a>
-              <a href="{% url 'painel_proprietario' %}">Minha arena</a>
+              {% if tem_quadra %}<a href="{% url 'painel_proprietario' %}">Minha arena</a>{% endif %}
               {% endif %}
             </div>
           </details>

@@ -73,6 +73,7 @@
       class="content-container"
       data-quadra-id="{{ quadra.id }}"
       data-quadra-tipo="{{ quadra.tipo }}"
+      data-esportes="{{ quadra.lista_esportes|join:'|' }}"
     >
       <header class="page-header">
         <a href="{% url 'explorar' %}" class="back-button">
@@ -206,6 +207,6 @@
       </div>
     </div>
 
-    <script src="{% static 'js/detalhes.js' %}"></script>
+    <script src="{% static 'js/detalhes_reserva.js' %}"></script>
   </body>
 </html>

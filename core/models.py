@@ -98,8 +98,15 @@ class Horario(models.Model):
 
 
 class ReservaJogador(models.Model):
+    STATUS_CHOICES = [
+        ('pendente', 'Pendente de pagamento'),
+        ('pago', 'Pago'),
+    ]
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='reservas')
     horario = models.ForeignKey(Horario, on_delete=models.CASCADE, related_name='reservas')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
+    criada_em = models.DateTimeField(auto_now_add=True)
+    pago_em = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         db_table = 'reservas_jogadores'

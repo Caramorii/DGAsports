@@ -24,7 +24,8 @@ except ImportError:
 
 
 def home(request):
-    return render(request, 'DGASports.html')
+    tem_quadra = request.user.is_authenticated and Quadra.objects.filter(proprietario=request.user).exists()
+    return render(request, 'DGASports.html', {'tem_quadra': tem_quadra})
 
 
 def explorar(request):
@@ -173,6 +174,7 @@ def admin_cadastrar_quadra(request):
         estado = request.POST.get('estado')
         esporte = request.POST.get('esporte')
         tipo = request.POST.get('tipo', 'publica')
+        email_proprietario = request.POST.get('email_proprietario', '').strip()
         abertura = request.POST.get('hora_abertura')
         fechamento = request.POST.get('hora_fechamento')
         preco = request.POST.get('preco') or 0
@@ -195,6 +197,10 @@ def admin_cadastrar_quadra(request):
         # 1. Criação ÚNICA da quadra no banco de dados
         if tipo not in dict(Quadra.TIPO_CHOICES):
             tipo = 'publica'
+        proprietario = Usuario.objects.filter(email__iexact=email_proprietario).first()
+        if not proprietario:
+            messages.error(request, 'Cadastre primeiro o usuário proprietário e informe o e-mail usado no cadastro.')
+            return redirect('admin_cadastrar_quadra')
 
         quadra = Quadra.objects.create(
             nome=nome,
@@ -204,7 +210,7 @@ def admin_cadastrar_quadra(request):
             estado=estado,
             esporte=esporte,
             tipo=tipo,
-            proprietario=request.user,
+            proprietario=proprietario,
             foto=foto_path
         )
 
@@ -363,6 +369,26 @@ def reservar(request, horario_id):
     })
 
 
+def registrar_reserva(usuario, horario_id, esporte):
+    """Registra uma reserva com bloqueio de linha para evitar excesso de vagas."""
+    with transaction.atomic():
+        horario = Horario.objects.select_for_update().select_related('quadra').get(pk=horario_id)
+        if horario.data < date.today():
+            raise ValueError('Este horário já passou.')
+        if esporte not in horario.quadra.lista_esportes:
+            raise ValueError('Esporte inválido para esta quadra.')
+        if horario.esporte_reservado and horario.esporte_reservado != esporte:
+            raise ValueError('Este horário já está reservado para outro esporte.')
+        ja_reservou = horario.reservas.filter(usuario=usuario).exists()
+        if not ja_reservou and horario.reservas.count() >= horario.max_jogadores:
+            raise ValueError('Este horário está lotado.')
+        if not horario.esporte_reservado:
+            horario.esporte_reservado = esporte
+            horario.save(update_fields=['esporte_reservado'])
+        ReservaJogador.objects.get_or_create(usuario=usuario, horario=horario)
+        return horario
+
+
 @login_required(login_url='login')
 @require_POST
 def confirmar_reserva(request):
@@ -396,6 +422,13 @@ def confirmar_reserva(request):
         })
 
     try:
+        registrar_reserva(request.user, horario_id, esporte)
+        messages.success(request, 'Reserva confirmada com sucesso!')
+    except (Horario.DoesNotExist, ValueError) as erro:
+        messages.error(request, str(erro))
+    return redirect('minhas_reservas')
+
+    try:
         horario = Horario.objects.get(pk=horario_id)
         ReservaJogador.objects.get_or_create(usuario=request.user, horario=horario)
         if esporte and not horario.esporte_reservado:
@@ -412,6 +445,13 @@ def confirmar_reserva(request):
 def finalizar_pix(request):
     horario_id = request.POST.get('horario_id')
     esporte = request.POST.get('esporte_selecionado')
+    try:
+        registrar_reserva(request.user, horario_id, esporte)
+        messages.success(request, 'Reserva confirmada com sucesso!')
+    except (Horario.DoesNotExist, ValueError) as erro:
+        messages.error(request, str(erro))
+    return redirect('minhas_reservas')
+
     try:
         horario = Horario.objects.get(pk=horario_id)
         if horario.data < date.today():
@@ -539,8 +579,10 @@ def mensagem(request):
     return render(request, 'DGAmensagem.html')
 
 
+@login_required(login_url='login')
 def perfil(request):
-    return render(request, 'perfil.html')
+    tem_quadra = Quadra.objects.filter(proprietario=request.user).exists()
+    return render(request, 'perfil.html', {'tem_quadra': tem_quadra})
 
 
 def suporte(request):
@@ -599,13 +641,13 @@ def avaliar_quadra(request, quadra_id):
 
 @login_required(login_url='login')
 def painel_proprietario(request):
-    filtro_quadras = Q(proprietario=request.user)
-    if request.user.is_staff:
-        filtro_quadras |= Q(proprietario__isnull=True)
-    quadras = Quadra.objects.filter(filtro_quadras).annotate(
+    quadras = Quadra.objects.filter(proprietario=request.user).annotate(
         reservas_total=Count('horarios__reservas', distinct=True),
         nota_media=Avg('avaliacoes__nota'),
     ).order_by('nome')
+    if not quadras.exists():
+        messages.info(request, 'Sua conta ainda não está vinculada a nenhuma quadra.')
+        return redirect('perfil')
     reservas_recentes = ReservaJogador.objects.filter(
         horario__quadra__in=quadras
     ).select_related('usuario', 'horario__quadra').order_by('-horario__data', '-horario__hora_texto')[:12]
