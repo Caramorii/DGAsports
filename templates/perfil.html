@@ -19,6 +19,7 @@
       <p>{{ user.email }} — {{ user.cidade }}</p>
       <p><a href="{% url 'editar_perfil' %}">Editar perfil social</a></p>
       <p><a href="{% url 'minhas_reservas' %}">Minhas reservas</a></p>
+      {% if user.is_staff %}<p><a class="admin-action" href="{% url 'admin_cadastrar_quadra' %}">Cadastrar quadra pública ou particular</a></p>{% endif %}
       {% if tem_quadra %}
       <p><a href="{% url 'painel_proprietario' %}">Painel da minha arena</a></p>
       {% else %}
@@ -29,5 +30,8 @@
       <p><a href="{% url 'login' %}">Faça login</a></p>
     {% endif %}
   </main>
+  <style>
+    .admin-action { display:inline-block; padding:.7rem 1rem; border-radius:8px; background:var(--primary-green); color:var(--text-dark); font-weight:700; text-decoration:none; }
+  </style>
 </body>
 </html>

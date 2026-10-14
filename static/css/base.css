@@ -31,6 +31,20 @@
     --font-social: 'Segoe UI', Arial, sans-serif;
 }
 
+* {
+    scrollbar-color: var(--secondary-green) var(--dark-bg);
+    scrollbar-width: thin;
+}
+
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--dark-bg); }
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-green);
+    border: 3px solid var(--dark-bg);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--primary-green); }
+
 body.light-theme {
     /* Paleta de Cores - TEMA CLARO */
     --dark-bg: #f8f9fa; /* Fundo branco-gelo, mais limpo */

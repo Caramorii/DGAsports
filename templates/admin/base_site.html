@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block branding %}
+<div id="site-name" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  <a href="{% url 'admin:index' %}">DGA Sports — Administração</a>
+  {% if request.user.is_staff %}
+    <a href="{% url 'admin_cadastrar_quadra' %}" style="display:inline-block;padding:7px 12px;border-radius:6px;background:var(--primary-green, #70d155);color:#1A202C;font-weight:700;text-decoration:none">Cadastrar quadra</a>
+  {% endif %}
+</div>
+{% endblock %}

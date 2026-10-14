@@ -15,6 +15,7 @@
       rel="stylesheet"
       href="{% static 'css/main.css' %}"
     />
+    <link rel="stylesheet" href="{% static 'css/home_search.css' %}" />
     <!-- 3. Carrega o script do tema no head para evitar 'flash' -->
     <script
       src="{% static 'js/theme_switcher.js' %}"
@@ -42,6 +43,7 @@
               {% if user.is_authenticated %}
               <a href="{% url 'minhas_reservas' %}">Minhas reservas</a>
               {% if tem_quadra %}<a href="{% url 'painel_proprietario' %}">Minha arena</a>{% endif %}
+              {% if user.is_staff %}<a href="{% url 'admin_cadastrar_quadra' %}">Administração · Cadastrar quadra</a>{% endif %}
               {% endif %}
             </div>
           </details>
@@ -110,6 +112,8 @@
           <h2>Encontre a partida ideal para você</h2>
           <form
             class="search-form"
+            id="home-search-form"
+            data-api-url="{% url 'api_quadras' %}"
             action="{% url 'explorar' %}"
             method="GET"
           >
@@ -177,8 +181,20 @@
                 <option value="Beach-Tennis">🎾 Beach Tennis</option>
               </select>
             </div>
+            <div class="input-group">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/><circle cx="8" cy="5" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="19" r="2"/></svg>
+              <select name="tipo" aria-label="Tipo de quadra">
+                <option value="todos" selected>Quadras públicas e privadas</option>
+                <option value="publica">Quadras públicas</option>
+                <option value="privada">Quadras privadas</option>
+              </select>
+            </div>
             <button type="submit">Procurar Partidas</button>
           </form>
+        </section>
+        <section id="home-search-results" class="home-search-results" aria-live="polite" hidden>
+          <div class="home-results-heading"><div><p class="home-results-eyebrow">DGA MAPS</p><h3>Quadras para sua partida</h3><p id="home-results-summary">Ajuste os filtros para encontrar quadras próximas.</p></div><button id="home-results-clear" type="button">Limpar busca</button></div>
+          <div id="home-court-results" class="home-court-results"></div>
         </section>
         <section>
           <h3>Esportes em Destaque</h3>
@@ -353,5 +369,6 @@
       </div>
     </footer>
     <script src="{% static 'js/interaction_dga.js' %}"></script>
+    <script src="{% static 'js/home_search.js' %}"></script>
   </body>
 </html>

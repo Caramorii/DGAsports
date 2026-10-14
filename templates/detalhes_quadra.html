@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     {% load static %}
@@ -22,6 +22,7 @@
       rel="stylesheet"
       href="{% static 'css/detalhes_fullscreen.css' %}"
     />
+    <link rel="stylesheet" href="{% static 'css/public_courts.css' %}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -65,6 +66,40 @@
         opacity: 0.5;
         cursor: not-allowed;
       }
+      .card-horario.reserva-paga { border: 2px solid #e44755; }
+      .card-horario.reserva-caixa-pendente { border: 2px solid #e0b331; }
+      .nomes-jogadores, .reserva-responsavel { color: var(--text-secondary); margin: .55rem 0; }
+      .aviso-caixa { color: #f0c94c; font-size: .9rem; }
+      .card-horario.horario-passado { opacity: .58; filter: grayscale(.65); }
+      .aviso-horario-passado { color: var(--text-secondary); font-size: .9rem; }
+      .reviews-panel { margin-top: 2rem; padding: clamp(1.25rem, 3vw, 2rem); }
+      .reviews-header { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; max-width: 980px; margin: 0 auto 1.5rem; }
+      .reviews-title h2 { margin: 0 0 .35rem; text-align: left; }
+      .reviews-title p, .review-hint, .review-date { color: var(--text-secondary); }
+      .rating-summary { min-width: 150px; padding: 1rem 1.2rem; border: 1px solid var(--border-color); border-radius: 14px; background: rgba(19,184,134,.08); text-align: center; }
+      .rating-summary strong { display: block; color: var(--primary-green); font-size: 2rem; line-height: 1.1; }
+      .rating-summary small { display: block; margin-top: .25rem; color: var(--text-secondary); }
+      .rating-stars { color: #f5bd45; letter-spacing: .12em; }
+      .rating-stars .rating-star-empty { color: #647184; }
+      .review-form { display: grid; gap: 1rem; width: 100%; max-width: 760px; margin: 0 auto; padding: clamp(1rem, 2.5vw, 1.5rem); border: 1px solid var(--border-color); border-radius: 16px; background: rgba(13,19,27,.28); }
+      .review-form label, .rating-fieldset legend { font-weight: 600; }
+      .rating-fieldset { margin: 0; padding: 0; border: 0; }
+      .rating-options { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: .25rem; margin-top: .35rem; }
+      .rating-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+      .rating-options label { padding: .1rem .2rem; color: #647184; font-size: 2.2rem; line-height: 1; cursor: pointer; transition: color .15s, transform .15s; }
+      .rating-options label:hover { transform: scale(1.12); }
+      .rating-options input:checked ~ label, .rating-options input:focus-visible + label { color: #f5bd45; }
+      .rating-options input:focus-visible + label { outline: 2px solid var(--primary-green); outline-offset: 3px; border-radius: 4px; }
+      .review-form textarea { width: 100%; min-height: 120px; padding: .9rem 1rem; border: 1px solid var(--border-color); border-radius: 12px; background: var(--dark-bg); color: var(--text-primary); font: inherit; resize: vertical; }
+      .review-form textarea:focus, .review-form textarea:focus-visible { border-color: var(--primary-green); outline: 2px solid rgba(19,184,134,.25); }
+      .review-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+      .review-submit { min-height: 46px; padding: .75rem 1.25rem; border: 0; border-radius: 10px; background: #13b886; color: white; font: inherit; font-weight: 700; cursor: pointer; transition: background .18s, transform .18s; }
+      .review-submit:hover { background: #0f9f73; transform: translateY(-1px); }
+      .review-list { display: grid; gap: .8rem; max-width: 980px; margin: 1.5rem auto 0; }
+      .review-item { margin: 0 !important; padding: 1rem 1.15rem !important; border: 1px solid var(--border-color) !important; border-radius: 12px; background: rgba(13,19,27,.24); }
+      .review-item-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+      .review-empty { padding: 1.25rem; border: 1px dashed #465466; border-radius: 12px; color: var(--text-secondary); }
+      @media (max-width: 600px) { .reviews-header, .review-form-footer { align-items: stretch; flex-direction: column; } .rating-summary { text-align: left; } .review-submit { width: 100%; } }
     </style>
   </head>
   <body>
@@ -74,6 +109,7 @@
       data-quadra-id="{{ quadra.id }}"
       data-quadra-tipo="{{ quadra.tipo }}"
       data-esportes="{{ quadra.lista_esportes|join:'|' }}"
+      data-usuario-id="{{ request.user.id|default:'' }}"
     >
       <header class="page-header">
         <a href="{% url 'explorar' %}" class="back-button">
@@ -98,6 +134,60 @@
       <p class="page-subtitle">{{ quadra.cidade }}, {{ quadra.estado }}</p>
       <p class="page-subtitle">Avaliação: {% if nota_media %}{{ nota_media|floatformat:1 }}/5{% else %}Ainda sem avaliações{% endif %}</p>
 
+      {% if quadra.tipo == 'publica' %}
+      <section class="info-card public-court-info">
+        {% if quadra.foto %}<img src="{% static quadra.foto %}" alt="{{ quadra.nome }}" style="width:100%;max-height:300px;object-fit:cover;border-radius:12px">{% endif %}
+        <h2>Informações da quadra pública</h2>
+        {% if quadra.descricao %}<p>{{ quadra.descricao }}</p>{% endif %}
+        <p><strong>Endereço:</strong> {{ quadra.localizacao }}, {{ quadra.cidade }} - {{ quadra.estado }}</p>
+        <p><strong>Esportes:</strong> {{ quadra.lista_esportes|join:', ' }}</p>
+        <p><strong>Situação:</strong> {{ quadra.situacao }}</p>
+        <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&amp;destination={{ quadra.localizacao|urlencode }}%2C%20{{ quadra.cidade|urlencode }}%2C%20{{ quadra.estado|urlencode }}">Abrir rota no Google Maps</a>
+        {% if quadra.comentario_admin %}<article class="admin-court-comment" style="margin-top:1rem;padding:1rem;border:2px solid var(--secondary-green);border-radius:10px"><strong>Atualização oficial da administração</strong><p>{{ quadra.comentario_admin }}</p></article>{% endif %}
+        {% if user.is_staff %}<form class="admin-court-form" method="post" action="{% url 'atualizar_situacao_quadra' quadra.id %}">{% csrf_token %}<label>Situação oficial<input name="situacao" maxlength="200" value="{{ quadra.situacao }}" required></label><label>Comentário principal da administração<textarea name="comentario_admin" maxlength="2000">{{ quadra.comentario_admin }}</textarea></label><button class="btn" type="submit">Atualizar informação oficial</button></form>{% endif %}
+      </section>
+      <section id="grupos" class="info-card" style="margin-top:1rem">
+        <h2>Grupos desta quadra</h2>
+        <p>Escolha um grupo de acordo com o esporte ou crie um novo. Grupos de quadras públicas não precisam de data, horário ou limite de participantes.</p>
+        {% if user.is_authenticated %}
+        <form class="public-group-create-form" method="post" action="{% url 'criar_grupo_quadra_publica' quadra.id %}">
+          {% csrf_token %}
+          <label for="novo-grupo-esporte">Esporte
+          <select id="novo-grupo-esporte" name="esporte" required>
+            <option value="">Escolha o esporte</option>
+            {% for esporte in quadra.lista_esportes %}<option value="{{ esporte }}">{{ esporte }}</option>{% endfor %}
+          </select></label>
+          <label for="novo-grupo-inicio">Horário de início<input id="novo-grupo-inicio" type="time" name="hora_inicio" required></label>
+          <label for="novo-grupo-fim">Previsão de término<input id="novo-grupo-fim" type="time" name="hora_fim" required></label>
+          <button class="btn" type="submit">Criar grupo</button>
+        </form>
+        {% else %}<p><a href="{% url 'login' %}">Entre</a> para criar um grupo ou participar.</p>{% endif %}
+        <div style="display:grid;gap:12px;margin-top:1rem">
+          {% for grupo_info in grupos_publicos %}
+          <article id="grupo-{{ grupo_info.obj.id }}" style="padding:1rem;border:1px solid var(--border-color);border-radius:12px">
+            <h3 style="margin-top:0">{{ grupo_info.obj.esporte }}</h3>
+            <p><strong>Horário:</strong> {% if grupo_info.obj.hora_inicio and grupo_info.obj.hora_fim %}{{ grupo_info.obj.hora_inicio|time:'H:i' }} – {{ grupo_info.obj.hora_fim|time:'H:i' }}{% else %}a combinar{% endif %}</p>
+            <p>Organizado por {{ grupo_info.obj.criador.nome }} · {{ grupo_info.total_participantes }} participante{{ grupo_info.total_participantes|pluralize }}</p>
+            <p>Participantes: {% for participante in grupo_info.participantes %}{{ participante.nome }}{% if not forloop.last %}, {% endif %}{% empty %}ninguém ainda{% endfor %}</p>
+            <p>Materiais: {% for material in grupo_info.obj.materiais.all %}{{ material.item }} — {{ material.usuario.nome }}{% if not forloop.last %}; {% endif %}{% empty %}ainda não combinados{% endfor %}</p>
+            {% if user.is_authenticated %}
+              <form method="post" action="{% url 'participar_grupo_quadra_publica' grupo_info.obj.id %}">
+                {% csrf_token %}
+                <button class="btn" type="submit">{% if grupo_info.ja_participa %}Vou de novo{% else %}Participar deste grupo{% endif %}</button>
+              </form>
+              {% if grupo_info.ja_participa %}<form method="post" action="{% url 'indicar_material_grupo_publico' grupo_info.obj.id %}" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">{% csrf_token %}<input name="item" maxlength="100" placeholder="Material que vai levar" required><button class="btn" type="submit">Avisar o grupo</button></form>{% endif %}
+              {% if grupo_info.ja_participa %}<small>Suas presenças: {% for inscricao in grupo_info.obj.inscricoes.all %}{% if inscricao.usuario_id == user.id %}{{ inscricao.presencas }}{% endif %}{% endfor %}</small>{% endif %}
+            {% else %}<a href="{% url 'login' %}">Entre para participar</a>{% endif %}
+          </article>
+          {% empty %}<p>Ainda não há grupos nesta quadra. Você pode criar o primeiro acima.</p>{% endfor %}
+        </div>
+      </section>
+      <section class="info-card" style="margin-top:1rem">
+        <h2>Comentários da comunidade</h2>
+        {% if user.is_authenticated %}<form method="post" action="{% url 'avaliar_quadra' quadra.id %}" style="display:grid;gap:10px;max-width:540px">{% csrf_token %}<textarea name="comentario" maxlength="1000" placeholder="Como está a quadra? Conte para outros usuários." required></textarea><button class="btn" type="submit">Comentar</button></form>{% else %}<p><a href="{% url 'login' %}">Entre</a> para comentar sobre a situação.</p>{% endif %}
+        {% for comentario in comentarios_publicos %}<article style="margin-top:1rem;border-top:1px solid var(--border-color);padding-top:1rem"><strong>{{ comentario.usuario.nome }}</strong><small> · {{ comentario.criada_em|date:'d/m/Y H:i' }}</small><p>{{ comentario.texto }}</p></article>{% empty %}<p>Ainda não há comentários.</p>{% endfor %}
+      </section>
+      {% else %}
       <div class="tabs">
         <button class="tab active" data-tab="reserva">🕐 Horários</button>
         <button class="tab" data-tab="mapa">📍 Localização</button>
@@ -105,12 +195,12 @@
 
       <div id="reserva" class="tab-content active">
         <div class="tabs-datas">
-          {% for data_str in quadra.datas_disponiveis %}
+          {% for data_item in quadra.datas_disponiveis %}
           <button
-            class="tab-data {% if forloop.first %}active{% endif %}"
-            data-data="{{ data_str }}"
+            class="tab-data {% if data_item.valor == hoje or forloop.first %}active{% endif %}"
+            data-data="{{ data_item.valor }}"
           >
-            {% if data_str == hoje %}Hoje{% else %}{{ data_str }}{% endif %}
+            {{ data_item.rotulo }}
           </button>
           {% endfor %}
         </div>
@@ -118,13 +208,15 @@
         <div class="schedule-grid">
           {% for horario in quadra.horarios %}
           <div
-            class="card-horario"
+            class="card-horario {% if not horario.disponivel %}horario-passado{% endif %}"
             data-horario-id="{{ horario.id }}"
             data-esporte-reservado="{{ horario.esporte_reservado|default:'' }}"
           >
             <div class="time-slot-time">{{ horario.hora_texto }}</div>
 
-            {% if not horario.esporte_reservado and not horario.usuario_na_partida %}
+            {% if not horario.disponivel %}<p class="aviso-horario-passado">Horário passado — indisponível</p>{% endif %}
+
+            {% if horario.disponivel and not horario.esporte_reservado and not horario.usuario_na_partida %}
             <p class="select-label">Escolha o esporte:</p>
             <div class="seletor-esporte-reserva">
               {% for esp in quadra.lista_esportes %}
@@ -154,7 +246,9 @@
               max="{{ horario.max_jogadores }}"
             ></progress>
 
-            {% if horario.usuario_na_partida %}
+            {% if not horario.disponivel %}
+            <button class="btn" disabled>Indisponível</button>
+            {% elif horario.usuario_na_partida %}
             <button class="btn btn-sair">Sair da Partida</button>
             {% else %}
             <button class="btn btn-entrar" {% if not horario.esporte_reservado %}disabled{% endif %}>
@@ -172,20 +266,39 @@
         </div>
       </div>
 
-      <section class="info-card" style="margin-top: 2rem;">
-        <h2>Avaliações</h2>
+      <section class="info-card reviews-panel" aria-labelledby="reviews-title">
+        <header class="reviews-header">
+          <div class="reviews-title"><h2 id="reviews-title">Avaliações da quadra</h2><p>Compartilhe sua experiência e ajude outros atletas.</p></div>
+          <div class="rating-summary" aria-label="Resumo das avaliações">
+            <strong>{% if nota_media %}{{ nota_media|floatformat:1 }}{% else %}—{% endif %}</strong>
+            <span class="rating-stars" aria-hidden="true">★★★★★</span>
+            <small>{{ total_avaliacoes }} {% if total_avaliacoes == 1 %}avaliação{% else %}avaliações{% endif %}</small>
+          </div>
+        </header>
         {% if pode_avaliar %}
-        <form method="post" action="{% url 'avaliar_quadra' quadra.id %}" style="display:grid; gap:10px; max-width:540px;">
+        <form class="review-form" method="post" action="{% url 'avaliar_quadra' quadra.id %}">
           {% csrf_token %}
-          <label for="nota">Sua nota</label>
-          <select id="nota" name="nota" required><option value="5">5 - Excelente</option><option value="4">4 - Muito bom</option><option value="3">3 - Bom</option><option value="2">2 - Regular</option><option value="1">1 - Ruim</option></select>
-          <textarea name="comentario" maxlength="1000" placeholder="Conte como foi sua experiência (opcional)"></textarea>
-          <button class="btn" type="submit">Enviar avaliação</button>
+          <fieldset class="rating-fieldset"><legend>Sua nota</legend>
+            <div class="rating-options" role="radiogroup" aria-label="Sua nota de 1 a 5">
+              <input type="radio" id="nota-5" name="nota" value="5"><label for="nota-5" aria-label="5 estrelas">★</label>
+              <input type="radio" id="nota-4" name="nota" value="4"><label for="nota-4" aria-label="4 estrelas">★</label>
+              <input type="radio" id="nota-3" name="nota" value="3"><label for="nota-3" aria-label="3 estrelas">★</label>
+              <input type="radio" id="nota-2" name="nota" value="2"><label for="nota-2" aria-label="2 estrelas">★</label>
+              <input type="radio" id="nota-1" name="nota" value="1" required><label for="nota-1" aria-label="1 estrela">★</label>
+            </div>
+            <small class="review-hint">De 1 estrela (ruim) a 5 estrelas (excelente)</small>
+          </fieldset>
+          <label for="review-comment">Conte como foi sua experiência <span class="review-hint">(opcional)</span></label>
+          <textarea id="review-comment" name="comentario" maxlength="1000" placeholder="Fale sobre a estrutura, limpeza e atendimento da quadra…"></textarea>
+          <div class="review-form-footer"><small class="review-hint">Até 1.000 caracteres. Você poderá atualizar sua avaliação depois.</small><button class="review-submit" type="submit">Enviar avaliação</button></div>
         </form>
-        {% elif not user.is_authenticated %}<p>Entre na sua conta e participe de uma partida para avaliar esta quadra.</p>{% endif %}
-        {% for avaliacao in avaliacoes %}<article style="margin-top:1rem; border-top:1px solid var(--border-color); padding-top:1rem;"><strong>{{ avaliacao.usuario.nome }}</strong> · {{ avaliacao.nota }}/5<br>{{ avaliacao.comentario }}</article>{% empty %}<p>Nenhuma avaliação até o momento.</p>{% endfor %}
+        {% elif not user.is_authenticated %}<p class="review-empty">Entre na sua conta e participe de uma partida para avaliar esta quadra.</p>{% endif %}
+        <div class="review-list">
+          {% for avaliacao in avaliacoes %}
+          <article class="review-item"><div class="review-item-head"><strong>{{ avaliacao.usuario.nome }}</strong><span class="review-date">{{ avaliacao.criada_em|date:'d/m/Y' }}</span></div><div class="rating-stars" aria-label="{{ avaliacao.nota }} de 5 estrelas">{% for estrela in '12345' %}{% if forloop.counter <= avaliacao.nota %}★{% else %}<span class="rating-star-empty">★</span>{% endif %}{% endfor %} <small>{{ avaliacao.nota }}/5</small></div>{% if avaliacao.comentario %}<p>{{ avaliacao.comentario }}</p>{% endif %}</article>
+          {% empty %}<p class="review-empty">Ainda não há avaliações. Seja a primeira pessoa a contar como foi a experiência!</p>{% endfor %}
+        </div>
       </section>
-
       <div id="mapa" class="tab-content">
         <h2>Como Chegar</h2>
         <div class="info-card">
@@ -205,6 +318,7 @@
           ></iframe>
         </div>
       </div>
+      {% endif %}
     </div>
 
     <script src="{% static 'js/detalhes_reserva.js' %}"></script>

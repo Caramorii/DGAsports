@@ -4,6 +4,8 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('explorar/', views.explorar, name='explorar'),
+    path('api/quadras/', views.api_quadras, name='api_quadras'),
+    path('api/quadra/<int:quadra_id>/grupos/', views.api_grupos_quadra, name='api_grupos_quadra'),
     path('quadra/<int:quadra_id>/', views.detalhes_quadra, name='detalhes_quadra'),
     path('campeonatos/', views.campeonatos, name='campeonatos'),
     path('register/', views.register_view, name='register'),
@@ -17,7 +19,16 @@ urlpatterns = [
     path('confirmar_reserva/', views.confirmar_reserva, name='confirmar_reserva'),
     path('finalizar_pix/', views.finalizar_pix, name='finalizar_pix'),
     path('social/', views.social, name='social'),
+    path('social/partida/criar/', views.criar_partida_comunidade, name='criar_partida_comunidade'),
+    path('quadra/<int:quadra_id>/grupo/criar/', views.criar_grupo_quadra_publica, name='criar_grupo_quadra_publica'),
+    path('grupo-publico/<int:grupo_id>/participar/', views.participar_grupo_quadra_publica, name='participar_grupo_quadra_publica'),
+    path('grupo-publico/<int:grupo_id>/material/', views.indicar_material_grupo_publico, name='indicar_material_grupo_publico'),
+    path('social/partida/material/', views.indicar_material_partida, name='indicar_material_partida'),
+    # Aceita POSTs enviados por páginas antigas que ainda usam /postar.
+    path('postar', views.postar),
     path('postar/', views.postar, name='postar'),
+    path('social/post/<int:post_id>/curtir/', views.curtir_post, name='curtir_post'),
+    path('social/post/<int:post_id>/comentar/', views.comentar_post, name='comentar_post'),
     path('social/editar/', views.editar_perfil, name='editar_perfil'),
     path('mensagem/', views.mensagem, name='mensagem'),
     path('perfil/', views.perfil, name='perfil'),
@@ -25,5 +36,6 @@ urlpatterns = [
     path('minhas-reservas/', views.minhas_reservas, name='minhas_reservas'),
     path('minhas-reservas/<int:reserva_id>/cancelar/', views.cancelar_reserva, name='cancelar_reserva'),
     path('quadra/<int:quadra_id>/avaliar/', views.avaliar_quadra, name='avaliar_quadra'),
+    path('quadra/<int:quadra_id>/situacao/', views.atualizar_situacao_quadra, name='atualizar_situacao_quadra'),
     path('painel-proprietario/', views.painel_proprietario, name='painel_proprietario'),
 ]

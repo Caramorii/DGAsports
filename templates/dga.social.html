@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
   <head>
     {% load static %}
+    {% static 'assets/foto_perfil.jpg' as avatar_padrao %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DGA Social - Comunidade Esportiva</title>
@@ -14,7 +15,7 @@
       href="{% static 'css/dga.social.css' %}"
     />
     <style>
-      /* Estilos críticos para correção de layout e avatares */
+      /* Estilos crÃ­ticos para correÃ§Ã£o de layout e avatares */
       .avatar-img,
       .avatar,
       .avatar-small {
@@ -22,40 +23,10 @@
         border-radius: 50% !important;
       }
 
-      /* Novas funcionalidades */
-      .live-scores-section {
-        background: #1e2530;
-        padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 25px;
-        color: white;
-      }
-      .scores-wrapper {
-        display: flex;
-        gap: 15px;
-        overflow-x: auto;
-        padding-bottom: 10px;
-      }
-      .score-card {
-        background: #2a3441;
-        padding: 12px;
-        border-radius: 8px;
-        min-width: 160px;
-        text-align: center;
-        border-bottom: 3px solid #1ab480;
-      }
-      .live-indicator {
-        color: #ff4757;
-        font-size: 10px;
-        font-weight: bold;
-        display: block;
-        margin-top: 5px;
-        animation: blink 1.5s infinite;
-      }
       .btn-perfil-post {
         font-size: 12px;
         border: 1px solid #1ab480;
-        color: #1ab480;
+        color: var(--secondary-green, #1ab480);
         padding: 4px 12px;
         border-radius: 15px;
         text-decoration: none;
@@ -81,10 +52,73 @@
         top: 0;
         left: 0;
       }
-      @keyframes blink {
-        50% {
-          opacity: 0;
-        }
+      .theme-messages { margin: 10px 0; }
+      .sidebar-games { display: grid; gap: 10px; margin-top: 18px; padding-bottom: 20px; }
+      .sidebar-left { overflow-y: auto; }
+      html { scrollbar-color: var(--secondary-green) var(--dark-card-bg); scrollbar-width: thin; }
+      body, .sidebar-left { scrollbar-color: var(--secondary-green) var(--dark-card-bg); scrollbar-width: thin; }
+      html::-webkit-scrollbar, body::-webkit-scrollbar, .sidebar-left::-webkit-scrollbar { width: 10px; }
+      html::-webkit-scrollbar-track, body::-webkit-scrollbar-track, .sidebar-left::-webkit-scrollbar-track { background: var(--dark-card-bg); }
+      html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb, .sidebar-left::-webkit-scrollbar-thumb { background: var(--secondary-green); border: 2px solid var(--dark-card-bg); border-radius: 10px; }
+      html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover, .sidebar-left::-webkit-scrollbar-thumb:hover { background: var(--primary-green); }
+      .sidebar-action-trigger { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; border: 0; border-radius: 30px; background: transparent; color: var(--text-primary); text-align: left; font: inherit; font-size: 1.1rem; cursor: pointer; transition: .2s; }
+      .sidebar-action-trigger:hover { background: rgba(26, 180, 128, .15); color: var(--primary-green); }
+      .sidebar-action-trigger svg { flex: 0 0 24px; }
+      .action-dialog { width: min(520px, calc(100vw - 32px)); max-height: 90vh; overflow-y: auto; margin: auto; padding: 24px; border: 1px solid var(--primary-green); border-radius: 18px; background: var(--dark-card-bg); color: var(--text-primary); box-shadow: 0 18px 60px rgba(0,0,0,.45); }
+      .action-dialog::backdrop { background: rgba(5, 10, 15, .76); backdrop-filter: blur(3px); }
+      .action-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+      .action-dialog-header h2 { font-size: 21px; }
+      .action-dialog-close { width: 36px; height: 36px; border: 1px solid var(--border-color); border-radius: 50%; background: transparent; color: var(--text-primary); font-size: 22px; cursor: pointer; }
+      .ajax-modal-form { display: grid; gap: 14px; }
+      .ajax-modal-form label { display: grid; gap: 6px; color: var(--text-secondary); }
+      .ajax-modal-form input, .ajax-modal-form select, .ajax-modal-form textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--border-color); border-radius: 9px; background: var(--dark-bg); color: var(--text-primary); font: inherit; }
+      .ajax-modal-form textarea { min-height: 130px; resize: vertical; }
+      .ajax-modal-form button[type="submit"] { padding: 12px 16px; border: 1px solid var(--primary-green); border-radius: 30px; background: transparent; color: var(--primary-green); font: inherit; font-weight: 700; cursor: pointer; }
+      .ajax-modal-form button[type="submit"]:hover { background: rgba(26, 180, 128, .12); }
+      .ajax-modal-status, .sidebar-feedback { min-height: 1.3em; color: var(--text-secondary); font-size: 13px; }
+      .sidebar-games h2 { font-size: 17px; margin: 0; }
+      .sidebar-games p { color: var(--text-secondary); font-size: 13px; line-height: 1.45; }
+      .sidebar-games form { display: grid; gap: 10px; }
+      .sidebar-games label { display: grid; gap: 5px; font-size: 13px; color: var(--text-secondary); }
+      .sidebar-games input, .sidebar-games select { width: 100%; min-width: 0; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--dark-bg); color: var(--text-primary); }
+      .action-dialog button[type="submit"], .game-post button { padding: 10px 12px; border: 1px solid var(--primary-green); border-radius: 999px; background: transparent; color: var(--primary-green); cursor: pointer; font-weight: 600; }
+      .game-post { border-left: 4px solid var(--primary-green); }
+      .game-post .game-meta { color: var(--text-secondary); line-height: 1.6; }
+      .game-post .post-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .game-card-actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; margin-top: 12px; }
+      .game-card-actions form { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+      .game-card-actions label { display: grid; gap: 5px; color: var(--text-secondary); }
+      .game-card-actions input { width: min(100%, 280px); padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--dark-bg); color: var(--text-primary); }
+      .post-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 15px; }
+      .post-actions form { margin: 0; }
+      .post-actions .post-action-button { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border: 1px solid var(--primary-green); border-radius: 999px; background: transparent; color: var(--primary-green); cursor: pointer; font: inherit; transition: background .15s, color .15s; }
+      .post-actions .post-action-button:hover { background: rgba(26, 180, 128, .12); color: var(--primary-green); }
+      .post-action-like .heart-icon { color: transparent; -webkit-text-stroke: 1.5px var(--primary-green); font-size: 18px; line-height: 1; }
+      .post-action-like.is-liked .heart-icon { color: var(--primary-green); -webkit-text-stroke: 0; }
+      .post-comments { position: relative; }
+      .post-comments summary { list-style: none; }
+      .post-comments summary::-webkit-details-marker { display: none; }
+      .comments-panel { position: absolute; z-index: 4; top: calc(100% + 8px); right: 0; width: min(420px, calc(100vw - 40px)); max-height: 420px; overflow-y: auto; padding: 14px; border: 1px solid var(--primary-green); border-radius: 14px; background: var(--dark-card-bg); box-shadow: 0 12px 30px rgba(0,0,0,.35); }
+      .post-comment { padding: 9px 0; border-bottom: 1px solid var(--border-color); }
+      .post-comment p { margin-top: 4px; color: var(--text-primary); white-space: pre-wrap; overflow-wrap: anywhere; }
+      .post-comment time { margin-left: 8px; color: var(--text-secondary); font-size: 12px; }
+      .comments-panel form { display: grid; gap: 8px; margin-top: 12px; }
+      .comments-panel textarea { width: 100%; min-height: 70px; resize: vertical; padding: 9px; border: 1px solid var(--primary-green); border-radius: 10px; background: transparent; color: var(--text-primary); font: inherit; }
+      .comments-panel button { justify-self: end; padding: 8px 13px; border: 1px solid var(--primary-green); border-radius: 999px; background: transparent; color: var(--primary-green); cursor: pointer; }
+      @media (max-width: 900px) {
+        .sidebar-left { width: 250px; flex-shrink: 0; }
+        .sidebar-left { overflow-y: auto; }
+        .sidebar-games { display: grid; }
+        .sidebar-action-trigger span { display: inline; }
+      }
+      @media (max-width: 600px) {
+        body { display: block; }
+        .sidebar-left { display: flex; width: 100%; height: auto; min-height: 0; position: relative; padding: 14px; }
+        .sidebar-left .user-mini-card, .sidebar-left .nav-menu { display: none; }
+        .sidebar-left .logo { margin-bottom: 12px; }
+        .sidebar-left .logo span { display: inline; }
+        .sidebar-games { max-width: 440px; }
+        .main-feed { width: 100%; }
       }
     </style>
   </head>
@@ -94,9 +128,10 @@
 
       <div class="user-mini-card" style="text-align: center; padding: 10px">
         <img
-          src="{% if dados.foto_perfil %}{% static dados.foto_perfil %}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+          src="{% if dados.foto_perfil %}{% static dados.foto_perfil|cut:'static/' %}{% else %}{% static 'assets/foto_perfil.jpg' %}{% endif %}"
           alt="Foto de Perfil"
           class="avatar-img"
+          onerror="this.onerror=null;this.src='{{ avatar_padrao }}'"
           style="width: 80px; height: 80px; border: 3px solid #1ab480"
         />
         <div class="user-info" style="margin-top: 10px">
@@ -156,6 +191,39 @@
           <span>Mensagens</span>
         </a>
       </nav>
+
+      <section class="sidebar-games">
+        <h2>Partidas públicas</h2>
+        <p>Crie uma partida em uma quadra pública. Ela aparecerá no feed da comunidade.</p>
+        {% if messages %}<div class="theme-messages">{% for message in messages %}<p>{{ message }}</p>{% endfor %}</div>{% endif %}
+        {% if user.is_authenticated %}
+        <button class="sidebar-action-trigger" type="button" data-open-dialog="partida-dialog"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg><span>Criar partida</span></button>
+        <button class="sidebar-action-trigger" type="button" data-open-dialog="post-dialog"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg><span>Fazer uma postagem</span></button>
+        <p class="sidebar-feedback" aria-live="polite"></p>
+        <dialog class="action-dialog" id="partida-dialog">
+          <div class="action-dialog-header"><h2>Criar grupo p&uacute;blico</h2><button class="action-dialog-close" type="button" aria-label="Fechar">&times;</button></div>
+          <form class="ajax-modal-form game-create-form" method="post" action="{% url 'criar_partida_comunidade' %}">
+            {% csrf_token %}
+            <label>Quadra<select name="quadra_id" required><option value="">Selecione</option>{% for q in quadras_publicas %}<option value="{{ q.id }}">{{ q.nome }} — {{ q.cidade }}{% if q.estado %}/{{ q.estado }}{% endif %}</option>{% endfor %}</select></label>
+            <label>Hor&aacute;rio de in&iacute;cio<input type="time" name="hora_inicio" required></label>
+            <label>Previs&atilde;o de t&eacute;rmino<input type="time" name="hora_fim" required></label>
+            <label>Esporte<select name="esporte" required><option value="">Selecione</option>{% for q in quadras_publicas %}{% for esporte in q.lista_esportes %}<option data-quadra="{{ q.id }}" value="{{ esporte }}">{{ esporte }} — {{ q.nome }}</option>{% endfor %}{% endfor %}</select></label>
+            <p class="ajax-modal-status" aria-live="polite"></p>
+            <button type="submit">Criar e publicar grupo</button>
+          </form>
+        </dialog>
+        <dialog class="action-dialog" id="post-dialog">
+          <div class="action-dialog-header"><h2>Fazer uma postagem</h2><button class="action-dialog-close" type="button" aria-label="Fechar">×</button></div>
+          <form class="ajax-modal-form post-form" enctype="multipart/form-data" method="post" action="{% url 'postar' %}">
+            {% csrf_token %}
+            <textarea name="texto" placeholder="Escreva um comentário ou compartilhe uma novidade..."></textarea>
+            <label>Adicionar foto<input type="file" name="imagem" accept="image/*"></label>
+            <p class="ajax-modal-status" aria-live="polite"></p>
+            <button type="submit">Publicar</button>
+          </form>
+        </dialog>
+        {% else %}<p><a href="{% url 'login' %}?proximo={% url 'social' %}">Entre para criar ou participar.</a></p>{% endif %}
+      </section>
     </aside>
 
     <main class="main-feed">
@@ -168,119 +236,40 @@
         </div>
       </header>
 
-      <section class="live-scores-section">
-        <h3
-          style="
-            font-size: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          "
-        >
-          🏆 Placares em Tempo Real
-        </h3>
-        <div class="scores-wrapper">
-          <div class="score-card">
-            <span
-              style="font-size: 10px; color: #aaa; text-transform: uppercase"
-              >Futebol - Quadra 1</span
-            >
-            <div style="font-size: 16px; font-weight: bold; margin: 8px 0">
-              🔴 Time A 2 x 1 Time B
-            </div>
-            <span class="live-indicator">● AO VIVO</span>
-          </div>
-          <div class="score-card">
-            <span
-              style="font-size: 10px; color: #aaa; text-transform: uppercase"
-              >Basquete - Quadra 3</span
-            >
-            <div style="font-size: 16px; font-weight: bold; margin: 8px 0">
-              🏀 Wolves 45 x 42 Bulls
-            </div>
-            <span class="live-indicator">● AO VIVO</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="new-post-card">
-        <form
-          class="post-form"
-          enctype="multipart/form-data"
-          method="post"
-          action="/postar"
-        >
-{% csrf_token %}
-          <div class="form-row">
-            <img
-              src="{% if dados.foto_perfil %}{% static dados.foto_perfil %}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
-              class="avatar-small"
-              style="width: 40px; height: 40px"
-            />
-            <textarea
-              name="texto"
-              placeholder="Compartilhe um resultado, desafio ou promoção..."
-            ></textarea>
-          </div>
-          <div
-            class="form-actions"
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              padding-top: 10px;
-              border-top: 1px solid #eee;
-            "
-          >
-            <label
-              for="imagem"
-              class="upload-label"
-              style="cursor: pointer; color: #666; font-size: 14px"
-            >
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                style="vertical-align: middle; margin-right: 5px"
-              >
-                <path
-                  d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l10.6-10.6a3 3 0 0 1 4.24 4.24l-10.6 10.6a1 1 0 0 1-1.42-1.42l9.19-9.19"
-                />
-              </svg>
-              Anexar Foto
-              <input
-                id="imagem"
-                type="file"
-                name="imagem"
-                accept="image/*"
-                style="display: none"
-              />
-            </label>
-            <button
-              type="submit"
-              class="send-btn"
-              style="
-                background: #1ab480;
-                color: white;
-                border: none;
-                padding: 8px 25px;
-                border-radius: 20px;
-                font-weight: bold;
-                cursor: pointer;
-              "
-            >
-              Postar
-            </button>
-          </div>
-        </form>
-      </section>
+      <script>
+        (() => {
+          const form = document.querySelector('.game-create-form');
+          if (!form) return;
+          const court = form.querySelector('[name="quadra_id"]');
+          const selects = [form.querySelector('[name="esporte"]')];
+          selects.forEach((select) => {
+            const options = [...select.options].slice(1);
+            const placeholder = select.options[0];
+            court.addEventListener('change', () => {
+              select.replaceChildren(placeholder.cloneNode(true));
+              options.filter((option) => option.dataset.quadra === court.value).forEach((option) => select.add(option.cloneNode(true)));
+            });
+          });
+        })();
+      </script>
 
       <section class="feed">
         {% if posts %} {% for post in posts %}
-        <article class="post-card {% if post.tipo == 'admin' %}promo-card{% endif %}">
+        {% if post.is_grupo %}
+        {% with grupo=post.obj %}
+        <article id="grupo-{{ grupo.id }}" class="post-card game-post">
+          <div class="post-header"><strong>Grupo da comunidade</strong><span class="game-meta">{{ grupo.criado_em|date:'d/m/Y H:i' }}</span></div>
+          <div class="post-content">
+            <h2>{{ grupo.quadra.nome }} &middot; {{ grupo.esporte }}</h2>
+            <p class="game-meta">{{ grupo.quadra.cidade }}{% if grupo.quadra.estado %}/{{ grupo.quadra.estado }}{% endif %}{% if grupo.data_encontro %} &middot; {{ grupo.data_encontro|date:'d/m/Y' }}{% endif %} &middot; {{ grupo.hora_inicio|time:'H:i' }} &ndash; {{ grupo.hora_fim|time:'H:i' }}</p>
+            <p class="game-meta">Criado por {{ grupo.criador.nome }} &middot; Participantes: {% for participante in grupo.participantes.all %}{{ participante.nome }}{% if not forloop.last %}, {% endif %}{% empty %}ningu&eacute;m ainda{% endfor %}</p>
+            <p class="game-meta">Materiais: {% for material in grupo.materiais.all %}{{ material.item }} &mdash; {{ material.usuario.nome }}{% if not forloop.last %}; {% endif %}{% empty %}ainda n&atilde;o combinados{% endfor %}</p>
+          </div>
+          {% if user.is_authenticated %}<div class="game-card-actions"><form method="post" action="{% url 'participar_grupo_quadra_publica' grupo.id %}">{% csrf_token %}<input type="hidden" name="retornar" value="comunidade"><button type="submit">{% if post.ja_participa %}Vou de novo{% else %}Participar do grupo{% endif %}</button></form>{% if post.ja_participa %}<form method="post" action="{% url 'indicar_material_grupo_publico' grupo.id %}">{% csrf_token %}<input type="hidden" name="retornar" value="comunidade"><label>Vou levar<input name="item" maxlength="100" placeholder="Bola, raquetes..." required></label><button type="submit">Avisar o grupo</button></form><span class="game-meta">Suas presen&ccedil;as: {{ post.presencas }}</span>{% endif %}</div>{% endif %}
+        </article>
+        {% endwith %}
+        {% else %}
+        <article id="post-{{ post.id }}" class="post-card {% if post.tipo == 'admin' %}promo-card{% endif %}">
           {% if post.tipo == 'admin' %}
           <div class="promo-badge">PROMOÇÃO / EVENTO</div>
           {% endif %}
@@ -295,8 +284,9 @@
           >
             <div style="display: flex; align-items: center; gap: 12px">
               <img
-                src="{% if post.foto_perfil %}{% static post.foto_perfil %}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+                src="{% if post.foto_perfil %}{% static post.foto_perfil|cut:'static/' %}{% else %}{% static 'assets/foto_perfil.jpg' %}{% endif %}"
                 class="avatar"
+                onerror="this.onerror=null;this.src='{{ avatar_padrao }}'"
                 style="width: 45px; height: 45px"
               />
               <div>
@@ -307,7 +297,7 @@
                   >{% endif %}</strong
                 >
                 <span style="font-size: 12px; color: #999"
-                  >{{ post.data_postagem }}</span
+                  >{{ post.data_postagem|date:'d/m/Y às H:i' }}</span
                 >
               </div>
             </div>
@@ -317,7 +307,7 @@
           </div>
 
           <div class="post-content" style="margin-top: 15px">
-            <p style="font-size: 15px; line-height: 1.5; color: #333">
+            <p style="font-size: 15px; line-height: 1.5; color: var(--text-primary)">
               {{ post.texto }}
             </p>
             {% if post.imagem %}
@@ -334,40 +324,36 @@
             {% endif %}
           </div>
 
-          <div
-            class="post-actions"
-            style="
-              margin-top: 15px;
-              display: flex;
-              gap: 20px;
-              border-top: 1px solid #f0f0f0;
-              padding-top: 10px;
-            "
-          >
-            <button
-              style="
-                background: none;
-                border: none;
-                cursor: pointer;
-                color: #666;
-                font-size: 14px;
-              "
-            >
-              ❤️ Curtir
-            </button>
-            <button
-              style="
-                background: none;
-                border: none;
-                cursor: pointer;
-                color: #666;
-                font-size: 14px;
-              "
-            >
-              💬 Comentar
-            </button>
+          <div class="post-actions">
+            <form method="post" action="{% url 'curtir_post' post.id %}">
+              {% csrf_token %}
+              <button class="post-action-button post-action-like{% if post.curtido_por_mim %} is-liked{% endif %}" type="submit" aria-pressed="{{ post.curtido_por_mim|yesno:'true,false' }}">
+                <span class="heart-icon" aria-hidden="true">♥</span>
+                <span>Curtir</span>
+                <span aria-label="total de curtidas">{{ post.curtidas_total }}</span>
+              </button>
+            </form>
+            <details class="post-comments">
+              <summary class="post-action-button">💬 Comentar <span>{{ post.comentarios|length }}</span></summary>
+              <div class="comments-panel">
+                {% for comentario in post.comentarios %}
+                <article class="post-comment">
+                  <strong>{{ comentario.usuario.nome }}</strong><time>{{ comentario.criada_em|date:'d/m/Y H:i' }}</time>
+                  <p>{{ comentario.texto }}</p>
+                </article>
+                {% empty %}<p>Seja a primeira pessoa a comentar.</p>{% endfor %}
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'comentar_post' post.id %}">
+                  {% csrf_token %}
+                  <textarea name="texto" maxlength="1000" placeholder="Escreva um comentário..." required></textarea>
+                  <button type="submit">Enviar comentário</button>
+                </form>
+                {% else %}<a href="{% url 'login' %}?proximo={% url 'social' %}">Entre para comentar.</a>{% endif %}
+              </div>
+            </details>
           </div>
         </article>
+        {% endif %}
         {% endfor %} {% else %}
         <div style="text-align: center; padding: 60px; color: #bbb">
           <p>Ainda não há postagens nesta comunidade. Seja o primeiro!</p>
@@ -375,68 +361,71 @@
         {% endif %}
       </section>
     </main>
+    <script>
+      const socialUrl = "{% url 'social' %}";
+      const feedback = document.querySelector('.sidebar-feedback');
 
-    <aside class="sidebar-right">
-      <section class="next-match-card">
-        <h3 style="font-size: 16px; margin-bottom: 15px">
-          📅 Seu Próximo Jogo
-        </h3>
-        <div
-          class="match-info"
-          style="display: flex; gap: 10px; align-items: center"
-        >
-          <div
-            class="match-date"
-            style="
-              background: #1ab480;
-              color: white;
-              padding: 5px 10px;
-              border-radius: 8px;
-              text-align: center;
-            "
-          >
-            <strong style="display: block">24</strong><span>DEZ</span>
-          </div>
-          <div class="match-details">
-            <strong style="display: block">Arena Amazonas</strong>
-            <span style="font-size: 13px; color: #666">19:00 - Futebol</span>
-          </div>
-        </div>
-        <a
-          href="{% url 'perfil' %}"
-          style="
-            display: block;
-            margin-top: 15px;
-            font-size: 13px;
-            color: #1ab480;
-            text-decoration: none;
-            font-weight: bold;
-          "
-          >Ver minhas reservas →</a
-        >
-      </section>
+      document.querySelectorAll('[data-open-dialog]').forEach((button) => {
+        button.addEventListener('click', () => {
+          document.getElementById(button.dataset.openDialog)?.showModal();
+        });
+      });
+      document.querySelectorAll('.action-dialog').forEach((dialog) => {
+        dialog.querySelector('.action-dialog-close')?.addEventListener('click', () => dialog.close());
+        dialog.addEventListener('click', (event) => {
+          if (event.target === dialog) dialog.close();
+        });
+      });
 
-      <section class="trends" style="margin-top: 30px">
-        <h3 style="font-size: 16px; margin-bottom: 15px">Em Alta</h3>
-        <ul style="list-style: none; padding: 0">
-          <li style="margin-bottom: 12px">
-            <a
-              href="#"
-              style="color: #1ab480; text-decoration: none; font-weight: bold"
-              >#CopaFranca2024</a
-            ><br />
-            <small style="color: #999">120 postagens</small>
-          </li>
-          <li style="margin-bottom: 12px">
-            <a
-              href="#"
-              style="color: #1ab480; text-decoration: none; font-weight: bold"
-              >#DesafioVolei</a
-            ><br />
-            <small style="color: #999">45 postagens</small>
-          </li>
-        </ul>
-      </section>
-    </aside>
+      async function refreshFeed() {
+        const response = await fetch(socialUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        if (!response.ok) throw new Error('A publicação foi salva, mas não foi possível atualizar o feed.');
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const updatedFeed = page.querySelector('.feed');
+        const currentFeed = document.querySelector('.feed');
+        if (updatedFeed && currentFeed) currentFeed.innerHTML = updatedFeed.innerHTML;
+      }
+
+      document.querySelectorAll('.ajax-modal-form').forEach((form) => {
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const dialog = form.closest('dialog');
+          const status = form.querySelector('.ajax-modal-status');
+          const submitButton = form.querySelector('[type="submit"]');
+          const originalLabel = submitButton.textContent;
+          submitButton.disabled = true;
+          submitButton.textContent = 'Enviando...';
+          status.textContent = '';
+          try {
+            const response = await fetch(form.action, {
+              method: 'POST',
+              body: new FormData(form),
+              headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            });
+            const result = await response.json().catch(() => ({ ok: false, message: 'O servidor não conseguiu processar a solicitação.' }));
+            if (!response.ok || !result.ok) throw new Error(result.message || 'Não foi possível concluir a ação.');
+            form.reset();
+            dialog.close();
+            feedback.textContent = result.message;
+            try { await refreshFeed(); } catch (error) { feedback.textContent = error.message; }
+          } catch (error) {
+            status.textContent = error.message;
+          } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = originalLabel;
+          }
+        });
+      });
+
+      if (window.location.hash.startsWith('#comentarios-')) {
+        const postId = window.location.hash.replace('#comentarios-', '');
+        const post = document.getElementById(`post-${postId}`);
+        const comments = post?.querySelector('.post-comments');
+        if (comments) {
+          comments.open = true;
+          post.scrollIntoView({ block: 'center' });
+        }
+      }
+    </script>
   </body>
 </html>

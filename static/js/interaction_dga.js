@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                             // 5. Preenche o input
                             localidadeInput.value = `${city}, ${state}`;
+                            localidadeInput.dispatchEvent(new Event('input', {bubbles: true}));
                         } else {
                             localidadeInput.value = "";
                             alert('Não foi possível encontrar o nome da sua cidade.');
