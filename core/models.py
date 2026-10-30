@@ -59,6 +59,8 @@ class Quadra(models.Model):
     )
     destaque = models.BooleanField(default=False)
     foto = models.CharField(max_length=500, blank=True, null=True)
+    situacao = models.CharField(max_length=200, blank=True, default='Em boas condições')
+    comentario_admin = models.TextField(blank=True)
 
     class Meta:
         db_table = 'quadras'
@@ -82,6 +84,10 @@ class Horario(models.Model):
     max_jogadores = models.IntegerField(default=12)
     preco = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     esporte_reservado = models.CharField(max_length=100, blank=True, null=True)
+    responsavel_reserva = models.ForeignKey(
+        Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='horarios_reservados'
+    )
+    aceita_convidados = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'horarios'
@@ -105,6 +111,11 @@ class ReservaJogador(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='reservas')
     horario = models.ForeignKey(Horario, on_delete=models.CASCADE, related_name='reservas')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
+    METODO_PAGAMENTO_CHOICES = [
+        ('sistema', 'Pago pelo sistema'),
+        ('caixa', 'Pagar no caixa'),
+    ]
+    metodo_pagamento = models.CharField(max_length=10, choices=METODO_PAGAMENTO_CHOICES, default='caixa')
     criada_em = models.DateTimeField(auto_now_add=True)
     pago_em = models.DateTimeField(blank=True, null=True)
 
@@ -116,6 +127,49 @@ class ReservaJogador(models.Model):
 
     def __str__(self):
         return f"{self.usuario.nome} em {self.horario}"
+
+
+class GrupoQuadraPublica(models.Model):
+    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='grupos_publicos')
+    esporte = models.CharField(max_length=100)
+    data_encontro = models.DateField(blank=True, null=True)
+    hora_inicio = models.TimeField(blank=True, null=True)
+    hora_fim = models.TimeField(blank=True, null=True)
+    criador = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='grupos_criados')
+    participantes = models.ManyToManyField(Usuario, through='ParticipanteGrupoPublico', related_name='grupos_publicos')
+    criado_em = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = 'grupos_quadras_publicas'
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f"{self.quadra.nome} - {self.esporte}"
+
+
+class ParticipanteGrupoPublico(models.Model):
+    grupo = models.ForeignKey(GrupoQuadraPublica, on_delete=models.CASCADE, related_name='inscricoes')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='participacoes_grupo')
+    presencas = models.PositiveIntegerField(default=1)
+    ultima_confirmacao = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = 'participantes_grupo_publico'
+        constraints = [models.UniqueConstraint(fields=['grupo', 'usuario'], name='unico_usuario_por_grupo_publico')]
+
+
+class MaterialGrupoPublico(models.Model):
+    grupo = models.ForeignKey(GrupoQuadraPublica, on_delete=models.CASCADE, related_name='materiais')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='materiais_grupos_publicos')
+    item = models.CharField(max_length=100)
+    criado_em = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = 'materiais_grupos_publicos'
+        ordering = ['criado_em', 'id']
+
+    def __str__(self):
+        return f"{self.item} - {self.grupo}"
 
 
 class PerfilSocial(models.Model):
@@ -154,6 +208,31 @@ class Post(models.Model):
         return f"Post de {self.usuario.nome} - {self.data_postagem}"
 
 
+class CurtidaPost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='curtidas')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='curtidas_posts')
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'curtidas_posts'
+        constraints = [models.UniqueConstraint(fields=['post', 'usuario'], name='curtida_unica_por_usuario_post')]
+        ordering = ['criada_em']
+
+
+class ComentarioPost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comentarios')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='comentarios_posts')
+    texto = models.CharField(max_length=1000)
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'comentarios_posts'
+        ordering = ['criada_em']
+
+    def __str__(self):
+        return f"Comentário de {self.usuario.nome} na publicação {self.post_id}"
+
+
 class Avaliacao(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='avaliacoes')
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='avaliacoes')
@@ -168,3 +247,33 @@ class Avaliacao(models.Model):
 
     def __str__(self):
         return f"{self.quadra.nome}: {self.nota}/5"
+
+
+class MaterialPartida(models.Model):
+    """Indica quem vai levar cada item para uma partida comunitária."""
+    horario = models.ForeignKey(Horario, on_delete=models.CASCADE, related_name='materiais')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='materiais_partidas')
+    item = models.CharField(max_length=100)
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'materiais_partidas'
+        ordering = ['item']
+        unique_together = ('horario', 'item')
+
+    def __str__(self):
+        return f"{self.item} — {self.usuario.nome}"
+
+
+class ComentarioQuadra(models.Model):
+    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='comentarios')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='comentarios_quadra')
+    texto = models.TextField(max_length=1000)
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'comentarios_quadras'
+        ordering = ['-criada_em']
+
+    def __str__(self):
+        return f"Comentário de {self.usuario.nome} em {self.quadra.nome}"
