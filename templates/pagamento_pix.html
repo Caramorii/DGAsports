@@ -126,6 +126,11 @@
 {% csrf_token %}
             <input type="hidden" name="horario_id" value="{{ horario_id }}">
             <input type="hidden" name="esporte_selecionado" value="{{ esporte_selecionado }}">
+            <input type="hidden" name="modo_reserva" value="{{ modo_reserva }}">
+            <input type="hidden" name="max_jogadores" value="{{ max_jogadores }}">
+            {% if aceita_convidados %}
+            <input type="hidden" name="aceita_convidados" value="on">
+            {% endif %}
             <button type="submit" class="btn-confirmar">Já paguei, confirmar reserva</button>
         </form>
     </div>
