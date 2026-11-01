@@ -120,6 +120,7 @@
           <div
             class="card-horario"
             data-horario-id="{{ horario.id }}"
+            data-data="{{ horario.data }}"
             data-esporte-reservado="{{ horario.esporte_reservado|default:'' }}"
           >
             <div class="time-slot-time">{{ horario.hora_texto }}</div>
@@ -153,15 +154,20 @@
               value="{{ horario.jogadores_atuais }}"
               max="{{ horario.max_jogadores }}"
             ></progress>
+            <ul class="participantes-horario" hidden>
+              {% for jogador in horario.jogadores %}
+              <li>{{ jogador.nome }}</li>
+              {% endfor %}
+            </ul>
 
             {% if horario.usuario_na_partida %}
             <button class="btn btn-sair">Sair da Partida</button>
             {% else %}
             <button class="btn btn-entrar" {% if not horario.esporte_reservado %}disabled{% endif %}>
               {% if horario.esporte_reservado %}
-                Entrar (R$ {{ horario.preco }})
+                {% if quadra.tipo == 'privada' %}Revisar reserva · R$ {{ horario.preco }}{% else %}Ver aviso e participar{% endif %}
               {% else %}
-                Reservar (R$ {{ horario.preco }})
+                {% if quadra.tipo == 'privada' %}Revisar reserva · R$ {{ horario.preco }}{% else %}Escolher esporte{% endif %}
               {% endif %}
             </button>
             {% endif %}
@@ -205,6 +211,31 @@
           ></iframe>
         </div>
       </div>
+      {% if quadra.tipo == 'publica' %}
+      <dialog id="confirmacao-partida" class="confirmacao-partida">
+        <form method="dialog">
+          <h2>Confirmar participação na quadra pública</h2>
+          <p class="aviso-publico">
+            A quadra é pública e pode haver pessoas jogando que não reservaram pelo site.
+            A lista e a contagem abaixo mostram somente quem confirmou participação pelo DGA Sports.
+            Não há pagamento pelo site.
+          </p>
+          <dl class="resumo-partida">
+            <div><dt>Quadra</dt><dd id="resumo-quadra"></dd></div>
+            <div><dt>Esporte</dt><dd id="resumo-esporte"></dd></div>
+            <div><dt>Data e horário</dt><dd id="resumo-data-horario"></dd></div>
+            <div><dt>Participantes pelo site</dt><dd id="resumo-participantes"></dd></div>
+          </dl>
+          <p id="erro-confirmacao-partida" class="erro-confirmacao" role="alert" hidden></p>
+          <div class="acoes-confirmacao">
+            <button type="submit" class="btn-cancelar-confirmacao">Voltar</button>
+            <button type="button" id="confirmar-participacao" class="btn-confirmar-participacao">
+              Confirmar que vou jogar
+            </button>
+          </div>
+        </form>
+      </dialog>
+      {% endif %}
     </div>
 
     <script src="{% static 'js/detalhes_reserva.js' %}"></script>
