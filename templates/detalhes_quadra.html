@@ -105,12 +105,12 @@
 
       <div id="reserva" class="tab-content active">
         <div class="tabs-datas">
-          {% for data_str in quadra.datas_disponiveis %}
+          {% for data in quadra.datas_disponiveis %}
           <button
             class="tab-data {% if forloop.first %}active{% endif %}"
-            data-data="{{ data_str }}"
+            data-data="{{ data.valor }}"
           >
-            {% if data_str == hoje %}Hoje{% else %}{{ data_str }}{% endif %}
+            {{ data.rotulo }}
           </button>
           {% endfor %}
         </div>

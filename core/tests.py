@@ -79,3 +79,27 @@ class ReservaPartidaTests(TestCase):
         self.assertRedirects(response, reverse('minhas_reservas'))
         self.horario.refresh_from_db()
         self.assertIsNone(self.horario.esporte_reservado)
+
+
+class DetalhesQuadraTests(TestCase):
+    def test_datas_usam_valor_iso_no_botao_e_api_carrega_horarios_do_dia(self):
+        data_selecionada = date(2026, 11, 6)
+        quadra = Quadra.objects.create(nome='Arena', cidade='Franca', esporte='Futebol')
+        horario = Horario.objects.create(
+            quadra=quadra,
+            data=data_selecionada,
+            hora_texto='18:00 - 19:00',
+        )
+
+        response = self.client.get(reverse('detalhes_quadra', args=[quadra.id]))
+
+        self.assertContains(response, f'data-data="{data_selecionada.isoformat()}"')
+        self.assertContains(response, 'sexta-feira · 06/11')
+        self.assertNotContains(response, "'valor':")
+
+        response = self.client.get(
+            reverse('api_horarios', args=[quadra.id, data_selecionada.isoformat()])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['horarios'][0]['id'], horario.id)
