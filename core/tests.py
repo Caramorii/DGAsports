@@ -1,11 +1,22 @@
 import json
 from datetime import date, timedelta
 
+from django.core.management import call_command
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from .models import Horario, Quadra, ReservaJogador, Usuario
+
+
+class SeedDataTests(TestCase):
+    def test_seed_cria_exemplo_privado_para_fluxo_de_reserva(self):
+        call_command('seed_data')
+
+        quadra = Quadra.objects.get(nome='Quadra Amazonas')
+        self.assertEqual(quadra.tipo, 'privada')
+        self.assertEqual(Quadra.objects.filter(cidade='Franca').count(), 2)
+        self.assertEqual(Quadra.objects.filter(cidade='Morro Agudo').count(), 1)
 
 
 class ReservaPartidaTests(TestCase):

@@ -19,6 +19,7 @@ class Command(BaseCommand):
                 'cidade': 'Franca',
                 'estado': 'SP',
                 'esporte': 'Futebol',
+                'tipo': 'privada',
                 'foto': 'assets/quadraamazonas.jpeg',
             },
             {
