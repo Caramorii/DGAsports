@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.conf import settings
 from django.db.models import Q, Count, Avg, Sum, Prefetch
 from django.db import transaction
@@ -239,6 +240,7 @@ def _chave_ordenacao_horario(horario):
     return (horario.data, inicio or time.max, horario.hora_texto or '')
 
 
+@ensure_csrf_cookie
 def detalhes_quadra(request, quadra_id):
     quadra = get_object_or_404(Quadra, pk=quadra_id)
     hoje = timezone.localdate()
@@ -574,14 +576,25 @@ def reservar(request, horario_id):
         },
         'horario': {
             'id': horario.id,
+            'data': horario.data,
             'hora': horario.hora_texto,
             'preco': float(horario.preco),
-            'max_jogadores': horario.max_jogadores,
+            'max_jogadores': 1 if modo_reserva in {'nova', 'assumir'} else horario.max_jogadores,
             'jogadores_atuais': len(horario.reservas.all()),
+            'jogadores_previstos': (
+                len(horario.reservas.all())
+                if modo_reserva in {'assumir', 'quitar_caixa'}
+                else len(horario.reservas.all()) + 1
+            ),
         }
     }
     jogadores = [
-        {'nome': item.usuario.nome, 'status': item.status, 'metodo_pagamento': item.metodo_pagamento}
+        {
+            'nome': item.usuario.nome,
+            'eh_usuario': item.usuario_id == request.user.id,
+            'status': item.status,
+            'metodo_pagamento': item.metodo_pagamento,
+        }
         for item in horario.reservas.all()
     ]
     return render(request, 'reserva_privada.html', {
