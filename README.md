@@ -130,16 +130,17 @@ http://127.0.0.1:8000/
 
 ## Login administrativo
 
-O projeto inclui um usuário administrativo de exemplo, que normalmente é criado pelo comando de seed:
-
-- E-mail: `admin@gmail.com`
-- Senha: `senha_admin_123`
-
-Se precisar criar outro usuário administrador manualmente:
+O comando `seed_data` cria apenas dados de demonstração. Para criar um administrador, execute:
 
 ```bash
 python manage.py createsuperuser
 ```
+
+O Django solicitará e-mail, nome, cidade e senha. O repositório não contém uma senha administrativa padrão.
+
+## Configuração para produção
+
+Defina `DJANGO_DEBUG=False`, `DJANGO_SECRET_KEY` com um valor aleatório privado e `DJANGO_ALLOWED_HOSTS` com os domínios separados por vírgula. Com `DJANGO_DEBUG` desativado, o Django não inicia sem `DJANGO_SECRET_KEY`.
 
 ## Comandos úteis
 
