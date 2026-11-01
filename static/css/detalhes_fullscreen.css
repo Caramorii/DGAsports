@@ -212,6 +212,87 @@ body {
 }
 .btn-sair:hover { background-color: var(--border-color); }
 
+.participantes-horario[hidden] {
+    display: none;
+}
+
+.confirmacao-partida {
+    width: min(92vw, 560px);
+    max-height: 85vh;
+    margin: auto;
+    padding: 2rem;
+    color: var(--text-primary);
+    background: var(--dark-card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+}
+
+.confirmacao-partida::backdrop {
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(4px);
+}
+
+.confirmacao-partida h2 {
+    margin-bottom: 1rem;
+}
+
+.aviso-publico {
+    margin-bottom: 1.25rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.resumo-partida {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.resumo-partida > div {
+    display: grid;
+    grid-template-columns: minmax(130px, 0.8fr) 1.2fr;
+    gap: 1rem;
+}
+
+.resumo-partida dt {
+    color: var(--text-secondary);
+}
+
+.resumo-partida dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.erro-confirmacao {
+    margin-top: 1rem;
+    color: #ff8f8f;
+}
+
+.acoes-confirmacao {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.acoes-confirmacao button {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-cancelar-confirmacao {
+    color: var(--text-primary);
+    background: transparent;
+}
+
+.btn-confirmar-participacao {
+    color: var(--text-dark);
+    background: var(--primary-green);
+}
+
 /* --- Aba de Localização --- */
 #mapa h2 {
     font-size: 1.5rem;
