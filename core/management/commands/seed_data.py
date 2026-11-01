@@ -1,27 +1,12 @@
 from django.core.management.base import BaseCommand
 from datetime import date, timedelta
-from core.models import Usuario, Quadra, Horario
+from core.models import Quadra, Horario
 
 
 class Command(BaseCommand):
-    help = 'Popula dados iniciais (quadras, horários e admin)'
+    help = 'Popula dados de demonstração (quadras e horários)'
 
     def handle(self, *args, **options):
-        if not Usuario.objects.filter(email='admin@gmail.com').exists():
-            Usuario.objects.create_user(
-                email='admin@gmail.com',
-                nome='Admin',
-                cidade='Franca',
-                password='senha_admin_123',
-            )
-            admin = Usuario.objects.get(email='admin@gmail.com')
-            admin.is_staff = True
-            admin.is_superuser = True
-            admin.save()
-            self.stdout.write(self.style.SUCCESS('Admin criado: admin@gmail.com / senha_admin_123'))
-        else:
-            self.stdout.write('Admin já existe')
-
         if Quadra.objects.exists():
             self.stdout.write('Quadras já existem, pulando...')
             return
