@@ -220,6 +220,19 @@ class ReservaPartidaTests(TestCase):
 
 
 class DetalhesQuadraTests(TestCase):
+    def test_resumo_de_quadras_mostra_se_sao_publicas_ou_privadas(self):
+        Quadra.objects.create(nome='Praça Pública', cidade='Franca', esporte='Futebol')
+        Quadra.objects.create(
+            nome='Arena Privada', cidade='Franca', esporte='Basquete', tipo='privada'
+        )
+
+        response = self.client.get(reverse('explorar'))
+
+        self.assertContains(response, 'Quadra pública')
+        self.assertContains(response, 'Quadra privada')
+        self.assertContains(response, 'court-type-badge--publica')
+        self.assertContains(response, 'court-type-badge--privada')
+
     def test_detalhes_restauram_data_e_quadra_da_url(self):
         data_selecionada = timezone.localdate() + timedelta(days=2)
         quadra = Quadra.objects.create(

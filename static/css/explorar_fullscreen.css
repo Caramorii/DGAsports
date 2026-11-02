@@ -107,6 +107,23 @@ body {
 .card-details { padding: 1.5rem; }
 .card-details h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
 .location { display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); margin-bottom: 1rem; }
+.court-type-badge {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.45rem;
+    margin: -0.35rem 0 1rem;
+    padding: 0.38rem 0.7rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--hover-bg);
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+.court-type-indicator { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; }
+.court-type-badge--publica .court-type-indicator { background: var(--secondary-green); box-shadow: 0 0 8px var(--secondary-green); }
+.court-type-badge--privada .court-type-indicator { background: var(--primary-blue); box-shadow: 0 0 8px var(--primary-blue); }
 .sports-icons { display: flex; gap: 0.75rem; font-size: 1.5rem; margin-bottom: 1rem; }
 .schedule-info { margin-bottom: 1.5rem; }
 .schedule-info strong { font-size: 0.9rem; color: var(--text-secondary); }
