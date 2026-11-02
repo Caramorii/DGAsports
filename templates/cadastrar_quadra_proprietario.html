@@ -1,0 +1,15 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cadastrar quadra | DGA Sports</title><link rel="stylesheet" href="{% static 'css/base.css' %}"><style>main{max-width:760px;margin:3rem auto;padding:2rem;background:var(--dark-card-bg);border:1px solid var(--border-color);border-radius:16px}label{display:block;margin:.9rem 0}input,textarea{box-sizing:border-box;width:100%;padding:.75rem;margin-top:.35rem;border-radius:8px;border:1px solid var(--border-color)}.row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}button{margin-top:1rem;padding:.9rem 1.2rem;background:var(--primary-green);border:0;border-radius:8px;font-weight:700;cursor:pointer}.link{color:var(--primary-green)}@media(max-width:600px){.row{grid-template-columns:1fr}}</style></head>
+<body><main><p><a class="link" href="{% url 'painel_proprietario' %}">← Minha arena</a></p><h1>Cadastrar quadra</h1><p>A agenda será criada automaticamente para os próximos 7 dias.</p>
+{% if messages %}{% for message in messages %}<p>{{ message }}</p>{% endfor %}{% endif %}
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+<label>Nome do local<input name="nome" maxlength="200" required></label>
+<label>Quantidade de quadras no local<input type="number" name="quantidade_quadras" min="1" max="30" value="1" required><small> Cada quadra terá seus próprios horários e reservas.</small></label>
+<label>Descrição<textarea name="descricao" rows="3"></textarea></label><label>Esportes oferecidos<input name="esporte" placeholder="Futebol, vôlei" required></label>
+<div class="row"><label>CEP<input name="cep" maxlength="9" placeholder="00000-000"></label><label>Cidade<input name="cidade" maxlength="100" required></label></div>
+<div class="row"><label>Rua / endereço<input name="localizacao" maxlength="255" required></label><label>Número<input name="numero" maxlength="20"></label></div>
+<label>Estado ou UF<input name="estado" maxlength="50" required></label>
+<div class="row"><label>Abertura<input type="time" name="hora_abertura" required></label><label>Fechamento<input type="time" name="hora_fechamento" required></label></div>
+<label>Preço por hora (R$)<input type="number" name="preco" min="0" step="0.01" required></label><label>Foto da quadra<input type="file" name="foto" accept="image/jpeg,image/png,image/webp" required></label><button type="submit">Cadastrar quadra e gerar agenda</button></form></main>
+<script>const cep=document.querySelector('[name="cep"]');cep.addEventListener('blur',()=>{const valor=cep.value.replace(/\D/g,'');if(valor.length!==8)return;fetch(`https://viacep.com.br/ws/${valor}/json/`).then(r=>r.json()).then(d=>{if(!d.erro){document.querySelector('[name="localizacao"]').value=d.logradouro||'';document.querySelector('[name="cidade"]').value=d.localidade||'';document.querySelector('[name="estado"]').value=d.uf||''}}).catch(()=>{});});</script></body></html>

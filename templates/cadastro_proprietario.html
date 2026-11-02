@@ -1,0 +1,7 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cadastro de proprietário | DGA Sports</title><link rel="stylesheet" href="{% static 'css/base.css' %}"><style>main{max-width:520px;margin:4rem auto;padding:2rem;background:var(--dark-card-bg);border:1px solid var(--border-color);border-radius:16px}label{display:block;margin-top:1rem}input{box-sizing:border-box;width:100%;padding:.8rem;margin-top:.35rem;border-radius:8px;border:1px solid var(--border-color)}button{margin-top:1.5rem;padding:.9rem 1.2rem;background:var(--primary-green);border:0;border-radius:8px;font-weight:700;cursor:pointer}.link{color:var(--primary-green)}</style></head>
+<body><main><p><a class="link" href="{% url 'home' %}">← Início</a></p><h1>Cadastre sua arena</h1><p>Crie uma conta de proprietário para anunciar e gerenciar suas quadras.</p>
+{% if messages %}{% for message in messages %}<p>{{ message }}</p>{% endfor %}{% endif %}
+<form method="post">{% csrf_token %}<label>Seu nome<input name="nome" maxlength="150" required></label><label>E-mail<input type="email" name="email" required></label><label>Cidade<input name="cidade" maxlength="100" required></label><label>Senha<input type="password" name="senha" minlength="8" required></label><button type="submit">Criar conta de proprietário</button></form>
+<p>Já tem conta? <a class="link" href="{% url 'login' %}">Fazer login</a></p></main></body></html>

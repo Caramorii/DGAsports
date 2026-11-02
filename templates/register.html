@@ -27,6 +27,9 @@
   <body>
     <div class="container">
       <h1>Criar Conta</h1>
+      <p class="bottom-link" style="margin-top: -0.75rem; margin-bottom: 1rem">
+        Tem uma quadra? <a href="{% url 'cadastro_proprietario' %}">Cadastre-se como dono de quadra</a>
+      </p>
 
        {% if messages %} {% for message in messages %}
       <div class="flash-messages flash-{{ message.tags }}">

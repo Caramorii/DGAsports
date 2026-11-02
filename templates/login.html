@@ -28,6 +28,7 @@
 
         <form action="{% url 'login' %}" method="POST">
 {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
             <input type="email" name="email" class="input-field" placeholder="E-mail" required>
             <input type="password" name="senha" class="input-field" placeholder="Senha" required>
             <button type="submit" class="submit-btn">Entrar</button>

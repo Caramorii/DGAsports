@@ -119,6 +119,13 @@ body {
     overflow-x: auto;
 }
 
+.tabs-quadras {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+}
+
 /* --- Abas de Esportes --- */
 .tabs-esportes { 
     display: flex;
@@ -127,7 +134,7 @@ body {
     justify-content: center;
 }
 
-.tab-data, .tab-esporte {
+.tab-data, .tab-esporte, .tab-quadra {
     padding: 0.5rem 1rem;
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -139,11 +146,11 @@ body {
     white-space: nowrap; /* Impede que o texto do botão quebre */
 }
 
-.tab-data:hover, .tab-esporte:hover {
+.tab-data:hover, .tab-esporte:hover, .tab-quadra:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.tab-data.active, .tab-esporte.active {
+.tab-data.active, .tab-esporte.active, .tab-quadra.active {
     background-color: rgba(26, 180, 128, 0.2);
     color: #1ab480;
     border-color: #1ab480;

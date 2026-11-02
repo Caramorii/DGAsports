@@ -115,17 +115,25 @@
           {% endfor %}
         </div>
 
+        {% if quadra.tipo == 'privada' and quadra.quantidade_quadras > 1 %}
+        <div class="tabs-quadras" aria-label="Escolha a quadra">
+          {% for numero in numeros_quadras %}<button type="button" class="tab-quadra {% if forloop.first %}active{% endif %}" data-numero-quadra="{{ numero }}">Quadra {{ numero }}</button>{% endfor %}
+        </div>
+        {% endif %}
+
         <div class="schedule-grid">
           {% for horario in quadra.horarios %}
           <div
             class="card-horario"
             data-horario-id="{{ horario.id }}"
             data-data="{{ horario.data }}"
+            data-numero-quadra="{{ horario.numero_quadra }}"
             data-esporte-reservado="{{ horario.esporte_reservado|default:'' }}"
           >
-            <div class="time-slot-time">{{ horario.hora_texto }}</div>
+            <div class="time-slot-time">{% if quadra.tipo == 'privada' %}Quadra {{ horario.numero_quadra }} · {% endif %}{{ horario.hora_texto }}</div>
+            {% if horario.indisponivel %}<p class="status-indisponivel">Indisponível pelo proprietário</p>{% endif %}
 
-            {% if not horario.esporte_reservado and not horario.usuario_na_partida %}
+            {% if not horario.esporte_reservado and not horario.usuario_na_partida and not horario.indisponivel %}
             <p class="select-label">Escolha o esporte:</p>
             <div class="seletor-esporte-reserva">
               {% for esp in quadra.lista_esportes %}
@@ -163,8 +171,8 @@
             {% if horario.usuario_na_partida %}
             <button class="btn btn-sair">Sair da Partida</button>
             {% else %}
-            <button class="btn btn-entrar" {% if not horario.esporte_reservado %}disabled{% endif %}>
-              {% if horario.esporte_reservado %}
+            <button class="btn btn-entrar" {% if not horario.esporte_reservado or horario.indisponivel %}disabled{% endif %}>
+              {% if horario.indisponivel %}Indisponível{% elif horario.esporte_reservado %}
                 {% if quadra.tipo == 'privada' %}Revisar reserva · R$ {{ horario.preco }}{% else %}Ver aviso e participar{% endif %}
               {% else %}
                 {% if quadra.tipo == 'privada' %}Revisar reserva · R$ {{ horario.preco }}{% else %}Escolher esporte{% endif %}
@@ -238,6 +246,6 @@
       {% endif %}
     </div>
 
-    <script src="{% static 'js/detalhes_reserva.js' %}"></script>
+    <script src="{% static 'js/detalhes_reserva.js' %}?v=20261102-1"></script>
   </body>
 </html>

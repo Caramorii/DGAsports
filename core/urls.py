@@ -9,6 +9,8 @@ urlpatterns = [
     path('quadra/<int:quadra_id>/', views.detalhes_quadra, name='detalhes_quadra'),
     path('campeonatos/', views.campeonatos, name='campeonatos'),
     path('register/', views.register_view, name='register'),
+    path('proprietario/cadastro/', views.cadastro_proprietario, name='cadastro_proprietario'),
+    path('proprietario/quadra/nova/', views.cadastrar_quadra_proprietario, name='cadastrar_quadra_proprietario'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('admin/cadastrar_quadra/', views.admin_cadastrar_quadra, name='admin_cadastrar_quadra'),
@@ -38,4 +40,5 @@ urlpatterns = [
     path('quadra/<int:quadra_id>/avaliar/', views.avaliar_quadra, name='avaliar_quadra'),
     path('quadra/<int:quadra_id>/situacao/', views.atualizar_situacao_quadra, name='atualizar_situacao_quadra'),
     path('painel-proprietario/', views.painel_proprietario, name='painel_proprietario'),
+    path('proprietario/quadra/<int:quadra_id>/agenda/', views.agenda_proprietario, name='agenda_proprietario'),
 ]

@@ -63,6 +63,93 @@ def home(request):
     return render(request, 'DGASports.html', {'tem_quadra': tem_quadra})
 
 
+def cadastro_proprietario(request):
+    """Cria uma conta de proprietário e encaminha para o cadastro da primeira quadra."""
+    if request.user.is_authenticated:
+        if not request.user.eh_proprietario:
+            request.user.eh_proprietario = True
+            request.user.save(update_fields=['eh_proprietario'])
+        destino = 'painel_proprietario' if Quadra.objects.filter(proprietario=request.user).exists() else 'cadastrar_quadra_proprietario'
+        return redirect(destino)
+    if request.method == 'POST':
+        nome = request.POST.get('nome', '').strip()
+        email = request.POST.get('email', '').strip()
+        cidade = request.POST.get('cidade', '').strip()
+        senha = request.POST.get('senha', '')
+        if not all([nome, email, cidade, senha]):
+            messages.error(request, 'Preencha todos os campos.')
+        elif Usuario.objects.filter(email__iexact=email).exists():
+            messages.error(request, 'Este e-mail já está cadastrado. Faça login para continuar.')
+        else:
+            user = Usuario.objects.create_user(
+                email=email, nome=nome, cidade=cidade, password=senha, eh_proprietario=True,
+            )
+            login(request, user)
+            messages.success(request, 'Conta de proprietário criada. Agora cadastre sua quadra.')
+            return redirect('cadastrar_quadra_proprietario')
+    return render(request, 'cadastro_proprietario.html')
+
+
+@login_required(login_url='login')
+def cadastrar_quadra_proprietario(request):
+    if request.method == 'POST':
+        nome = request.POST.get('nome', '').strip()
+        descricao = request.POST.get('descricao', '').strip()
+        localizacao = request.POST.get('localizacao', '').strip()
+        numero = request.POST.get('numero', '').strip()
+        cidade = re.sub(r'\s+', ' ', request.POST.get('cidade', '').strip())
+        estado_digitado = re.sub(r'\s+', ' ', request.POST.get('estado', '').strip())
+        estado = _ESTADOS_BR.get(_normalizar_texto_busca(estado_digitado), estado_digitado.upper())
+        esporte = request.POST.get('esporte', '').strip()
+        try:
+            quantidade_quadras = int(request.POST.get('quantidade_quadras', '1'))
+        except (TypeError, ValueError):
+            quantidade_quadras = 0
+        abertura = request.POST.get('hora_abertura', '')
+        fechamento = request.POST.get('hora_fechamento', '')
+        preco_texto = request.POST.get('preco', '').strip().replace(',', '.')
+        foto = request.FILES.get('foto')
+        try:
+            h_inicio = int(abertura.split(':')[0])
+            h_fim = int(fechamento.split(':')[0])
+            preco = float(preco_texto)
+        except (ValueError, AttributeError, IndexError):
+            h_inicio, h_fim, preco = 0, 0, -1
+        if not all([nome, localizacao, cidade, estado, esporte, foto]):
+            messages.error(request, 'Preencha os campos obrigatórios e escolha uma foto.')
+        elif h_inicio < 0 or h_fim > 23 or h_fim <= h_inicio or preco < 0 or quantidade_quadras < 1 or quantidade_quadras > 30:
+            messages.error(request, 'Informe horários, preço e quantidade de quadras válidos (de 1 a 30).')
+        elif os.path.splitext(foto.name)[1].lower() not in {'.jpg', '.jpeg', '.png', '.webp'}:
+            messages.error(request, 'Envie uma foto JPG, PNG ou WEBP.')
+        elif foto.size > 10 * 1024 * 1024:
+            messages.error(request, 'A foto deve ter no máximo 10 MB.')
+        else:
+            nome_arquivo = f"quadra_{uuid.uuid4().hex}{os.path.splitext(foto.name)[1].lower()}"
+            upload_folder = os.path.join(settings.BASE_DIR, 'static', 'uploads')
+            os.makedirs(upload_folder, exist_ok=True)
+            with open(os.path.join(upload_folder, nome_arquivo), 'wb+') as destino:
+                for chunk in foto.chunks():
+                    destino.write(chunk)
+            quadra = Quadra.objects.create(
+                nome=nome, descricao=descricao, localizacao=f"{localizacao}, {numero}" if numero else localizacao,
+                cidade=cidade, estado=estado, esporte=esporte, tipo='privada',
+                quantidade_quadras=quantidade_quadras,
+                proprietario=request.user, foto=f"uploads/{nome_arquivo}",
+            )
+            hoje = date.today()
+            for dia in range(7):
+                data_atual = hoje + timedelta(days=dia)
+                for hora in range(h_inicio, h_fim):
+                    for numero_quadra in range(1, quantidade_quadras + 1):
+                        Horario.objects.create(
+                            quadra=quadra, numero_quadra=numero_quadra, data=data_atual,
+                            hora_texto=f"{hora:02d}:00 - {hora + 1:02d}:00", preco=preco,
+                        )
+            messages.success(request, 'Quadra cadastrada e agenda dos próximos 7 dias criada!')
+            return redirect('painel_proprietario')
+    return render(request, 'cadastrar_quadra_proprietario.html')
+
+
 def explorar(request):
     localidade_busca = request.GET.get('localidade', '').strip()
     esporte_busca = request.GET.get('esporte', '').strip()
@@ -194,9 +281,11 @@ def _horario_para_cliente(horario, usuario_id=None):
     )
     return {
         'id': horario.id,
+        'numero_quadra': horario.numero_quadra,
         'data': horario.data.isoformat() if hasattr(horario.data, 'isoformat') else str(horario.data),
         'hora_texto': horario.hora_texto,
-        'disponivel': horario.quadra.tipo != 'privada' or not _horario_passou(horario),
+        'indisponivel': horario.indisponivel,
+        'disponivel': not horario.indisponivel and (horario.quadra.tipo != 'privada' or not _horario_passou(horario)),
         'max_jogadores': horario.max_jogadores,
         'preco': float(horario.preco),
         'esporte_reservado': horario.esporte_reservado,
@@ -274,6 +363,7 @@ def detalhes_quadra(request, quadra_id):
     quadra_dict = {
         'id': quadra.id,
         'nome': quadra.nome,
+        'quantidade_quadras': quadra.quantidade_quadras,
         'descricao': quadra.descricao,
         'localizacao': quadra.localizacao,
         'cidade': quadra.cidade,
@@ -304,6 +394,7 @@ def detalhes_quadra(request, quadra_id):
         'avaliacoes': avaliacoes,
         'nota_media': quadra.avaliacoes.aggregate(media=Avg('nota'))['media'],
         'total_avaliacoes': quadra.avaliacoes.count(),
+        'numeros_quadras': range(1, quadra.quantidade_quadras + 1),
         'pode_avaliar': pode_avaliar,
         'comentarios_publicos': quadra.comentarios.select_related('usuario').all()[:50],
         'grupos_publicos': grupos_publicos,
@@ -340,9 +431,15 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, f'Bem-vindo, {user.nome}!')
-            proximo = request.GET.get('proximo') or request.POST.get('proximo')
+            proximo = (
+                request.GET.get('proximo') or request.POST.get('proximo')
+                or request.GET.get('next') or request.POST.get('next')
+            )
             if proximo and url_has_allowed_host_and_scheme(proximo, {request.get_host()}):
                 return redirect(proximo)
+            if user.eh_proprietario:
+                destino = 'painel_proprietario' if Quadra.objects.filter(proprietario=user).exists() else 'cadastrar_quadra_proprietario'
+                return redirect(destino)
             return redirect('home')
         messages.error(request, 'E-mail ou senha inválidos.')
     return render(request, 'login.html')
@@ -478,6 +575,8 @@ def entrar_na_partida(request):
             horario = Horario.objects.select_for_update().select_related('quadra').get(pk=horario_id)
             if horario.quadra.tipo != 'publica':
                 return JsonResponse({'status': 'erro', 'mensagem': 'Reservas em quadras particulares devem ser confirmadas pelo fluxo de pagamento.'}, status=400)
+            if horario.indisponivel:
+                return JsonResponse({'status': 'erro', 'mensagem': 'Este horário está indisponível.'}, status=409)
             if horario.data < date.today():
                 return JsonResponse({'status': 'erro', 'mensagem': 'Este horário já passou.'}, status=400)
             if esporte not in horario.quadra.lista_esportes:
@@ -554,6 +653,9 @@ def reservar(request, horario_id):
     )
     if horario.quadra.tipo != 'privada':
         return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+    if horario.indisponivel:
+        messages.error(request, 'Este horário foi marcado como indisponível pelo proprietário.')
+        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
     esporte = request.GET.get('esporte', '').strip()
     if _horario_passou(horario):
         messages.error(request, 'Este horário já passou e está indisponível.')
@@ -573,6 +675,7 @@ def reservar(request, horario_id):
             'nome': horario.quadra.nome,
             'cidade': horario.quadra.cidade,
             'imagem': horario.quadra.foto,
+            'numero_quadra': horario.numero_quadra,
         },
         'horario': {
             'id': horario.id,
@@ -608,6 +711,8 @@ def reservar(request, horario_id):
 
 
 def _modo_reserva(horario, usuario):
+    if horario.indisponivel:
+        return 'indisponivel'
     reservas = list(horario.reservas.all())
     propria = next((item for item in reservas if item.usuario_id == usuario.id), None)
     responsavel = next(
@@ -1180,13 +1285,74 @@ def painel_proprietario(request):
     ).order_by('nome')
     if not quadras.exists():
         messages.info(request, 'Sua conta ainda não está vinculada a nenhuma quadra.')
-        return redirect('perfil')
+        return redirect('cadastrar_quadra_proprietario')
     reservas_recentes = ReservaJogador.objects.filter(
         horario__quadra__in=quadras
-    ).select_related('usuario', 'horario__quadra').order_by('-horario__data', '-horario__hora_texto')[:12]
+    ).select_related('usuario', 'horario__quadra').order_by('-horario__data', '-horario__hora_texto')
     receita_estimada = sum(reserva.horario.preco for reserva in reservas_recentes)
     return render(request, 'painel_proprietario.html', {
         'quadras': quadras,
         'reservas_recentes': reservas_recentes,
         'receita_estimada': receita_estimada,
+    })
+
+
+@login_required(login_url='login')
+def agenda_proprietario(request, quadra_id):
+    quadra = get_object_or_404(Quadra, pk=quadra_id, proprietario=request.user)
+    data_param = request.POST.get('data') if request.method == 'POST' else request.GET.get('data')
+    try:
+        data_selecionada = date.fromisoformat(data_param) if data_param else timezone.localdate()
+    except ValueError:
+        data_selecionada = timezone.localdate()
+
+    if request.method == 'POST':
+        if request.POST.get('acao') == 'quantidade_quadras':
+            try:
+                nova_quantidade = int(request.POST.get('quantidade_quadras', '0'))
+            except (TypeError, ValueError):
+                nova_quantidade = 0
+            maior_numero_cadastrado = (
+                Horario.objects.filter(quadra=quadra)
+                .order_by('-numero_quadra')
+                .values_list('numero_quadra', flat=True)
+                .first() or 1
+            )
+            if nova_quantidade < maior_numero_cadastrado or nova_quantidade > 30:
+                messages.error(request, f"A quantidade deve ser de {maior_numero_cadastrado} a 30 quadras para preservar os horários e reservas cadastrados.")
+            else:
+                horarios_base = Horario.objects.filter(
+                    quadra=quadra, numero_quadra=1,
+                ).values('data', 'hora_texto', 'preco', 'max_jogadores').distinct()
+                for base in horarios_base:
+                    for numero in range(1, nova_quantidade + 1):
+                        Horario.objects.get_or_create(
+                            quadra=quadra, numero_quadra=numero,
+                            data=base['data'], hora_texto=base['hora_texto'],
+                            defaults={'preco': base['preco'], 'max_jogadores': base['max_jogadores']},
+                        )
+                quadra.quantidade_quadras = nova_quantidade
+                quadra.save(update_fields=['quantidade_quadras'])
+                messages.success(request, 'Quantidade de quadras atualizada e horários sincronizados.')
+            return redirect(f"/proprietario/quadra/{quadra.id}/agenda/?data={data_selecionada.isoformat()}")
+
+        horario = get_object_or_404(Horario, pk=request.POST.get('horario_id'), quadra=quadra)
+        tem_reservas = horario.reservas.exists()
+        if not tem_reservas:
+            horario.indisponivel = not horario.indisponivel
+            horario.save(update_fields=['indisponivel'])
+            messages.success(request, 'Disponibilidade do horário atualizada.')
+        else:
+            messages.error(request, 'Não é possível bloquear um horário com reservas. Confira as reservas antes de alterar a agenda.')
+        return redirect(f"/proprietario/quadra/{quadra.id}/agenda/?data={data_selecionada.isoformat()}")
+
+    horarios = Horario.objects.filter(quadra=quadra, data=data_selecionada).prefetch_related(
+        'reservas__usuario'
+    ).order_by('hora_texto', 'numero_quadra')
+    datas = Horario.objects.filter(quadra=quadra).values_list('data', flat=True).distinct().order_by('data')
+    return render(request, 'agenda_proprietario.html', {
+        'quadra': quadra,
+        'horarios': horarios,
+        'datas': datas,
+        'data_selecionada': data_selecionada,
     })

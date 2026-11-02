@@ -23,6 +23,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     nome = models.CharField(max_length=150)
     cidade = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
+    eh_proprietario = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -48,6 +49,7 @@ class Quadra(models.Model):
     ]
 
     nome = models.CharField(max_length=200)
+    quantidade_quadras = models.PositiveSmallIntegerField(default=1)
     descricao = models.TextField(blank=True, null=True)
     localizacao = models.CharField(max_length=255, blank=True, null=True)
     cidade = models.CharField(max_length=100, blank=True, null=True)
@@ -79,8 +81,10 @@ class Quadra(models.Model):
 
 class Horario(models.Model):
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='horarios')
+    numero_quadra = models.PositiveSmallIntegerField(default=1)
     data = models.DateField()
     hora_texto = models.CharField(max_length=50)
+    indisponivel = models.BooleanField(default=False)
     max_jogadores = models.IntegerField(default=12)
     preco = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     esporte_reservado = models.CharField(max_length=100, blank=True, null=True)
@@ -93,7 +97,7 @@ class Horario(models.Model):
         db_table = 'horarios'
         verbose_name = 'Horário'
         verbose_name_plural = 'Horários'
-        ordering = ['data', 'hora_texto']
+        ordering = ['data', 'hora_texto', 'numero_quadra']
 
     def __str__(self):
         return f"{self.quadra.nome} - {self.data} {self.hora_texto}"
