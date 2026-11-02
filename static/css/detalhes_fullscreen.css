@@ -17,7 +17,7 @@ body {
 /* --- Conteúdo Principal --- */
 .content-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1440px;
     margin: 0 auto;
 }
 
@@ -343,4 +343,369 @@ body.light-theme .page-header .back-button {
 
 body.light-theme .page-header .back-button:hover {
     color: var(--accent-color);
+}
+
+.page-rating-summary {
+    margin-top: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.page-subtitle {
+    margin-top: 0;
+    margin-bottom: 0.35rem;
+}
+
+.page-header {
+    margin-bottom: 1.25rem;
+}
+
+.tabs-datas,
+.tabs-quadras {
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary-green) transparent;
+}
+
+.tabs-datas::-webkit-scrollbar,
+.tabs-quadras::-webkit-scrollbar {
+    height: 6px;
+}
+
+.tabs-datas::-webkit-scrollbar-thumb,
+.tabs-quadras::-webkit-scrollbar-thumb {
+    background: var(--secondary-green);
+    border-radius: 999px;
+}
+
+.schedule-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+    align-items: stretch;
+}
+
+.card-horario {
+    display: flex;
+    min-width: 0;
+    min-height: 258px;
+    flex-direction: column;
+    padding: 1.25rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.card-horario:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+}
+
+.time-slot-time {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.15rem, 2vw, 1.4rem);
+    letter-spacing: -0.02em;
+}
+
+.select-label {
+    margin: 0.25rem 0 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.seletor-esporte-reserva {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 0.65rem;
+    padding: 0;
+    border-radius: 10px;
+}
+
+.btn-esporte-opcao {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-esporte-opcao:hover {
+    transform: translateY(-1px);
+    border-color: var(--primary-green);
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.btn-esporte-opcao.selected {
+    border-color: var(--primary-green);
+    background: var(--hover-bg);
+    color: var(--primary-green);
+    box-shadow: 0 0 0 2px var(--hover-bg);
+}
+
+.btn-esporte-opcao:focus-visible,
+.tab:focus-visible,
+.tab-data:focus-visible,
+.tab-quadra:focus-visible,
+.btn:focus-visible,
+.review-form :focus-visible {
+    outline: 3px solid var(--primary-green);
+    outline-offset: 2px;
+}
+
+.vagas {
+    margin-top: auto;
+    padding-top: 0.4rem;
+}
+
+.esporte-travado:empty {
+    display: none;
+}
+
+.barra-vagas {
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.btn {
+    min-height: 44px;
+    margin-top: 0.25rem;
+}
+
+.btn-entrar:disabled {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: #4a5568;
+    color: #cbd5e0;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.btn-entrar:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px var(--shadow-color);
+}
+
+.btn-sair {
+    margin-top: 0.25rem;
+}
+
+.status-indisponivel {
+    width: fit-content;
+    margin: 0.25rem 0 0.5rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(245, 101, 101, 0.12);
+    color: #feb2b2;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.status-encerrado {
+    width: fit-content;
+    margin: 0.25rem 0 0.5rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(160, 174, 192, 0.14);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.reviews-card {
+    margin-top: 1.75rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    text-align: left;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.12);
+}
+
+.reviews-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.reviews-heading h2 {
+    margin-bottom: 0.25rem;
+    font-size: 1.4rem;
+}
+
+.reviews-heading p,
+.review-guidance {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+}
+
+.rating-badge {
+    flex: 0 0 auto;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--hover-bg);
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+.rating-badge small {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.review-form {
+    display: grid;
+    max-width: 620px;
+    gap: 0.55rem;
+    margin-bottom: 1.5rem;
+}
+
+.review-form label {
+    margin-top: 0.2rem;
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.review-form label span {
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+.review-form select,
+.review-form textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    font: inherit;
+}
+
+.review-form textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.review-form select:focus,
+.review-form textarea:focus {
+    border-color: var(--primary-green);
+    outline: 2px solid color-mix(in srgb, var(--primary-green) 25%, transparent);
+}
+
+.review-form .btn {
+    width: fit-content;
+    min-width: 190px;
+    margin-top: 0.35rem;
+    padding-inline: 1.25rem;
+}
+
+.review-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.review-item {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.review-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--text-primary);
+}
+
+.review-meta time {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.review-item p {
+    margin-top: 0.45rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.review-score {
+    color: var(--primary-green);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.review-empty {
+    padding: 0.75rem 0;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+
+    .content-container {
+        max-width: none;
+    }
+
+    .page-header {
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-header .back-button span {
+        display: none;
+    }
+
+    .page-title {
+        font-size: 1.35rem;
+        overflow-wrap: anywhere;
+    }
+
+    .tabs-datas,
+    .tabs-quadras {
+        gap: 0.55rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .tab-data,
+    .tab-quadra {
+        padding: 0.45rem 0.75rem;
+        font-size: 0.82rem;
+    }
+
+    .schedule-grid {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+    }
+
+    .card-horario {
+        min-height: 0;
+    }
+
+    .reviews-heading {
+        flex-direction: column;
+    }
+
+    .review-form {
+        max-width: none;
+    }
+
+    .review-form .btn {
+        width: 100%;
+    }
 }

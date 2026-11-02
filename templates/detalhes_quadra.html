@@ -29,43 +29,6 @@
       rel="stylesheet"
     />
 
-    <style>
-      .seletor-esporte-reserva {
-        display: flex;
-        gap: 8px;
-        margin: 10px 0;
-        flex-wrap: wrap;
-      }
-      .btn-esporte-opcao {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid #444;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: 0.3s;
-        font-size: 0.85rem;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-      .btn-esporte-opcao:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-      .btn-esporte-opcao.selected {
-        border-color: #00ff88;
-        background: rgba(0, 255, 136, 0.1);
-      }
-      .select-label {
-        font-size: 0.8rem;
-        opacity: 0.8;
-        margin-top: 10px;
-      }
-      .btn-entrar:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-    </style>
   </head>
   <body>
     <div class="background-shapes"></div>
@@ -96,7 +59,7 @@
       </header>
 
       <p class="page-subtitle">{{ quadra.cidade }}, {{ quadra.estado }}</p>
-      <p class="page-subtitle">Avaliação: {% if nota_media %}{{ nota_media|floatformat:1 }}/5{% else %}Ainda sem avaliações{% endif %}</p>
+      <p class="page-subtitle page-rating-summary">Avaliação: {% if nota_media %}{{ nota_media|floatformat:1 }}/5{% else %}Ainda sem avaliações{% endif %}</p>
 
       <div class="tabs">
         <button class="tab active" data-tab="reserva">🕐 Horários</button>
@@ -129,15 +92,16 @@
             data-data="{{ horario.data }}"
             data-numero-quadra="{{ horario.numero_quadra }}"
             data-esporte-reservado="{{ horario.esporte_reservado|default:'' }}"
+            data-passou="{{ horario.passou|yesno:'true,false' }}"
           >
             <div class="time-slot-time">{% if quadra.tipo == 'privada' %}Quadra {{ horario.numero_quadra }} · {% endif %}{{ horario.hora_texto }}</div>
-            {% if horario.indisponivel %}<p class="status-indisponivel">Indisponível pelo proprietário</p>{% endif %}
+            {% if horario.passou %}<p class="status-encerrado">Horário encerrado</p>{% elif horario.indisponivel %}<p class="status-indisponivel">Indisponível pelo proprietário</p>{% endif %}
 
-            {% if not horario.esporte_reservado and not horario.usuario_na_partida and not horario.indisponivel %}
+            {% if not horario.esporte_reservado and not horario.usuario_na_partida and not horario.indisponivel and not horario.passou %}
             <p class="select-label">Escolha o esporte:</p>
             <div class="seletor-esporte-reserva">
               {% for esp in quadra.lista_esportes %}
-              <button class="btn-esporte-opcao" data-esporte="{{ esp }}">
+              <button type="button" class="btn-esporte-opcao" data-esporte="{{ esp }}" aria-pressed="false">
                 <span>
                   {% if 'Futebol' in esp %}⚽{% elif 'Basquete' in esp %}🏀{% elif 'Vôlei' in esp or 'Volei' in esp %}🏐{% elif 'Tênis' in esp or 'Tenis' in esp %}🎾{% else %}🎯{% endif %}
                 </span>
@@ -170,6 +134,10 @@
 
             {% if horario.usuario_na_partida %}
             <button class="btn btn-sair">Sair da Partida</button>
+            {% elif horario.passou %}
+            <button class="btn btn-entrar" disabled>Horário encerrado</button>
+            {% elif horario.indisponivel %}
+            <button class="btn btn-entrar" disabled>Indisponível</button>
             {% else %}
             <button class="btn btn-entrar" {% if not horario.esporte_reservado or horario.indisponivel %}disabled{% endif %}>
               {% if horario.indisponivel %}Indisponível{% elif horario.esporte_reservado %}
@@ -184,21 +152,73 @@
           <p>Nenhum horário disponível no momento.</p>
           {% endfor %}
         </div>
-      </div>
 
-      <section class="info-card" style="margin-top: 2rem;">
-        <h2>Avaliações</h2>
-        {% if pode_avaliar %}
-        <form method="post" action="{% url 'avaliar_quadra' quadra.id %}" style="display:grid; gap:10px; max-width:540px;">
-          {% csrf_token %}
-          <label for="nota">Sua nota</label>
-          <select id="nota" name="nota" required><option value="5">5 - Excelente</option><option value="4">4 - Muito bom</option><option value="3">3 - Bom</option><option value="2">2 - Regular</option><option value="1">1 - Ruim</option></select>
-          <textarea name="comentario" maxlength="1000" placeholder="Conte como foi sua experiência (opcional)"></textarea>
-          <button class="btn" type="submit">Enviar avaliação</button>
-        </form>
-        {% elif not user.is_authenticated %}<p>Entre na sua conta e participe de uma partida para avaliar esta quadra.</p>{% endif %}
-        {% for avaliacao in avaliacoes %}<article style="margin-top:1rem; border-top:1px solid var(--border-color); padding-top:1rem;"><strong>{{ avaliacao.usuario.nome }}</strong> · {{ avaliacao.nota }}/5<br>{{ avaliacao.comentario }}</article>{% empty %}<p>Nenhuma avaliação até o momento.</p>{% endfor %}
-      </section>
+        <section class="info-card reviews-card" aria-labelledby="reviews-title">
+          <div class="reviews-heading">
+            <div>
+              <h2 id="reviews-title">{% if quadra.tipo == 'publica' %}Relatos da comunidade{% else %}Avaliações{% endif %}</h2>
+              <p>{% if quadra.tipo == 'publica' %}Compartilhe informações úteis sobre as condições da quadra.{% else %}A opinião de quem já jogou ajuda toda a comunidade.{% endif %}</p>
+            </div>
+            {% if quadra.tipo != 'publica' and nota_media %}
+            <span class="rating-badge">★ {{ nota_media|floatformat:1 }} <small>/ 5 · {{ total_avaliacoes }} {% if total_avaliacoes == 1 %}avaliação{% else %}avaliações{% endif %}</small></span>
+            {% endif %}
+          </div>
+
+          {% if quadra.tipo == 'publica' %}
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'avaliar_quadra' quadra.id %}" class="review-form">
+              {% csrf_token %}
+              <label for="comentario-publico">Seu relato</label>
+              <textarea id="comentario-publico" name="comentario" maxlength="1000" required placeholder="Como estão as condições da quadra?"></textarea>
+              <button class="btn btn-entrar" type="submit">Enviar relato</button>
+            </form>
+            {% else %}
+            <p class="review-guidance">Entre na sua conta para compartilhar um relato sobre esta quadra.</p>
+            {% endif %}
+            <div class="review-list">
+              {% for comentario in comentarios_publicos %}
+              <article class="review-item">
+                <div class="review-meta"><strong>{{ comentario.usuario.nome }}</strong><time datetime="{{ comentario.criada_em|date:'c' }}">{{ comentario.criada_em|date:'d/m/Y' }}</time></div>
+                <p>{{ comentario.texto }}</p>
+              </article>
+              {% empty %}
+              <p class="review-empty">Nenhum relato até o momento.</p>
+              {% endfor %}
+            </div>
+          {% else %}
+            {% if pode_avaliar %}
+            <form method="post" action="{% url 'avaliar_quadra' quadra.id %}" class="review-form">
+              {% csrf_token %}
+              <label for="nota">Sua nota</label>
+              <select id="nota" name="nota" required>
+                <option value="5">5 - Excelente</option>
+                <option value="4">4 - Muito bom</option>
+                <option value="3">3 - Bom</option>
+                <option value="2">2 - Regular</option>
+                <option value="1">1 - Ruim</option>
+              </select>
+              <label for="comentario-avaliacao">Comentário <span>(opcional)</span></label>
+              <textarea id="comentario-avaliacao" name="comentario" maxlength="1000" placeholder="Conte como foi sua experiência"></textarea>
+              <button class="btn btn-entrar" type="submit">Enviar avaliação</button>
+            </form>
+            {% elif not user.is_authenticated %}
+            <p class="review-guidance">Entre na sua conta e participe de uma partida para avaliar esta quadra.</p>
+            {% else %}
+            <p class="review-guidance">Você poderá avaliar esta quadra depois de participar de uma partida.</p>
+            {% endif %}
+            <div class="review-list">
+              {% for avaliacao in avaliacoes %}
+              <article class="review-item">
+                <div class="review-meta"><strong>{{ avaliacao.usuario.nome }}</strong><span class="review-score">★ {{ avaliacao.nota }}/5</span></div>
+                {% if avaliacao.comentario %}<p>{{ avaliacao.comentario }}</p>{% endif %}
+              </article>
+              {% empty %}
+              <p class="review-empty">Nenhuma avaliação até o momento.</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </section>
+      </div>
 
       <div id="mapa" class="tab-content">
         <h2>Como Chegar</h2>

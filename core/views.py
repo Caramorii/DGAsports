@@ -285,6 +285,7 @@ def _horario_para_cliente(horario, usuario_id=None):
         'data': horario.data.isoformat() if hasattr(horario.data, 'isoformat') else str(horario.data),
         'hora_texto': horario.hora_texto,
         'indisponivel': horario.indisponivel,
+        'passou': _horario_passou(horario),
         'disponivel': not horario.indisponivel and (horario.quadra.tipo != 'privada' or not _horario_passou(horario)),
         'max_jogadores': horario.max_jogadores,
         'preco': float(horario.preco),
@@ -577,7 +578,7 @@ def entrar_na_partida(request):
                 return JsonResponse({'status': 'erro', 'mensagem': 'Reservas em quadras particulares devem ser confirmadas pelo fluxo de pagamento.'}, status=400)
             if horario.indisponivel:
                 return JsonResponse({'status': 'erro', 'mensagem': 'Este horário está indisponível.'}, status=409)
-            if horario.data < date.today():
+            if _horario_passou(horario):
                 return JsonResponse({'status': 'erro', 'mensagem': 'Este horário já passou.'}, status=400)
             if esporte not in horario.quadra.lista_esportes:
                 return JsonResponse({'status': 'erro', 'mensagem': 'Esporte inválido para esta quadra.'}, status=400)

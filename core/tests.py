@@ -6,7 +6,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Horario, Quadra, ReservaJogador, Usuario
+from .models import ComentarioQuadra, Horario, Quadra, ReservaJogador, Usuario
 
 
 class SeedDataTests(TestCase):
@@ -26,7 +26,11 @@ class ReservaPartidaTests(TestCase):
         )
         self.quadra = Quadra.objects.create(nome='Arena', cidade='Franca', esporte='Futebol, Basquete')
         self.horario = Horario.objects.create(
-            quadra=self.quadra, data=date.today(), hora_texto='18:00 - 19:00', max_jogadores=1, preco=20
+            quadra=self.quadra,
+            data=timezone.localdate() + timedelta(days=1),
+            hora_texto='18:00 - 19:00',
+            max_jogadores=1,
+            preco=20,
         )
 
     def test_entrada_reserva_vaga_e_modalidade(self):
@@ -147,12 +151,16 @@ class ReservaPartidaTests(TestCase):
         self.assertEqual(ReservaJogador.objects.count(), 1)
 
     def test_avaliacao_exige_participacao_na_quadra(self):
+        self.quadra.tipo = 'privada'
+        self.quadra.save(update_fields=['tipo'])
         self.client.force_login(self.usuario)
         response = self.client.post(reverse('avaliar_quadra', args=[self.quadra.id]), {'nota': 5})
         self.assertEqual(response.status_code, 302)
         self.assertFalse(self.quadra.avaliacoes.exists())
 
     def test_avaliacao_depois_de_reserva(self):
+        self.quadra.tipo = 'privada'
+        self.quadra.save(update_fields=['tipo'])
         ReservaJogador.objects.create(usuario=self.usuario, horario=self.horario)
         self.client.force_login(self.usuario)
         response = self.client.post(
@@ -164,6 +172,8 @@ class ReservaPartidaTests(TestCase):
     def test_confirmacao_de_reserva_privada(self):
         self.quadra.tipo = 'privada'
         self.quadra.save(update_fields=['tipo'])
+        self.horario.data = timezone.localdate() + timedelta(days=1)
+        self.horario.save(update_fields=['data'])
         self.client.force_login(self.usuario)
         response = self.client.post(reverse('confirmar_reserva'), {
             'metodo': 'caixa',
@@ -185,6 +195,37 @@ class ReservaPartidaTests(TestCase):
 
 
 class DetalhesQuadraTests(TestCase):
+    def test_quadras_publicas_exibem_formulario_de_relato_e_seus_comentarios(self):
+        quadra = Quadra.objects.create(nome='Praça Esportiva', cidade='Franca', esporte='Futebol')
+        self.client.force_login(Usuario.objects.create_user(
+            email='atleta@example.com', nome='Atleta', cidade='Franca', password='senha-segura-123'
+        ))
+
+        page = self.client.get(reverse('detalhes_quadra', args=[quadra.id]))
+
+        self.assertContains(page, 'Relatos da comunidade')
+        self.assertContains(page, 'name="comentario"')
+        self.assertNotContains(page, 'name="nota"')
+        self.client.post(reverse('avaliar_quadra', args=[quadra.id]), {'comentario': 'A quadra está bem cuidada.'})
+
+        page = self.client.get(reverse('detalhes_quadra', args=[quadra.id]))
+
+        self.assertContains(page, 'A quadra está bem cuidada.')
+        self.assertContains(page, 'Atleta')
+        self.assertEqual(ComentarioQuadra.objects.filter(quadra=quadra).count(), 1)
+
+    def test_envio_de_relato_publico_exige_login(self):
+        quadra = Quadra.objects.create(nome='Praça Esportiva', cidade='Franca', esporte='Futebol')
+
+        response = self.client.post(
+            reverse('avaliar_quadra', args=[quadra.id]),
+            {'comentario': 'Relato não autenticado'},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response.url)
+        self.assertFalse(ComentarioQuadra.objects.filter(quadra=quadra).exists())
+
     def test_quadras_publicas_exibem_confirmacao_com_participantes_sem_pagamento(self):
         quadra = Quadra.objects.create(nome='Praça Esportiva', cidade='Franca', esporte='Futebol')
         horario = Horario.objects.create(
@@ -205,6 +246,28 @@ class DetalhesQuadraTests(TestCase):
         self.assertContains(response, 'Outro Jogador')
         self.assertNotContains(response, 'PIX pelo site')
         self.assertEqual(ReservaJogador.objects.count(), 1)
+
+    def test_participacao_publica_recusa_horario_encerrado(self):
+        quadra = Quadra.objects.create(nome='Praça Esportiva', cidade='Franca', esporte='Futebol')
+        horario = Horario.objects.create(
+            quadra=quadra,
+            data=timezone.localdate() - timedelta(days=1),
+            hora_texto='18:00 - 19:00',
+        )
+        usuario = Usuario.objects.create_user(
+            email='atleta@example.com', nome='Atleta', cidade='Franca', password='senha-segura-123'
+        )
+        self.client.force_login(usuario)
+
+        response = self.client.post(
+            reverse('entrar_na_partida'),
+            data=json.dumps({'horario_id': horario.id, 'esporte_selecionado': 'Futebol'}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['mensagem'], 'Este horário já passou.')
+        self.assertFalse(ReservaJogador.objects.filter(horario=horario).exists())
 
     def test_datas_usam_valor_iso_no_botao_e_api_carrega_horarios_do_dia(self):
         data_selecionada = date(2026, 11, 6)
