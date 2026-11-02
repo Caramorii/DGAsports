@@ -45,10 +45,17 @@
         header h1 {
             color: var(--primary-green);
             text-align: center;
-            margin-bottom: 30px;
+            margin: 12px 0 30px;
             font-size: 2.5rem;
             font-weight: 900;
         }
+        .back-to-schedule {
+            display: inline-block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-to-schedule:hover { color: var(--primary-green); }
         h2 {
             color: var(--text-primary);
             font-size: 1.5rem;
@@ -152,6 +159,7 @@
 <body>
     <div class="container">
         <header>
+            <a class="back-to-schedule" href="{{ voltar_url }}">← Voltar aos horários</a>
             <h1>Confirmar Reserva</h1>
         </header>
 
@@ -183,6 +191,8 @@
 {% csrf_token %}
                         
                         <input type="hidden" name="horario_id" value="{{ reserva.horario.id }}">
+                        <input type="hidden" name="data" value="{{ reserva.horario.data|date:'Y-m-d' }}">
+                        <input type="hidden" name="numero_quadra" value="{{ reserva.quadra.numero_quadra }}">
                         <input type="hidden" name="modo_reserva" value="{{ modo_reserva }}">
                         <!-- CORREÇÃO: Adiciona o esporte selecionado como um campo oculto para ser enviado com o formulário -->
                         <input type="hidden" name="esporte_selecionado" value="{{ esporte_selecionado }}">

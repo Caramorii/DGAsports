@@ -299,7 +299,8 @@ def _horario_para_cliente(horario, usuario_id=None):
         'aceita_convidados': horario.aceita_convidados,
         'jogadores': [
             {'id': reserva.usuario_id, 'nome': reserva.usuario.nome, 'status': reserva.status,
-             'metodo_pagamento': reserva.metodo_pagamento}
+             'metodo_pagamento': reserva.metodo_pagamento,
+             'eh_usuario': reserva.usuario_id == usuario_id}
             for reserva in reservas
         ],
     }
@@ -361,6 +362,23 @@ def detalhes_quadra(request, quadra_id):
     for h in horarios:
         horarios_list.append(_horario_para_cliente(h, usuario_id))
 
+    datas_disponiveis = [
+        {
+            'valor': data_iso,
+            'rotulo': ('Hoje · ' if data_iso == hoje.isoformat() else '')
+                + ['segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado', 'domingo'][date.fromisoformat(data_iso).weekday()]
+                + ' · ' + date.fromisoformat(data_iso).strftime('%d/%m'),
+        }
+        for data_iso in sorted({
+            h['data'] for h in horarios_list
+            if quadra.tipo != 'privada' or date.fromisoformat(h['data']) >= hoje
+        })
+    ]
+    datas_validas = {item['valor'] for item in datas_disponiveis}
+    data_selecionada = request.GET.get('data', '')
+    if data_selecionada not in datas_validas:
+        data_selecionada = datas_disponiveis[0]['valor'] if datas_disponiveis else ''
+
     quadra_dict = {
         'id': quadra.id,
         'nome': quadra.nome,
@@ -376,19 +394,11 @@ def detalhes_quadra(request, quadra_id):
         'comentario_admin': quadra.comentario_admin,
         'lista_esportes': quadra.lista_esportes,
         'horarios': horarios_list,
-        'datas_disponiveis': [
-            {
-                'valor': data_iso,
-                'rotulo': ('Hoje · ' if data_iso == timezone.localdate().isoformat() else '')
-                    + ['segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado', 'domingo'][date.fromisoformat(data_iso).weekday()]
-                    + ' · ' + date.fromisoformat(data_iso).strftime('%d/%m'),
-            }
-            for data_iso in sorted({
-                h['data'] for h in horarios_list
-                if quadra.tipo != 'privada' or date.fromisoformat(h['data']) >= hoje
-            })
-        ],
+        'datas_disponiveis': datas_disponiveis,
     }
+    numero_quadra_selecionada = request.GET.get('quadra', '')
+    if numero_quadra_selecionada not in {str(numero) for numero in range(1, quadra.quantidade_quadras + 1)}:
+        numero_quadra_selecionada = '1'
     return render(request, 'detalhes_quadra.html', {
         'quadra': quadra_dict,
         'hoje': hoje.isoformat(),
@@ -396,6 +406,8 @@ def detalhes_quadra(request, quadra_id):
         'nota_media': quadra.avaliacoes.aggregate(media=Avg('nota'))['media'],
         'total_avaliacoes': quadra.avaliacoes.count(),
         'numeros_quadras': range(1, quadra.quantidade_quadras + 1),
+        'data_selecionada': data_selecionada,
+        'numero_quadra_selecionada': numero_quadra_selecionada,
         'pode_avaliar': pode_avaliar,
         'comentarios_publicos': quadra.comentarios.select_related('usuario').all()[:50],
         'grupos_publicos': grupos_publicos,
@@ -646,6 +658,13 @@ def api_get_horarios_por_data(request, quadra_id, data_selecionada):
     return JsonResponse({'status': 'sucesso', 'horarios': result})
 
 
+def _url_detalhes_horario(horario):
+    return (
+        f"/quadra/{horario.quadra_id}/?data={horario.data.isoformat()}"
+        f"&quadra={horario.numero_quadra}"
+    )
+
+
 @login_required(login_url='login')
 def reservar(request, horario_id):
     horario = get_object_or_404(
@@ -653,24 +672,24 @@ def reservar(request, horario_id):
         pk=horario_id,
     )
     if horario.quadra.tipo != 'privada':
-        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+        return redirect(_url_detalhes_horario(horario))
     if horario.indisponivel:
         messages.error(request, 'Este horário foi marcado como indisponível pelo proprietário.')
-        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+        return redirect(_url_detalhes_horario(horario))
     esporte = request.GET.get('esporte', '').strip()
     if _horario_passou(horario):
         messages.error(request, 'Este horário já passou e está indisponível.')
-        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+        return redirect(_url_detalhes_horario(horario))
     if esporte not in horario.quadra.lista_esportes:
         messages.error(request, 'Selecione um esporte válido para esta quadra.')
-        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+        return redirect(_url_detalhes_horario(horario))
     if horario.esporte_reservado and horario.esporte_reservado != esporte:
         messages.error(request, 'Este horário já está reservado para outro esporte.')
-        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+        return redirect(_url_detalhes_horario(horario))
     modo_reserva = _modo_reserva(horario, request.user)
     if modo_reserva == 'indisponivel':
         messages.error(request, 'Este horário já está reservado e não aceita mais participantes.')
-        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+        return redirect(_url_detalhes_horario(horario))
     reserva = {
         'quadra': {
             'nome': horario.quadra.nome,
@@ -708,6 +727,7 @@ def reservar(request, horario_id):
         'modo_reserva': modo_reserva,
         'jogadores': jogadores,
         'aceita_convidados': horario.aceita_convidados,
+        'voltar_url': f"/quadra/{horario.quadra_id}/?data={horario.data.isoformat()}&quadra={horario.numero_quadra}",
     })
 
 
@@ -871,12 +891,12 @@ def confirmar_reserva(request):
             return redirect('minhas_reservas')
         except (Horario.DoesNotExist, ValueError, IntegrityError) as erro:
             messages.error(request, str(erro))
-            return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+            return redirect(_url_detalhes_horario(horario))
 
     if metodo == 'pix':
         if modo == 'indisponivel':
             messages.error(request, 'Este horário já está reservado e não aceita mais participantes.')
-            return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+            return redirect(_url_detalhes_horario(horario))
         return render(request, 'pagamento_pix.html', {
             'horario_id': horario_id,
             'esporte_selecionado': esporte,
@@ -886,11 +906,12 @@ def confirmar_reserva(request):
             'valor': horario.preco,
             'quadra': horario.quadra,
             'horario': horario,
+            'voltar_url': _url_detalhes_horario(horario),
         })
 
     if metodo != 'pix':
         messages.error(request, 'Escolha pagar pelo sistema ou no caixa da quadra.')
-        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+        return redirect(_url_detalhes_horario(horario))
 
 
 @login_required(login_url='login')
@@ -902,7 +923,7 @@ def finalizar_pix(request):
     horario = get_object_or_404(Horario.objects.select_related('quadra'), pk=horario_id)
     if horario.quadra.tipo != 'privada':
         messages.error(request, 'Este pagamento de demonstração só vale para quadras particulares.')
-        return redirect('detalhes_quadra', quadra_id=horario.quadra_id)
+        return redirect(_url_detalhes_horario(horario))
     max_jogadores = request.POST.get('max_jogadores')
     aceita_convidados = request.POST.get('aceita_convidados') == 'on'
     try:
@@ -913,6 +934,7 @@ def finalizar_pix(request):
         messages.success(request, 'Pagamento confirmado em modo de demonstração. Reserva garantida.')
     except (Horario.DoesNotExist, ValueError, IntegrityError) as erro:
         messages.error(request, str(erro))
+        return redirect(_url_detalhes_horario(horario))
     return redirect('minhas_reservas')
 
 

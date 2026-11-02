@@ -70,7 +70,7 @@
         <div class="tabs-datas">
           {% for data in quadra.datas_disponiveis %}
           <button
-            class="tab-data {% if forloop.first %}active{% endif %}"
+            class="tab-data {% if data.valor == data_selecionada %}active{% endif %}"
             data-data="{{ data.valor }}"
           >
             {{ data.rotulo }}
@@ -80,21 +80,36 @@
 
         {% if quadra.tipo == 'privada' and quadra.quantidade_quadras > 1 %}
         <div class="tabs-quadras" aria-label="Escolha a quadra">
-          {% for numero in numeros_quadras %}<button type="button" class="tab-quadra {% if forloop.first %}active{% endif %}" data-numero-quadra="{{ numero }}">Quadra {{ numero }}</button>{% endfor %}
+          {% for numero in numeros_quadras %}<button type="button" class="tab-quadra {% if numero|stringformat:'s' == numero_quadra_selecionada %}active{% endif %}" data-numero-quadra="{{ numero }}">Quadra {{ numero }}</button>{% endfor %}
         </div>
         {% endif %}
 
         <div class="schedule-grid">
           {% for horario in quadra.horarios %}
           <div
-            class="card-horario"
+            class="card-horario {% if horario.esporte_reservado %}card-horario--reservado{% endif %} {% if horario.usuario_na_partida %}card-horario--minha-partida{% endif %}"
             data-horario-id="{{ horario.id }}"
             data-data="{{ horario.data }}"
+            data-hora="{{ horario.hora_texto }}"
             data-numero-quadra="{{ horario.numero_quadra }}"
             data-esporte-reservado="{{ horario.esporte_reservado|default:'' }}"
             data-passou="{{ horario.passou|yesno:'true,false' }}"
+            data-max-jogadores="{{ horario.max_jogadores }}"
+            data-jogadores-atuais="{{ horario.jogadores_atuais }}"
+            data-preco="{{ horario.preco }}"
+            data-responsavel-nome="{{ horario.responsavel_nome }}"
+            data-responsavel-status="{{ horario.responsavel_status }}"
+            data-responsavel-metodo="{{ horario.responsavel_metodo }}"
+            data-responsavel-id="{{ horario.responsavel_reserva_id|default:'' }}"
+            data-aceita-convidados="{{ horario.aceita_convidados|yesno:'true,false' }}"
           >
             <div class="time-slot-time">{% if quadra.tipo == 'privada' %}Quadra {{ horario.numero_quadra }} · {% endif %}{{ horario.hora_texto }}</div>
+            {% if horario.esporte_reservado %}
+            <div class="status-partida {% if horario.usuario_na_partida %}status-partida--sua{% endif %}">
+              <span class="status-partida-ponto"></span>
+              {% if horario.usuario_na_partida %}Você está nesta partida{% else %}Partida reservada{% endif %}
+            </div>
+            {% endif %}
             {% if horario.passou %}<p class="status-encerrado">Horário encerrado</p>{% elif horario.indisponivel %}<p class="status-indisponivel">Indisponível pelo proprietário</p>{% endif %}
 
             {% if not horario.esporte_reservado and not horario.usuario_na_partida and not horario.indisponivel and not horario.passou %}
@@ -128,9 +143,13 @@
             ></progress>
             <ul class="participantes-horario" hidden>
               {% for jogador in horario.jogadores %}
-              <li>{{ jogador.nome }}</li>
+              <li data-id="{{ jogador.id }}" data-e-voce="{{ jogador.eh_usuario|yesno:'true,false' }}" data-status="{{ jogador.status }}">{{ jogador.nome }}</li>
               {% endfor %}
             </ul>
+
+            {% if horario.esporte_reservado and horario.jogadores_atuais %}
+            <button type="button" class="btn btn-detalhes-partida">Ver resumo da partida</button>
+            {% endif %}
 
             {% if horario.usuario_na_partida %}
             <button class="btn btn-sair">Sair da Partida</button>
@@ -264,8 +283,40 @@
         </form>
       </dialog>
       {% endif %}
+      <dialog id="detalhes-partida" class="confirmacao-partida detalhes-partida">
+        <form method="dialog">
+          <div class="detalhes-partida-cabecalho">
+            <div>
+              <p class="detalhes-partida-eyebrow">RESUMO DA PARTIDA</p>
+              <h2 id="detalhes-partida-titulo">Partida reservada</h2>
+            </div>
+            <button type="submit" class="detalhes-partida-fechar" aria-label="Fechar resumo">×</button>
+          </div>
+          <dl class="resumo-partida resumo-partida-grade">
+            <div><dt>Quadra</dt><dd id="detalhes-partida-quadra"></dd></div>
+            <div><dt>Data e horário</dt><dd id="detalhes-partida-data"></dd></div>
+            <div><dt>Esporte</dt><dd id="detalhes-partida-esporte"></dd></div>
+            <div><dt>Vagas</dt><dd id="detalhes-partida-vagas"></dd></div>
+            <div id="detalhes-partida-valor-linha"><dt>Valor por horário</dt><dd id="detalhes-partida-valor"></dd></div>
+          </dl>
+          <p id="detalhes-partida-status" class="detalhes-partida-status"></p>
+          <section class="lista-participantes">
+            <div class="lista-participantes-cabecalho">
+              <h3>Quem vai jogar</h3>
+              <span id="detalhes-partida-total"></span>
+            </div>
+            <ul id="detalhes-partida-jogadores"></ul>
+          </section>
+          {% if quadra.tipo == 'publica' %}
+          <p class="aviso-publico">Esta é uma quadra pública. A lista mostra apenas as pessoas que confirmaram pelo DGA Sports.</p>
+          {% endif %}
+          <div class="acoes-confirmacao">
+            <button type="submit" class="btn-cancelar-confirmacao">Fechar resumo</button>
+          </div>
+        </form>
+      </dialog>
     </div>
 
-    <script src="{% static 'js/detalhes_reserva.js' %}?v=20261102-1"></script>
+    <script src="{% static 'js/detalhes_reserva.js' %}?v=20261102-3"></script>
   </body>
 </html>

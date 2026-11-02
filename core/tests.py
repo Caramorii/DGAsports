@@ -63,6 +63,31 @@ class ReservaPartidaTests(TestCase):
         self.assertContains(response, 'R$ 20,00')
         self.assertContains(response, 'PIX pelo site')
         self.assertContains(response, 'Pagar na quadra')
+        self.assertEqual(
+            response.context['voltar_url'],
+            f"/quadra/{self.quadra.id}/?data={self.horario.data.isoformat()}&quadra=1",
+        )
+
+    def test_erro_ao_confirmar_reserva_retorna_para_data_e_quadra_do_horario(self):
+        self.quadra.tipo = 'privada'
+        self.quadra.quantidade_quadras = 2
+        self.quadra.save(update_fields=['tipo', 'quantidade_quadras'])
+        self.horario.numero_quadra = 2
+        self.horario.save(update_fields=['numero_quadra'])
+        self.client.force_login(self.usuario)
+
+        response = self.client.post(reverse('confirmar_reserva'), {
+            'metodo': 'caixa',
+            'horario_id': self.horario.id,
+            'esporte_selecionado': 'Esporte inválido',
+        })
+
+        self.assertRedirects(
+            response,
+            f"/quadra/{self.quadra.id}/?data={self.horario.data.isoformat()}&quadra=2",
+            fetch_redirect_response=False,
+        )
+
 
     def test_resumo_de_partida_privada_lista_quem_ja_vai_jogar(self):
         outro = Usuario.objects.create_user(
@@ -195,6 +220,37 @@ class ReservaPartidaTests(TestCase):
 
 
 class DetalhesQuadraTests(TestCase):
+    def test_detalhes_restauram_data_e_quadra_da_url(self):
+        data_selecionada = timezone.localdate() + timedelta(days=2)
+        quadra = Quadra.objects.create(
+            nome='Arena', cidade='Franca', esporte='Futebol', tipo='privada', quantidade_quadras=2,
+        )
+        Horario.objects.create(
+            quadra=quadra,
+            numero_quadra=2,
+            data=data_selecionada,
+            hora_texto='18:00 - 19:00',
+        )
+        Horario.objects.create(
+            quadra=quadra,
+            numero_quadra=1,
+            data=data_selecionada - timedelta(days=1),
+            hora_texto='18:00 - 19:00',
+        )
+
+        response = self.client.get(
+            reverse('detalhes_quadra', args=[quadra.id]),
+            {'data': data_selecionada.isoformat(), 'quadra': '2'},
+        )
+
+        self.assertEqual(response.context['data_selecionada'], data_selecionada.isoformat())
+        self.assertEqual(response.context['numero_quadra_selecionada'], '2')
+        self.assertContains(
+            response,
+            f'class="tab-data active"\n            data-data="{data_selecionada.isoformat()}"',
+        )
+        self.assertContains(response, 'class="tab-quadra active" data-numero-quadra="2"')
+
     def test_quadras_publicas_exibem_formulario_de_relato_e_seus_comentarios(self):
         quadra = Quadra.objects.create(nome='Praça Esportiva', cidade='Franca', esporte='Futebol')
         self.client.force_login(Usuario.objects.create_user(
@@ -238,14 +294,24 @@ class DetalhesQuadraTests(TestCase):
             email='jogador@example.com', nome='Outro Jogador', cidade='Franca', password='senha-segura-123'
         )
         ReservaJogador.objects.create(usuario=outro, horario=horario)
+        self.client.force_login(outro)
 
         response = self.client.get(reverse('detalhes_quadra', args=[quadra.id]))
 
         self.assertContains(response, 'Confirmar participação na quadra pública')
         self.assertContains(response, 'somente quem confirmou participação pelo DGA Sports')
         self.assertContains(response, 'Outro Jogador')
+        self.assertContains(response, 'Você está nesta partida')
+        self.assertContains(response, 'Ver resumo da partida')
+        self.assertContains(response, 'Quem vai jogar')
+        self.assertContains(response, 'data-e-voce="true"')
         self.assertNotContains(response, 'PIX pelo site')
         self.assertEqual(ReservaJogador.objects.count(), 1)
+
+        horarios = self.client.get(
+            reverse('api_horarios', args=[quadra.id, horario.data.isoformat()])
+        ).json()['horarios']
+        self.assertTrue(horarios[0]['jogadores'][0]['eh_usuario'])
 
     def test_participacao_publica_recusa_horario_encerrado(self):
         quadra = Quadra.objects.create(nome='Praça Esportiva', cidade='Franca', esporte='Futebol')

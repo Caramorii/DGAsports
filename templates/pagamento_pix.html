@@ -106,10 +106,19 @@
             font-weight: 700;
             cursor: pointer;
         }
+        .back-to-schedule {
+            display: inline-block;
+            margin-bottom: 18px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-to-schedule:hover { color: var(--primary-green); }
     </style>
 </head>
 <body>
     <div class="pix-container">
+        <a class="back-to-schedule" href="{{ voltar_url }}">← Voltar aos horários</a>
         <h1>Pague com PIX para confirmar</h1>
         <p>Escaneie o QR Code ou use a chave "Copia e Cola" no seu app de pagamentos.</p>
 
@@ -125,6 +134,8 @@
         <form action="{% url 'finalizar_pix' %}" method="POST">
 {% csrf_token %}
             <input type="hidden" name="horario_id" value="{{ horario_id }}">
+            <input type="hidden" name="data" value="{{ horario.data|date:'Y-m-d' }}">
+            <input type="hidden" name="numero_quadra" value="{{ horario.numero_quadra }}">
             <input type="hidden" name="esporte_selecionado" value="{{ esporte_selecionado }}">
             <input type="hidden" name="modo_reserva" value="{{ modo_reserva }}">
             <input type="hidden" name="max_jogadores" value="{{ max_jogadores }}">

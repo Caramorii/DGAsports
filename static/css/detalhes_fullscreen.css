@@ -391,6 +391,19 @@ body.light-theme .page-header .back-button:hover {
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
+.card-horario--reservado {
+    min-height: 0;
+    border-color: rgba(112, 209, 85, 0.42);
+    background:
+        linear-gradient(145deg, rgba(112, 209, 85, 0.07), transparent 58%),
+        var(--dark-card-bg);
+}
+
+.card-horario--minha-partida {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 1px var(--hover-bg), 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
 .card-horario:hover {
     transform: translateY(-3px);
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
@@ -400,6 +413,55 @@ body.light-theme .page-header .back-button:hover {
     margin-bottom: 0.75rem;
     font-size: clamp(1.15rem, 2vw, 1.4rem);
     letter-spacing: -0.02em;
+}
+
+.card-horario--reservado .time-slot-time {
+    margin-bottom: 0.35rem;
+}
+
+.status-partida {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.35rem;
+    padding: 0.28rem 0.6rem;
+    border: 1px solid rgba(112, 209, 85, 0.24);
+    border-radius: 999px;
+    background: rgba(112, 209, 85, 0.09);
+    color: var(--primary-green);
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.status-partida--sua {
+    background: var(--hover-bg);
+}
+
+.status-partida-ponto {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary-green);
+    box-shadow: 0 0 8px var(--primary-green);
+}
+
+.card-horario--reservado .vagas {
+    margin-top: 0.2rem;
+}
+
+.btn-detalhes-partida {
+    min-height: 40px;
+    margin: 0.1rem 0 0.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--hover-bg);
+    color: var(--primary-green);
+    font-size: 0.88rem;
+}
+
+.btn-detalhes-partida:hover {
+    border-color: var(--primary-green);
+    background: var(--hover-bg);
 }
 
 .select-label {
@@ -472,6 +534,167 @@ body.light-theme .page-header .back-button:hover {
 .barra-vagas {
     display: block;
     margin-bottom: 1rem;
+}
+
+.detalhes-partida {
+    width: min(92vw, 600px);
+    padding: 0;
+    overflow: auto;
+}
+
+.detalhes-partida > form {
+    padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.detalhes-partida-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.detalhes-partida-eyebrow {
+    margin-bottom: 0.25rem;
+    color: var(--primary-green);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.detalhes-partida-cabecalho h2 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.detalhes-partida-fechar {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.resumo-partida-grade {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.resumo-partida-grade > div {
+    display: grid;
+    min-width: 0;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.resumo-partida-grade dt {
+    font-size: 0.76rem;
+}
+
+.resumo-partida-grade dd {
+    overflow-wrap: anywhere;
+    font-size: 0.92rem;
+}
+
+.detalhes-partida-status {
+    margin-top: 0.85rem;
+    color: var(--primary-green);
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.lista-participantes {
+    margin-top: 1.35rem;
+}
+
+.lista-participantes-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
+}
+
+.lista-participantes-cabecalho h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.lista-participantes-cabecalho > span {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+#detalhes-partida-jogadores {
+    display: grid;
+    gap: 0.5rem;
+    max-height: 220px;
+    overflow: auto;
+    list-style: none;
+}
+
+#detalhes-partida-jogadores > li {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.participante-avatar {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--hover-bg);
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+.participante-nome {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-primary);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.participante-etiqueta {
+    margin-left: auto;
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    background: var(--hover-bg);
+    color: var(--primary-green);
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.participante-etiqueta--responsavel {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+}
+
+.detalhes-partida .acoes-confirmacao {
+    margin-top: 1.15rem;
+}
+
+.detalhes-partida .acoes-confirmacao button {
+    flex: 1 1 100%;
 }
 
 .btn {
@@ -707,5 +930,9 @@ body.light-theme .page-header .back-button:hover {
 
     .review-form .btn {
         width: 100%;
+    }
+
+    .resumo-partida-grade {
+        grid-template-columns: 1fr;
     }
 }
