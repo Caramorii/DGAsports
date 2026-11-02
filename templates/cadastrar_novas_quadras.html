@@ -7,6 +7,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel Admin - Nova Quadra</title>
   <link rel="stylesheet" href="{% static 'css/admin_quadras.css' %}" />
+  <style>
+    .type-tabs { display:flex; gap:8px; margin:10px 0; }
+    .type-tab { flex:1; border:1px solid var(--border-color); border-radius:8px; padding:12px; background:var(--card-bg); color:var(--text-primary); cursor:pointer; }
+    .type-tab.active { border-color:var(--primary-green); background:var(--hover-bg); color:var(--primary-green); }
+    [hidden] { display:none !important; }
+  </style>
 </head>
 
 <body>
@@ -22,7 +28,11 @@
     <input type="email" name="email_proprietario" placeholder="E-mail do proprietário (usuário já cadastrado)" required />
     <small>O painel da arena ficará disponível apenas para esta conta.</small>
 
-    <div class="filter-group">
+    <div class="type-tabs" role="tablist">
+      <button type="button" class="type-tab active" data-type="privada">Quadra particular</button>
+      <button type="button" class="type-tab" data-type="publica">Quadra pública</button>
+    </div>
+    <div class="filter-group" hidden>
       <label for="filtro-tipo">Tipo de Acesso</label>
       <select id="filtro-tipo" name="tipo">
         <option value="todos" {% if tipo_busca == 'todos' or not tipo_busca %}selected{% endif %}>Todos os tipos</option>
@@ -46,9 +56,10 @@
 
     <!-- Cidade e Estado -->
     <div class="form-group">
-      <input type="text" id="cidade" name="cidade" placeholder="Cidade" required />
-      <input type="text" id="estado" name="estado" placeholder="Estado (Ex: SP)" maxlength="2" required />
+      <input type="text" id="cidade" name="cidade" placeholder="Cidade" autocomplete="address-level2" required />
+      <input type="text" id="estado" name="estado" placeholder="Estado (Ex: SP)" autocomplete="address-level1" maxlength="30" required />
     </div>
+    <small class="location-help">A cidade e o estado são usados para localizar esta quadra no filtro da página inicial. O CEP preenche esses campos automaticamente.</small>
 
     <hr />
     <h3>Configuração de Horários</h3>
@@ -67,15 +78,63 @@
     <label>Foto da Unidade:</label>
     <input type="file" name="foto" accept="image/*" required />
 
-    <button type="submit">Cadastrar Quadra e Gerar Agenda</button>
+    <button type="submit" id="submit-quadra">Cadastrar Quadra e Gerar Agenda</button>
   </form>
 
   <script>
+    const typeSelect = document.getElementById('filtro-tipo');
+    const typeTabs = [...document.querySelectorAll('.type-tab')];
+    const publicFields = document.createElement('div');
+    publicFields.hidden = true;
+    publicFields.innerHTML = '<hr><h3>Situação da quadra pública</h3><input type="text" name="situacao" value="Em boas condições" maxlength="200" placeholder="Situação atual da quadra"><textarea name="comentario_admin" maxlength="2000" placeholder="Comentário principal da administração"></textarea>';
+    const submitButton = document.getElementById('submit-quadra');
+    submitButton.before(publicFields);
+    function setCourtType(type) {
+      typeSelect.value = type;
+      typeTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.type === type));
+      const isPublic = type === 'publica';
+      const owner = document.querySelector('[name="email_proprietario"]');
+      owner.required = !isPublic;
+      owner.hidden = isPublic;
+      owner.nextElementSibling.hidden = isPublic;
+      const hours = document.querySelector('[name="hora_abertura"]').closest('.form-group');
+      hours.hidden = isPublic;
+      hours.querySelectorAll('input').forEach(input => input.required = !isPublic);
+      const price = document.querySelector('[name="preco"]');
+      price.required = !isPublic;
+      price.hidden = isPublic;
+      price.previousElementSibling.hidden = isPublic;
+      publicFields.hidden = !isPublic;
+      document.querySelector('[name="foto"]').required = false;
+      submitButton.textContent = isPublic ? 'Cadastrar quadra pública' : 'Cadastrar quadra particular e gerar agenda';
+    }
+    typeTabs.forEach(tab => tab.addEventListener('click', () => setCourtType(tab.dataset.type)));
+    setCourtType('privada');
+
     const cepInput = document.getElementById('cep');
     const logradouroInput = document.getElementById('logradouro');
     const numeroInput = document.getElementById('numero');
     const cidadeInput = document.getElementById('cidade');
     const estadoInput = document.getElementById('estado');
+
+    const estados = {
+      'acre': 'AC', 'alagoas': 'AL', 'amapa': 'AP', 'amazonas': 'AM',
+      'bahia': 'BA', 'ceara': 'CE', 'distrito federal': 'DF', 'espirito santo': 'ES',
+      'goias': 'GO', 'maranhao': 'MA', 'mato grosso': 'MT', 'mato grosso do sul': 'MS',
+      'minas gerais': 'MG', 'para': 'PA', 'paraiba': 'PB', 'parana': 'PR',
+      'pernambuco': 'PE', 'piaui': 'PI', 'rio de janeiro': 'RJ',
+      'rio grande do norte': 'RN', 'rio grande do sul': 'RS', 'rondonia': 'RO',
+      'roraima': 'RR', 'santa catarina': 'SC', 'sao paulo': 'SP', 'sergipe': 'SE',
+      'tocantins': 'TO'
+    };
+    const normalizar = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLowerCase();
+    const normalizarEndereco = () => {
+      cidadeInput.value = cidadeInput.value.trim().replace(/\s+/g, ' ');
+      const estado = estadoInput.value.trim().replace(/\s+/g, ' ');
+      estadoInput.value = estados[normalizar(estado)] || estado.toUpperCase();
+    };
+    cidadeInput.addEventListener('blur', normalizarEndereco);
+    estadoInput.addEventListener('blur', normalizarEndereco);
 
     cepInput.addEventListener('blur', () => {
       const cep = cepInput.value.replace(/\D/g, '');
@@ -90,6 +149,7 @@
               logradouroInput.value = data.logradouro;
               cidadeInput.value = data.localidade;
               estadoInput.value = data.uf;
+              normalizarEndereco();
               numeroInput.focus();
             } else {
               alert('CEP não encontrado.');
