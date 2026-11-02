@@ -6,31 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DGA SPORTS</title>
     <!-- 1. Carrega o CSS base com as variáveis e resets -->
-    <link
-      rel="stylesheet"
-      href="{% static 'css/base.css' %}"
-    />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
     <!-- 2. Carrega o CSS específico para a página principal -->
-    <link
-      rel="stylesheet"
-      href="{% static 'css/main.css' %}"
-    />
+    <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/home_search.css' %}" />
     <!-- 3. Carrega o script do tema no head para evitar 'flash' -->
-    <script
-      src="{% static 'js/theme_switcher.js' %}"
-      defer
-    ></script>
-    <link
-      rel="icon"
-      href="{% static 'assets/logo.png' %}"
-      type="image/x-png"
-    />
+    <script src="{% static 'js/theme_switcher.js' %}" defer></script>
+    <link rel="icon" href="{% static 'assets/logo.png' %}" type="image/x-png" />
   </head>
 
   <body>
     <div id="root">
       <header class="site-header">
-        <a class="brand" href="{% url 'home' %}" aria-label="DGA Sports - Início">DGA<span>sports</span></a>
+        <a
+          class="brand"
+          href="{% url 'home' %}"
+          aria-label="DGA Sports - Início"
+          >DGA<span>sports</span></a
+        >
         <nav class="primary-nav" aria-label="Navegação principal">
           <a href="{% url 'explorar' %}">Encontrar quadra</a>
           <a href="{% url 'social' %}">Comunidade</a>
@@ -41,8 +34,12 @@
               <a href="{% url 'suporte' %}">Central de ajuda</a>
               {% if user.is_authenticated %}
               <a href="{% url 'minhas_reservas' %}">Minhas reservas</a>
-              {% if tem_quadra %}<a href="{% url 'painel_proprietario' %}">Minha arena</a>{% endif %}
-              {% endif %}
+              {% if tem_quadra %}<a href="{% url 'painel_proprietario' %}"
+                >Minha arena</a
+              >{% endif %} {% if user.is_staff %}<a
+                href="{% url 'admin_cadastrar_quadra' %}"
+                >Administração · Cadastrar quadra</a
+              >{% endif %} {% endif %}
             </div>
           </details>
         </nav>
@@ -90,7 +87,9 @@
           </button>
 
           {% if user.is_authenticated %}
-          <a class="account-link" href="{% url 'perfil' %}">Olá, {{ user.nome }}</a>
+          <a class="account-link" href="{% url 'perfil' %}"
+            >Olá, {{ user.nome }}</a
+          >
           <a class="header-link" href="{% url 'logout' %}">Sair</a>
           {% else %}
           <a class="header-link" href="{% url 'login' %}">Fazer login</a>
@@ -99,17 +98,19 @@
         </div>
       </header>
 
-       {% if messages %} {% for message in messages %}
+      {% if messages %} {% for message in messages %}
       <div class="flash-messages-main flash-{{ message.tags }}">
         <p>{{ message }}</p>
       </div>
-      {% endfor %} {% endif %} 
+      {% endfor %} {% endif %}
 
       <main>
         <section class="hero">
           <h2>Encontre a partida ideal para você</h2>
           <form
             class="search-form"
+            id="home-search-form"
+            data-api-url="{% url 'api_quadras' %}"
             action="{% url 'explorar' %}"
             method="GET"
           >
@@ -177,8 +178,50 @@
                 <option value="Beach-Tennis">🎾 Beach Tennis</option>
               </select>
             </div>
+            <div class="input-group">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path d="M4 5h16M4 12h16M4 19h16" />
+                <circle cx="8" cy="5" r="2" />
+                <circle cx="16" cy="12" r="2" />
+                <circle cx="10" cy="19" r="2" />
+              </svg>
+              <select name="tipo" aria-label="Tipo de quadra">
+                <option value="todos" selected>
+                  Quadras públicas e privadas
+                </option>
+                <option value="publica">Quadras públicas</option>
+                <option value="privada">Quadras privadas</option>
+              </select>
+            </div>
             <button type="submit">Procurar Partidas</button>
           </form>
+        </section>
+        <section
+          id="home-search-results"
+          class="home-search-results"
+          aria-live="polite"
+          hidden
+        >
+          <div class="home-results-heading">
+            <div>
+              <p class="home-results-eyebrow">DGA MAPS</p>
+              <h3>Quadras para sua partida</h3>
+              <p id="home-results-summary">
+                Ajuste os filtros para encontrar quadras próximas.
+              </p>
+            </div>
+            <button id="home-results-clear" type="button">Limpar busca</button>
+          </div>
+          <div id="home-court-results" class="home-court-results"></div>
         </section>
         <section>
           <h3>Esportes em Destaque</h3>
@@ -189,10 +232,7 @@
               class="card-link sport-card sport-futebol"
             >
               <div class="card">
-                <img
-                  src="{% static 'assets/1(1).jpg' %}"
-                  alt="Futebol"
-                />
+                <img src="{% static 'assets/1(1).jpg' %}" alt="Futebol" />
                 <div class="overlay">
                   <h4>Futebol</h4>
                   <p>Jogue partidas competitivas e suba no ranking.</p>
@@ -221,10 +261,7 @@
               class="card-link sport-card sport-volei"
             >
               <div class="card">
-                <img
-                  src="{% static 'assets/volei_foto.jpeg' %}"
-                  alt="Volei"
-                />
+                <img src="{% static 'assets/volei_foto.jpeg' %}" alt="Volei" />
                 <div class="overlay">
                   <h4>Vôlei</h4>
                   <p>Suba de ranking e jogue com os melhores.</p>
@@ -342,16 +379,13 @@
         <hr class="footer-divider" />
         <div class="footer-bottom">
           <div class="footer-legal-info">
-            <p>&copy; 2025 DGAsports Plataforma Esportiva</p>
-            <p>
-              Avenida Dr. Armando Salles Oliveira, 201, Parque Universitário,
-              Franca - SP, CEP 14404-600
-            </p>
+            <p>&copy; 2025 DGAsports Plataforma de Reserva de Esportes</p>
           </div>
           <div class="footer-social-media"></div>
         </div>
       </div>
     </footer>
     <script src="{% static 'js/interaction_dga.js' %}"></script>
+    <script src="{% static 'js/home_search.js' %}"></script>
   </body>
 </html>
