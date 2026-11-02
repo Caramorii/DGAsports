@@ -2,93 +2,73 @@
 <html lang="pt-BR">
   <head>
     {% load static %}
+    {% static 'assets/foto_perfil.jpg' as avatar_padrao %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Editar Perfil Social - DGA Sports</title>
-    <link
-      rel="stylesheet"
-      href="{% static 'css/cad_perfil_soc.css' %}"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <title>Editar perfil | DGA Sports</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/cad_perfil_soc.css' %}" />
   </head>
   <body>
-    <div class="container">
-      <h2>
-        🛠️ {% if not dados.usuario_social %}Completar{% else %}Editar{% endif %} Perfil
-        Social
-      </h2>
+    <main class="profile-page">
+      <a class="back-link" href="{% url 'social' %}"><span aria-hidden="true">←</span> Voltar para a comunidade</a>
+      <section class="container">
+        <header class="page-heading">
+          <div class="heading-icon" aria-hidden="true">✦</div>
+          <div>
+            <p class="eyebrow">SUA IDENTIDADE NA COMUNIDADE</p>
+            <h1>{% if not dados.usuario_social %}Complete{% else %}Edite{% endif %} seu perfil</h1>
+            <p class="heading-copy">Conte um pouco sobre você e deixe seu perfil com a sua cara.</p>
+          </div>
+        </header>
 
-       {% if messages %} {% for message in messages %}
-      <div class="flash-message {{ category }}">{{ message }}</div>
-      {% endfor %} {% endif %} 
+        {% if messages %}
+          <div class="messages" role="status">
+            {% for message in messages %}<div class="flash-message {{ message.tags }}">{{ message }}</div>{% endfor %}
+          </div>
+        {% endif %}
 
-      <form
-        method="POST"
-        action="{% url 'editar_perfil' %}"
-        enctype="multipart/form-data"
-      >
-{% csrf_token %}
-        <div class="profile-pic-container">
-          <label>Foto de Perfil Atual:</label>
-          {% if dados.foto_perfil %}
-          <img
-            src="{% if dados.foto_perfil %}{% static dados.foto_perfil %}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
-            alt="Foto de Perfil"
-            class="profile-pic"
-          />
-          {% else %}
-          <img
-            src="{% static 'images/default_avatar.png' %}"
-            alt="Avatar Padrão"
-            class="profile-pic"
-          />
-          {% endif %}
-        </div>
+        <form method="POST" action="{% url 'editar_perfil' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="profile-pic-container">
+            <img id="profile-preview" src="{% if dados.foto_perfil %}{% static dados.foto_perfil|cut:'static/' %}{% else %}{{ avatar_padrao }}{% endif %}" alt="Prévia da foto de perfil" onerror="this.onerror=null;this.src='{{ avatar_padrao }}'" class="profile-pic" />
+            <div class="photo-copy"><strong>Sua foto de perfil</strong><span>JPG ou PNG · imagem quadrada recomendada</span></div>
+          </div>
 
-        <div class="form-group">
-          <label for="foto_perfil">Alterar Foto de Perfil (JPG, PNG):</label>
-          <input
-            type="file"
-            id="foto_perfil"
-            name="foto_perfil"
-            accept="image/png, image/jpeg, image/jpg"
-          />
-        </div>
+          <div class="form-group">
+            <label for="foto_perfil">Foto de perfil</label>
+            <input type="file" id="foto_perfil" name="foto_perfil" accept="image/png, image/jpeg, image/jpg" />
+            <small class="field-hint">Escolha uma imagem para atualizar sua foto.</small>
+          </div>
 
-        <div class="form-group">
-          <label for="usuario_social"
-            >Nome de Usuário Social (Ex: @jogador_raiz):</label
-          >
-          <input
-            type="text"
-            id="usuario_social"
-            name="usuario_social"
-            value="{{ dados.usuario_social|default:'' }}"
-            required
-            maxlength="50"
-            placeholder="Seu nome de usuário único"
-          />
-        </div>
+          <div class="form-group">
+            <label for="usuario_social">Nome de usuário</label>
+            <div class="username-field"><span aria-hidden="true">@</span><input type="text" id="usuario_social" name="usuario_social" value="{{ dados.usuario_social|default:'' }}" required maxlength="50" placeholder="Ex.: jogador_raiz" /></div>
+            <small class="field-hint">Esse nome identifica você nas publicações.</small>
+          </div>
 
-        <div class="form-group">
-          <label for="bio">Biografia / Sobre Mim:</label>
-          <textarea
-            id="bio"
-            name="bio"
-            maxlength="300"
-            placeholder="Fale um pouco sobre você e seus esportes favoritos."
-          >
-{{ dados.bio|default:'' }}</textarea
-          >
-        </div>
+          <div class="form-group">
+            <div class="label-row"><label for="bio">Biografia</label><span class="optional-label">Opcional</span></div>
+            <textarea id="bio" name="bio" maxlength="300" placeholder="Fale sobre você, seus esportes favoritos e o que gosta de jogar.">{{ dados.bio|default:'' }}</textarea>
+            <div class="field-footer"><small class="field-hint">Uma apresentação curta ajuda a comunidade a conhecer você.</small><small class="counter"><span id="bio-count">0</span>/300</small></div>
+          </div>
 
-        <button type="submit" class="btn-submit">Salvar Perfil Social</button>
-      </form>
-    </div>
+          <button type="submit" class="btn-submit">Salvar alterações <span aria-hidden="true">→</span></button>
+        </form>
+      </section>
+    </main>
+    <script>
+      const photoInput = document.getElementById('foto_perfil');
+      const preview = document.getElementById('profile-preview');
+      photoInput.addEventListener('change', () => {
+        const file = photoInput.files && photoInput.files[0];
+        if (file && file.type.startsWith('image/')) preview.src = URL.createObjectURL(file);
+      });
+      const bio = document.getElementById('bio');
+      const bioCount = document.getElementById('bio-count');
+      const updateBioCount = () => bioCount.textContent = bio.value.length;
+      bio.addEventListener('input', updateBioCount);
+      updateBioCount();
+    </script>
   </body>
 </html>
