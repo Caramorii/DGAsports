@@ -132,6 +132,20 @@
         .metodo-detalhe.alerta { color: #f6ad55; }
         body.light-theme .metodo-detalhe.alerta { color: #b45309; }
         .resumo-metodo { margin-top: 16px; color: var(--text-secondary); }
+        .campo-vagas { display: block; margin-bottom: 14px; font-weight: 600; }
+        .campo-vagas input {
+            display: block;
+            width: 120px;
+            margin: 8px 0;
+            padding: 10px;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font: inherit;
+        }
+        .campo-vagas small { color: var(--text-secondary); font-weight: 400; }
+        .titulo-pagamento { margin-top: 26px; }
 
         /* Sobre a quadra */
         .quadra-info {
@@ -240,8 +254,6 @@
                         </div>
                     </div>
 
-                    <h2>3. Forma de pagamento</h2>
-                    
                     <form action="{% url 'confirmar_reserva' %}" method="POST" class="form-pagamento">
 {% csrf_token %}
                         
@@ -251,7 +263,32 @@
                         <input type="hidden" name="modo_reserva" value="{{ modo_reserva }}">
                         <!-- CORREÇÃO: Adiciona o esporte selecionado como um campo oculto para ser enviado com o formulário -->
                         <input type="hidden" name="esporte_selecionado" value="{{ esporte_selecionado }}">
-                        
+
+                        {% if modo_reserva == 'nova' or modo_reserva == 'assumir' %}
+                        <h2>3. Sua partida</h2>
+                        <label class="campo-vagas" for="campo-vagas">
+                            Quantas pessoas vão jogar, contando você?
+                            <input type="number" id="campo-vagas" name="max_jogadores" min="1" max="{{ vagas_maximas }}" value="{{ vagas_maximas }}" required>
+                            <small>Esta quadra aceita até {{ vagas_maximas }} pessoa{{ vagas_maximas|pluralize }}. Quando esse número completar, a partida fecha.</small>
+                        </label>
+
+                        <label class="metodo-pagamento">
+                            <input type="radio" name="visibilidade" value="privada" checked>
+                            <span class="metodo-titulo">Partida privada</span>
+                            <span class="metodo-detalhe">Só entra quem tiver o seu link de convite.</span>
+                        </label>
+
+                        <label class="metodo-pagamento">
+                            <input type="radio" name="visibilidade" value="publica">
+                            <span class="metodo-titulo">Partida pública</span>
+                            <span class="metodo-detalhe">Qualquer pessoa pode entrar até completar as vagas.</span>
+                        </label>
+
+                        <h2 class="titulo-pagamento">4. Forma de pagamento</h2>
+                        {% else %}
+                        <h2>3. Forma de pagamento</h2>
+                        {% endif %}
+
                         <label class="metodo-pagamento">
                             <input type="radio" name="metodo" value="pix" checked
                                    data-rotulo="PIX pelo site" data-botao="Continuar para pagamento PIX">
@@ -332,7 +369,7 @@
                     </div>
                     <div class="resumo-linha">
                         <strong>Jogadores:</strong>
-                        <span>{{ reserva.horario.jogadores_previstos }} / {{ reserva.horario.max_jogadores }}</span>
+                        <span id="resumo-jogadores" data-previstos="{{ reserva.horario.jogadores_previstos }}">{{ reserva.horario.jogadores_previstos }} / {{ reserva.horario.max_jogadores }}</span>
                     </div>
                     
                     <div class="resumo-linha total">
@@ -357,6 +394,12 @@
             };
             opcoes.forEach(opcao => opcao.addEventListener('change', atualizarMetodo));
             atualizarMetodo();
+
+            const campoVagas = document.getElementById('campo-vagas');
+            const resumoJogadores = document.getElementById('resumo-jogadores');
+            campoVagas?.addEventListener('input', () => {
+                resumoJogadores.textContent = `${resumoJogadores.dataset.previstos} / ${campoVagas.value || '-'}`;
+            });
         });
     </script>
 </body>

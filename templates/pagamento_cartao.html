@@ -99,9 +99,7 @@
             <input type="hidden" name="esporte_selecionado" value="{{ esporte_selecionado }}">
             <input type="hidden" name="modo_reserva" value="{{ modo_reserva }}">
             <input type="hidden" name="max_jogadores" value="{{ max_jogadores }}">
-            {% if aceita_convidados %}
-            <input type="hidden" name="aceita_convidados" value="on">
-            {% endif %}
+            <input type="hidden" name="visibilidade" value="{{ visibilidade }}">
             <button type="submit" class="btn-confirmar">Simular pagamento e confirmar reserva</button>
         </form>
     </div>

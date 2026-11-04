@@ -1,5 +1,9 @@
 import json
+import os
 from datetime import date, timedelta
+
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.core.management import call_command
 from django.test import Client, TestCase
@@ -340,7 +344,7 @@ class ReservaPartidaTests(TestCase):
         self.quadra.esporte = 'Futevolei, Basquete'
         self.quadra.save(update_fields=['quantidade_quadras', 'esporte'])
         DivisaoQuadra.objects.create(
-            quadra=self.quadra, numero=1, nome='Quadra de Areia', superficie='areia', esportes='Futevolei',
+            quadra=self.quadra, numero=1, nome='Quadra de Areia', superficie='areia', esportes='Futevolei', vagas=4,
         )
         DivisaoQuadra.objects.create(
             quadra=self.quadra, numero=2, nome='Ginásio', superficie='madeira', esportes='Basquete',
@@ -392,6 +396,217 @@ class ReservaPartidaTests(TestCase):
         self.assertEqual(
             Horario.objects.filter(quadra=complexo, numero_quadra=2).count(), 7 * 15,
         )
+
+    def _reservar_partida(self, usuario, vagas, visibilidade):
+        self.client.force_login(usuario)
+        return self.client.post(reverse('finalizar_pix'), {
+            'modo_reserva': 'nova',
+            'horario_id': self.horario.id,
+            'esporte_selecionado': 'Futevolei',
+            'max_jogadores': vagas,
+            'visibilidade': visibilidade,
+        })
+
+    def _entrar_na_partida(self):
+        return self.client.post(reverse('finalizar_pix'), {
+            'modo_reserva': 'grupo',
+            'horario_id': self.horario.id,
+            'esporte_selecionado': 'Futevolei',
+        })
+
+    def test_confirmacao_oferece_vagas_ate_o_limite_do_dono(self):
+        self._criar_divisoes()
+
+        response = self.client.get(reverse('reservar', args=[self.horario.id]), {'esporte': 'Futevolei'})
+
+        self.assertContains(response, 'name="max_jogadores" min="1" max="4"')
+        self.assertContains(response, 'value="privada" checked')
+        self.assertContains(response, 'value="publica"')
+
+    def test_quem_reserva_escolhe_a_quantidade_de_pessoas(self):
+        self._criar_divisoes()
+
+        self._reservar_partida(self.usuario, 3, 'publica')
+
+        self.horario.refresh_from_db()
+        self.assertEqual(self.horario.max_jogadores, 3)
+        self.assertTrue(self.horario.aceita_convidados)
+        self.assertEqual(self.horario.visibilidade, 'publica')
+        self.assertEqual(self.horario.codigo_convite, '')
+
+    def test_quantidade_acima_do_limite_do_dono_e_recusada(self):
+        self._criar_divisoes()
+
+        self._reservar_partida(self.usuario, 50, 'publica')
+
+        self.assertFalse(ReservaJogador.objects.exists())
+
+    def test_partida_publica_recebe_desconhecidos_ate_completar(self):
+        self._criar_divisoes()
+        self._reservar_partida(self.usuario, 2, 'publica')
+        outro = Usuario.objects.create_user(
+            email='outro@example.com', nome='Outro', cidade='Franca', password='senha-segura-123'
+        )
+        terceiro = Usuario.objects.create_user(
+            email='terceiro@example.com', nome='Terceiro', cidade='Franca', password='senha-segura-123'
+        )
+
+        self.client.force_login(outro)
+        self.assertTrue(self._estado_exibido()['pode_entrar'])
+        self._entrar_na_partida()
+        self.assertEqual(ReservaJogador.objects.filter(horario=self.horario).count(), 2)
+
+        self.client.force_login(terceiro)
+        self.assertFalse(self._estado_exibido()['pode_entrar'])
+        self._entrar_na_partida()
+        self.assertEqual(ReservaJogador.objects.filter(horario=self.horario).count(), 2)
+
+    def test_partida_privada_bloqueia_quem_nao_tem_convite(self):
+        self._criar_divisoes()
+        self._reservar_partida(self.usuario, 4, 'privada')
+        self._outro_perfil()
+
+        horario = self._estado_exibido()
+        self.assertFalse(horario['pode_entrar'])
+        self.assertTrue(horario['privada'])
+        self.assertEqual(horario['jogadores'], [])
+        self.assertEqual(horario['responsavel_nome'], '')
+        self.assertEqual(horario['link_convite'], '')
+
+        self._entrar_na_partida()
+
+        self.assertEqual(ReservaJogador.objects.filter(horario=self.horario).count(), 1)
+
+    def test_link_de_convite_libera_a_entrada_na_partida_privada(self):
+        self._criar_divisoes()
+        self._reservar_partida(self.usuario, 4, 'privada')
+        link = self._estado_exibido()['link_convite']
+        self.assertTrue(link)
+        self._outro_perfil()
+
+        response = self.client.get(link)
+
+        self.assertRedirects(
+            response, f'/reservar/{self.horario.id}/?esporte=Futevolei', fetch_redirect_response=False,
+        )
+        self.assertEqual(self.client.get(response.url).context['modo_reserva'], 'grupo')
+        self.assertTrue(self._estado_exibido()['pode_entrar'])
+        self._entrar_na_partida()
+        self.assertEqual(ReservaJogador.objects.filter(horario=self.horario).count(), 2)
+
+    def test_convite_invalido_nao_libera_nada(self):
+        self._preparar_horario_privado()
+
+        response = self.client.get('/convite/codigo-que-nao-existe/')
+
+        self.assertRedirects(response, reverse('explorar'))
+
+    def test_convite_pede_login_e_volta_para_a_partida(self):
+        self._criar_divisoes()
+        self._reservar_partida(self.usuario, 4, 'privada')
+        link = self._estado_exibido()['link_convite']
+        Usuario.objects.create_user(
+            email='novo@example.com', nome='Novo', cidade='Franca', password='senha-segura-123'
+        )
+        self.client.logout()
+
+        pedido = self.client.get(link)
+        self.assertIn('/login/', pedido.url)
+        resposta = self.client.post(pedido.url, {'email': 'novo@example.com', 'senha': 'senha-segura-123'})
+
+        self.assertEqual(resposta.url, link)
+
+    def test_ultima_pessoa_sair_devolve_o_horario_ao_limite_do_dono(self):
+        self._criar_divisoes()
+        self._reservar_partida(self.usuario, 2, 'privada')
+        reserva = ReservaJogador.objects.get(horario=self.horario)
+
+        self.client.post(reverse('cancelar_reserva', args=[reserva.id]))
+
+        self.horario.refresh_from_db()
+        self.assertEqual(self.horario.max_jogadores, 4)
+        self.assertEqual(self.horario.visibilidade, 'publica')
+        self.assertEqual(self.horario.codigo_convite, '')
+
+    def test_dono_cadastra_cada_quadra_com_esportes_e_vagas(self):
+        dono = Usuario.objects.create_user(
+            email='dono@example.com', nome='Dono', cidade='Franca', password='senha-segura-123', eh_proprietario=True,
+        )
+        self.client.force_login(dono)
+
+        response = self.client.post(reverse('cadastrar_quadra_proprietario'), {
+            'nome': 'Arena Nova', 'localizacao': 'Rua A', 'cidade': 'Franca', 'estado': 'SP',
+            'quantidade_quadras': 2, 'hora_abertura': '08:00', 'hora_fechamento': '10:00', 'preco': '50',
+            'foto': SimpleUploadedFile('quadra.jpg', b'imagem', content_type='image/jpeg'),
+            'divisao_nome': ['Areia', 'Ginásio'],
+            'divisao_superficie': ['areia', 'madeira'],
+            'divisao_esportes': ['Futevolei, Vôlei de Areia', 'Basquete'],
+            'divisao_vagas': ['4', '10'],
+        })
+
+        self.assertRedirects(response, reverse('painel_proprietario'), fetch_redirect_response=False)
+        quadra = Quadra.objects.get(nome='Arena Nova')
+        self.addCleanup(os.remove, os.path.join(settings.BASE_DIR, 'static', quadra.foto))
+        self.assertEqual(quadra.esporte, 'Futevolei, Vôlei de Areia, Basquete')
+        self.assertEqual(quadra.divisao(1).vagas, 4)
+        horario = Horario.objects.filter(quadra=quadra, numero_quadra=2).first()
+        self.assertEqual(horario.max_jogadores, 10)
+        self.assertEqual(horario.esportes_permitidos, ['Basquete'])
+
+    def test_cadastro_recusa_quadra_sem_esporte(self):
+        dono = Usuario.objects.create_user(
+            email='dono@example.com', nome='Dono', cidade='Franca', password='senha-segura-123', eh_proprietario=True,
+        )
+        self.client.force_login(dono)
+
+        self.client.post(reverse('cadastrar_quadra_proprietario'), {
+            'nome': 'Arena Nova', 'localizacao': 'Rua A', 'cidade': 'Franca', 'estado': 'SP',
+            'quantidade_quadras': 1, 'hora_abertura': '08:00', 'hora_fechamento': '10:00', 'preco': '50',
+            'foto': SimpleUploadedFile('quadra.jpg', b'imagem', content_type='image/jpeg'),
+            'divisao_nome': ['Areia'], 'divisao_superficie': ['areia'],
+            'divisao_esportes': ['  '], 'divisao_vagas': ['4'],
+        })
+
+        self.assertFalse(Quadra.objects.filter(nome='Arena Nova').exists())
+
+    def test_dono_ajusta_vagas_na_agenda_sem_mudar_partida_em_andamento(self):
+        dono = Usuario.objects.create_user(
+            email='dono@example.com', nome='Dono', cidade='Franca', password='senha-segura-123', eh_proprietario=True,
+        )
+        self.quadra.tipo = 'privada'
+        self.quadra.proprietario = dono
+        self.quadra.save(update_fields=['tipo', 'proprietario'])
+        reservado = Horario.objects.create(
+            quadra=self.quadra, data=self.horario.data, hora_texto='19:00 - 20:00', max_jogadores=3,
+        )
+        ReservaJogador.objects.create(usuario=self.usuario, horario=reservado)
+        self.client.force_login(dono)
+
+        self.client.post(reverse('agenda_proprietario', args=[self.quadra.id]), {
+            'acao': 'divisoes', 'divisao_nome': ['Ginásio'], 'divisao_superficie': ['madeira'],
+            'divisao_esportes': ['Basquete'], 'divisao_vagas': ['8'],
+        })
+
+        self.quadra.refresh_from_db()
+        self.assertEqual(self.quadra.esporte, 'Basquete')
+        self.horario.refresh_from_db()
+        reservado.refresh_from_db()
+        self.assertEqual(self.horario.max_jogadores, 8)
+        self.assertEqual(reservado.max_jogadores, 3)
+
+    def test_outro_dono_nao_edita_a_quadra(self):
+        intruso = Usuario.objects.create_user(
+            email='intruso@example.com', nome='Intruso', cidade='Franca', password='senha-segura-123', eh_proprietario=True,
+        )
+        self.client.force_login(intruso)
+
+        response = self.client.post(reverse('agenda_proprietario', args=[self.quadra.id]), {
+            'acao': 'divisoes', 'divisao_nome': ['X'], 'divisao_superficie': [''],
+            'divisao_esportes': ['X'], 'divisao_vagas': ['1'],
+        })
+
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(self.quadra.divisoes.exists())
 
     def test_pagina_nao_desenha_todos_os_horarios_no_html(self):
         response = self.client.get(reverse('detalhes_quadra', args=[self.quadra.id]))

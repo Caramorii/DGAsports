@@ -5,9 +5,9 @@ from core.models import DivisaoQuadra, Horario, Quadra
 
 COMPLEXO_NOME = 'Complexo Esportivo Franca'
 COMPLEXO_DIVISOES = [
-    {'nome': 'Quadra de Areia', 'superficie': 'areia', 'esportes': 'Futevolei, Vôlei de Areia, Beach-Tennis'},
-    {'nome': 'Ginásio Coberto', 'superficie': 'madeira', 'esportes': 'Basquete, Vôlei, Futsal'},
-    {'nome': 'Campo Society', 'superficie': 'sintetico', 'esportes': 'Futebol'},
+    {'nome': 'Quadra de Areia', 'superficie': 'areia', 'esportes': 'Futevolei, Vôlei de Areia, Beach-Tennis', 'vagas': 4},
+    {'nome': 'Ginásio Coberto', 'superficie': 'madeira', 'esportes': 'Basquete, Vôlei, Futsal', 'vagas': 10},
+    {'nome': 'Campo Society', 'superficie': 'sintetico', 'esportes': 'Futebol', 'vagas': 14},
 ]
 
 
@@ -40,7 +40,7 @@ class Command(BaseCommand):
                         numero_quadra=numero,
                         data=hoje + timedelta(days=i),
                         hora_texto=f"{hora:02d}:00 - {hora+1:02d}:00",
-                        max_jogadores=12,
+                        max_jogadores=divisao['vagas'],
                         preco=60.00,
                     )
         self.stdout.write(self.style.SUCCESS(f'{COMPLEXO_NOME} criado com divisões!'))

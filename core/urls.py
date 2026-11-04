@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/quadra/<int:quadra_id>/horarios/<str:data_selecionada>/', views.api_get_horarios_por_data, name='api_horarios'),
     path('reservar/<int:horario_id>/', views.reservar, name='reservar'),
     path('confirmar_reserva/', views.confirmar_reserva, name='confirmar_reserva'),
+    path('convite/<str:codigo>/', views.entrar_por_convite, name='entrar_por_convite'),
     path('finalizar_pix/', views.finalizar_pix, name='finalizar_pix'),
     path('social/', views.social, name='social'),
     path('social/partida/criar/', views.criar_partida_comunidade, name='criar_partida_comunidade'),

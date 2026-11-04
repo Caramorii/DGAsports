@@ -3,6 +3,10 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.utils import timezone
 
 
+VAGAS_PADRAO = 12
+VAGAS_LIMITE = 100
+
+
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, nome, cidade, password=None, **extra_fields):
         if not email:
@@ -94,8 +98,9 @@ class DivisaoQuadra(models.Model):
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='divisoes')
     numero = models.PositiveSmallIntegerField()
     nome = models.CharField(max_length=100)
-    superficie = models.CharField(max_length=20, choices=SUPERFICIE_CHOICES)
+    superficie = models.CharField(max_length=20, choices=SUPERFICIE_CHOICES, blank=True)
     esportes = models.CharField(max_length=200)
+    vagas = models.PositiveSmallIntegerField(default=VAGAS_PADRAO)
 
     class Meta:
         db_table = 'divisoes_quadras'
@@ -111,8 +116,20 @@ class DivisaoQuadra(models.Model):
     def lista_esportes(self):
         return [e.strip() for e in self.esportes.split(',') if e.strip()]
 
+    def sincronizar_vagas(self):
+        """Aplica o limite do dono aos horários futuros que ainda não têm reserva."""
+        Horario.objects.filter(
+            quadra=self.quadra, numero_quadra=self.numero,
+            data__gte=timezone.localdate(), reservas__isnull=True,
+        ).update(max_jogadores=self.vagas)
+
 
 class Horario(models.Model):
+    VISIBILIDADE_CHOICES = [
+        ('publica', 'Pública'),
+        ('privada', 'Privada'),
+    ]
+
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='horarios')
     numero_quadra = models.PositiveSmallIntegerField(default=1)
     data = models.DateField()
@@ -125,6 +142,8 @@ class Horario(models.Model):
         Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='horarios_reservados'
     )
     aceita_convidados = models.BooleanField(default=False)
+    visibilidade = models.CharField(max_length=10, choices=VISIBILIDADE_CHOICES, default='publica')
+    codigo_convite = models.CharField(max_length=32, blank=True, default='', db_index=True)
 
     class Meta:
         db_table = 'horarios'
@@ -143,6 +162,28 @@ class Horario(models.Model):
     def esportes_permitidos(self):
         divisao = self.divisao
         return divisao.lista_esportes if divisao else self.quadra.lista_esportes
+
+    @property
+    def vagas_maximas(self):
+        divisao = self.divisao
+        return divisao.vagas if divisao else VAGAS_PADRAO
+
+    @property
+    def nome_quadra(self):
+        divisao = self.divisao
+        return divisao.nome if divisao else f'Quadra {self.numero_quadra}'
+
+    def liberar(self):
+        """Volta o horário ao estado livre quando a última pessoa sai."""
+        self.esporte_reservado = None
+        self.aceita_convidados = False
+        self.max_jogadores = self.vagas_maximas
+        self.visibilidade = 'publica'
+        self.codigo_convite = ''
+        self.save(update_fields=[
+            'esporte_reservado', 'responsavel_reserva', 'aceita_convidados',
+            'max_jogadores', 'visibilidade', 'codigo_convite',
+        ])
 
     @property
     def jogadores_atuais(self):

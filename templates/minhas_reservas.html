@@ -15,9 +15,20 @@
   {% if messages %}{% for message in messages %}<p class="badge">{{ message }}</p>{% endfor %}{% endif %}
   {% for reserva in reservas %}
     <article class="card">
-      <div><span class="badge">{{ reserva.horario.esporte_reservado|default:'Modalidade a definir' }}</span><h2>{{ reserva.horario.quadra.nome }}</h2><p class="meta">{{ reserva.horario.data|date:'d/m/Y' }} · {{ reserva.horario.hora_texto }} · {{ reserva.horario.quadra.cidade }}</p><a class="link" href="{% url 'detalhes_quadra' reserva.horario.quadra.id %}">Ver quadra</a></div>
+      <div><span class="badge">{{ reserva.horario.esporte_reservado|default:'Modalidade a definir' }}</span><h2>{{ reserva.horario.quadra.nome }}</h2><p class="meta">{{ reserva.horario.data|date:'d/m/Y' }} · {{ reserva.horario.hora_texto }} · {{ reserva.horario.quadra.cidade }}</p><a class="link" href="{% url 'detalhes_quadra' reserva.horario.quadra.id %}">Ver quadra</a>{% if reserva.horario.codigo_convite %} · <button type="button" class="link copiar-convite" style="background:none;border:0;padding:0;font:inherit;cursor:pointer" data-link="{% url 'entrar_por_convite' reserva.horario.codigo_convite %}">Copiar link de convite</button>{% endif %}</div>
       {% if reserva.horario.data >= hoje %}<form method="post" action="{% url 'cancelar_reserva' reserva.id %}">{% csrf_token %}<button class="btn cancelar" type="submit">Cancelar reserva</button></form>{% else %}<span class="meta">Partida concluída</span>{% endif %}
     </article>
   {% empty %}<article class="card"><div><h2>Você ainda não tem reservas</h2><p class="meta">Escolha uma quadra, uma modalidade e entre na próxima partida.</p></div></article>{% endfor %}
 </main>
+  <script>
+    document.querySelectorAll('.copiar-convite').forEach(botao => botao.addEventListener('click', async () => {
+      const link = location.origin + botao.dataset.link;
+      try {
+        await navigator.clipboard.writeText(link);
+        botao.textContent = 'Link copiado!';
+      } catch {
+        window.prompt('Copie o link de convite:', link);
+      }
+    }));
+  </script>
 </body></html>

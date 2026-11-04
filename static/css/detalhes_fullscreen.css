@@ -914,6 +914,14 @@ body.light-theme .card-horario--bloqueado { --aura-texto: #b91c1c; }
     flex-grow: 2;
 }
 
+.acoes-horario .btn-convite {
+    flex: 0 0 42px;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
 .sem-horarios,
 .loading-message {
     padding: 1.5rem;

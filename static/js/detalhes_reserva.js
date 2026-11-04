@@ -90,12 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (horario.passou || horario.indisponivel) return '';
         if (horario.usuario_na_partida) return '<button type="button" class="btn btn-sair" aria-label="Cancelar participação">Cancelar</button>';
         if (horario.pode_assumir) return `<button type="button" class="btn btn-entrar">Assumir · ${emReais(horario.preco)}</button>`;
-        if (horario.jogadores_atuais >= horario.max_jogadores) {
-            return horario.jogadores_atuais ? '' : '<button type="button" class="btn btn-entrar" disabled>Horário lotado</button>';
+        if (tipoQuadra === 'privada') {
+            if (!horario.jogadores_atuais) return `<button type="button" class="btn btn-entrar">Reservar · ${emReais(horario.preco)}</button>`;
+            return horario.pode_entrar ? `<button type="button" class="btn btn-entrar">Entrar · ${emReais(horario.preco)}</button>` : '';
         }
-        if (tipoQuadra !== 'privada') return '<button type="button" class="btn btn-entrar">Participar</button>';
-        const verbo = horario.jogadores_atuais ? 'Entrar' : 'Reservar';
-        return `<button type="button" class="btn btn-entrar">${verbo} · ${emReais(horario.preco)}</button>`;
+        if (horario.jogadores_atuais >= horario.max_jogadores) return '';
+        return '<button type="button" class="btn btn-entrar">Participar</button>';
     }
 
     function statusHorario(horario, reservado) {
@@ -104,7 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 pago: 'Sua reserva · Pago',
                 pendente: 'Sua reserva · Pagar no local',
                 assumivel: 'Reservado sem pagamento',
-                ocupado: horario.jogadores_atuais < horario.max_jogadores ? 'Partida com vagas' : 'Reservado por outra pessoa',
+                ocupado: horario.privada
+                    ? (horario.pode_entrar ? 'Você foi convidado' : 'Partida privada')
+                    : (horario.pode_entrar ? 'Partida pública com vagas' : 'Partida completa'),
             }[horario.estado] || (horario.usuario_na_partida ? 'Você está nesta partida' : 'Partida reservada');
             return `<div class="status-partida${horario.usuario_na_partida ? ' status-partida--sua' : ''}"><span class="status-partida-ponto"></span>${texto}</div>`;
         }
@@ -120,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `<span aria-hidden="true">${iconeEsporte(esporteExibido)}</span> ${escapeHtml(esporteExibido)}`
             : 'Escolha o esporte';
         const mostrarContagem = esporte || tipoQuadra !== 'privada';
-        return `<div class="vagas"><span class="esporte-travado">${rotulo}</span>${mostrarContagem ? `<span class="contagem">${horario.jogadores_atuais} / ${horario.max_jogadores}</span>` : ''}</div>`;
+        return `<div class="vagas"><span class="esporte-travado">${rotulo}</span>${mostrarContagem ? `<span class="contagem">${horario.privada ? '<span title="Partida privada">🔒</span> ' : ''}${horario.jogadores_atuais} / ${horario.max_jogadores}</span>` : ''}</div>`;
     }
 
     function cartaoHorario(horario) {
@@ -134,10 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
             horario.usuario_na_partida && 'card-horario--minha-partida',
         ].filter(Boolean).join(' ');
         const botao = botaoHorario(horario);
-        const resumo = reservado
+        const resumo = reservado && horario.jogadores.length
             ? `<button type="button" class="btn btn-detalhes-partida">${botao ? 'Resumo' : 'Ver resumo da partida'}</button>`
             : '';
-        const acoes = botao || resumo ? `<div class="acoes-horario">${botao}${resumo}</div>` : '';
+        const convite = horario.link_convite && !horario.passou
+            ? `<button type="button" class="btn btn-convite" data-link="${escapeHtml(horario.link_convite)}" title="Copiar link de convite" aria-label="Copiar link de convite">🔗</button>`
+            : '';
+        const acoes = botao || resumo || convite ? `<div class="acoes-horario">${botao}${resumo}${convite}</div>` : '';
         return `<article class="${classes}" data-horario-id="${horario.id}" data-data="${horario.data || ''}" data-hora="${escapeHtml(horario.hora_texto)}" data-numero-quadra="${horario.numero_quadra}" data-esporte-reservado="${escapeHtml(esporte)}" data-preco="${horario.preco}" data-passou="${horario.passou}" data-max-jogadores="${horario.max_jogadores}" data-jogadores-atuais="${horario.jogadores_atuais}" data-responsavel-nome="${escapeHtml(horario.responsavel_nome)}" data-meu-status="${horario.meu_status}" data-meu-metodo="${horario.meu_metodo}" data-responsavel-id="${horario.responsavel_reserva_id || ''}" data-aceita-convidados="${horario.aceita_convidados}">
                 <div class="time-slot-time">${escapeHtml(horario.hora_texto)}</div>
                 ${statusHorario(horario, reservado)}
@@ -311,6 +316,19 @@ document.addEventListener('DOMContentLoaded', () => {
             erro.hidden = false;
         } finally {
             botaoConfirmar.disabled = false;
+        }
+    });
+
+    grid.addEventListener('click', async event => {
+        const botao = event.target.closest('.btn-convite');
+        if (!botao) return;
+        const link = window.location.origin + botao.dataset.link;
+        try {
+            await navigator.clipboard.writeText(link);
+            botao.textContent = '✓';
+            setTimeout(() => { botao.textContent = '🔗'; }, 2000);
+        } catch {
+            window.prompt('Copie o link de convite:', link);
         }
     });
 
