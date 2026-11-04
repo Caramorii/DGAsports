@@ -1,13 +1,54 @@
 from django.core.management.base import BaseCommand
 from datetime import date, timedelta
-from core.models import Quadra, Horario
+from core.models import DivisaoQuadra, Horario, Quadra
+
+
+COMPLEXO_NOME = 'Complexo Esportivo Franca'
+COMPLEXO_DIVISOES = [
+    {'nome': 'Quadra de Areia', 'superficie': 'areia', 'esportes': 'Futevolei, Vôlei de Areia, Beach-Tennis'},
+    {'nome': 'Ginásio Coberto', 'superficie': 'madeira', 'esportes': 'Basquete, Vôlei, Futsal'},
+    {'nome': 'Campo Society', 'superficie': 'sintetico', 'esportes': 'Futebol'},
+]
 
 
 class Command(BaseCommand):
     help = 'Popula dados de demonstração (quadras e horários)'
 
+    def criar_complexo(self):
+        """Exemplo de local com quadras físicas de pisos e esportes diferentes."""
+        if Quadra.objects.filter(nome=COMPLEXO_NOME).exists():
+            return
+        esportes = [e.strip() for d in COMPLEXO_DIVISOES for e in d['esportes'].split(',')]
+        quadra = Quadra.objects.create(
+            nome=COMPLEXO_NOME,
+            descricao='Areia, ginásio coberto e campo society no mesmo lugar',
+            localizacao='Av. das Américas, 800',
+            cidade='Franca',
+            estado='SP',
+            esporte=', '.join(esportes),
+            tipo='privada',
+            quantidade_quadras=len(COMPLEXO_DIVISOES),
+            foto='assets/foto_basquete.jpeg',
+        )
+        hoje = date.today()
+        for numero, divisao in enumerate(COMPLEXO_DIVISOES, start=1):
+            DivisaoQuadra.objects.create(quadra=quadra, numero=numero, **divisao)
+            for i in range(7):
+                for hora in range(8, 23):
+                    Horario.objects.create(
+                        quadra=quadra,
+                        numero_quadra=numero,
+                        data=hoje + timedelta(days=i),
+                        hora_texto=f"{hora:02d}:00 - {hora+1:02d}:00",
+                        max_jogadores=12,
+                        preco=60.00,
+                    )
+        self.stdout.write(self.style.SUCCESS(f'{COMPLEXO_NOME} criado com divisões!'))
+
     def handle(self, *args, **options):
-        if Quadra.objects.exists():
+        ja_tinha_quadras = Quadra.objects.exists()
+        self.criar_complexo()
+        if ja_tinha_quadras:
             self.stdout.write('Quadras já existem, pulando...')
             return
 

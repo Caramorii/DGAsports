@@ -6,7 +6,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import ComentarioQuadra, Horario, Quadra, ReservaJogador, Usuario
+from .models import ComentarioQuadra, DivisaoQuadra, Horario, Quadra, ReservaJogador, Usuario
 
 
 class SeedDataTests(TestCase):
@@ -15,7 +15,7 @@ class SeedDataTests(TestCase):
 
         quadra = Quadra.objects.get(nome='Quadra Amazonas')
         self.assertEqual(quadra.tipo, 'privada')
-        self.assertEqual(Quadra.objects.filter(cidade='Franca').count(), 5)
+        self.assertEqual(Quadra.objects.filter(cidade='Franca').count(), 6)
         self.assertEqual(Quadra.objects.filter(cidade='Morro Agudo').count(), 3)
 
 
@@ -210,9 +210,9 @@ class ReservaPartidaTests(TestCase):
                 self.assertFalse(ReservaJogador.objects.exists())
 
     def _estado_exibido(self):
-        response = self.client.get(reverse('detalhes_quadra', args=[self.quadra.id]))
-        horario = response.context['quadra']['horarios'][0]
-        return response, horario
+        return self.client.get(
+            reverse('api_horarios', args=[self.quadra.id, self.horario.data.isoformat()])
+        ).json()['horarios'][0]
 
     def _reservar(self, status, metodo):
         ReservaJogador.objects.create(
@@ -226,64 +226,186 @@ class ReservaPartidaTests(TestCase):
         self._preparar_horario_privado()
         self._reservar('pago', 'pix')
 
-        response, horario = self._estado_exibido()
-
-        self.assertEqual(horario['estado'], 'pago')
-        self.assertContains(response, 'card-horario--pago')
-        self.assertContains(response, ' · Pago')
+        self.assertEqual(self._estado_exibido()['estado'], 'pago')
 
     def test_horario_para_pagar_no_local_fica_com_estado_pendente(self):
         self._preparar_horario_privado()
         self._reservar('pendente', 'caixa')
 
-        response, horario = self._estado_exibido()
+        self.assertEqual(self._estado_exibido()['estado'], 'pendente')
 
-        self.assertEqual(horario['estado'], 'pendente')
-        self.assertContains(response, 'card-horario--pendente')
-        self.assertContains(response, ' · Pagar no local')
-
-    def test_horario_bloqueado_pelo_dono_fica_compacto(self):
+    def test_horario_bloqueado_pelo_dono_fica_com_estado_bloqueado(self):
         self._preparar_horario_privado()
         self.horario.indisponivel = True
         self.horario.save(update_fields=['indisponivel'])
 
-        response, horario = self._estado_exibido()
+        self.assertEqual(self._estado_exibido()['estado'], 'bloqueado')
 
-        self.assertEqual(horario['estado'], 'bloqueado')
-        self.assertTrue(horario['compacto'])
-        self.assertContains(response, 'card-horario--compacto')
-        self.assertNotContains(response, 'class="barra-vagas"')
-
-    def test_horario_encerrado_sem_reserva_fica_compacto(self):
-        self._preparar_horario_privado()
-        self.horario.data = timezone.localdate() - timedelta(days=1)
-        self.horario.save(update_fields=['data'])
-
-        _, horario = self._estado_exibido()
-
-        self.assertEqual(horario['estado'], 'encerrado')
-        self.assertTrue(horario['compacto'])
-
-    def test_horario_encerrado_com_reserva_mantem_resumo_da_partida(self):
+    def test_horario_que_ja_passou_fica_encerrado_mesmo_bloqueado_ou_reservado(self):
         self._preparar_horario_privado()
         self._reservar('pago', 'pix')
+        self.horario.indisponivel = True
         self.horario.data = timezone.localdate() - timedelta(days=1)
-        self.horario.save(update_fields=['data'])
+        self.horario.save(update_fields=['data', 'indisponivel'])
 
-        response, horario = self._estado_exibido()
+        horario = self._estado_exibido()
 
         self.assertEqual(horario['estado'], 'encerrado')
-        self.assertFalse(horario['compacto'])
-        self.assertContains(response, 'Ver resumo da partida')
+        self.assertEqual(len(horario['jogadores']), 1)
 
     def test_quadra_publica_com_participante_nao_mostra_pagamento(self):
         self.client.force_login(self.usuario)
         self._reservar('pendente', 'caixa')
 
-        response, horario = self._estado_exibido()
+        self.assertEqual(self._estado_exibido()['estado'], 'livre')
 
-        self.assertEqual(horario['estado'], 'livre')
-        self.assertNotContains(response, 'Pagar no local')
+    def _outro_perfil(self):
+        outro = Usuario.objects.create_user(
+            email='outro@example.com', nome='Outro', cidade='Franca', password='senha-segura-123'
+        )
+        self.client.force_login(outro)
+        return outro
+
+    def test_reserva_paga_de_outro_perfil_nao_aparece_como_minha(self):
+        self._preparar_horario_privado()
+        self._reservar('pago', 'pix')
+        self._outro_perfil()
+
+        horario = self._estado_exibido()
+
+        self.assertEqual(horario['estado'], 'ocupado')
+        self.assertEqual(horario['usuario_na_partida'], 0)
+        self.assertEqual(horario['meu_status'], '')
+        self.assertEqual(horario['meu_metodo'], '')
+
+    def test_visitante_nao_ve_reserva_de_outra_pessoa_como_paga(self):
+        self._preparar_horario_privado()
+        self._reservar('pago', 'pix')
+        self.client.logout()
+
+        self.assertEqual(self._estado_exibido()['estado'], 'ocupado')
+
+    def test_dados_de_pagamento_de_outra_pessoa_nao_sao_enviados(self):
+        self._preparar_horario_privado()
+        self._reservar('pendente', 'caixa')
+        self._outro_perfil()
+
+        horario = self._estado_exibido()
+
+        self.assertEqual(horario['estado'], 'assumivel')
+        self.assertNotIn('status', horario['jogadores'][0])
+        self.assertNotIn('metodo_pagamento', horario['jogadores'][0])
+
+    def test_convidado_que_pagou_ve_o_proprio_pagamento(self):
+        self._preparar_horario_privado()
+        self._reservar('pendente', 'caixa')
+        self.horario.aceita_convidados = True
+        self.horario.max_jogadores = 4
+        self.horario.save(update_fields=['aceita_convidados', 'max_jogadores'])
+        outro = self._outro_perfil()
+        ReservaJogador.objects.create(usuario=outro, horario=self.horario, status='pago', metodo_pagamento='pix')
+
+        self.assertEqual(self._estado_exibido()['estado'], 'pago')
+
+    def test_outra_pessoa_pode_assumir_reserva_para_pagar_no_local(self):
+        self._preparar_horario_privado()
+        self._reservar('pendente', 'caixa')
+        outro = Usuario.objects.create_user(
+            email='outro@example.com', nome='Outro', cidade='Franca', password='senha-segura-123'
+        )
+        self.assertFalse(self._estado_exibido()['pode_assumir'])
+        self.assertEqual(self._estado_exibido()['estado'], 'pendente')
+
+        self.client.force_login(outro)
+        horario_cliente = self._estado_exibido()
+        self.assertTrue(horario_cliente['pode_assumir'])
+        self.assertEqual(horario_cliente['estado'], 'assumivel')
+
+        response = self.client.get(reverse('reservar', args=[self.horario.id]), {'esporte': 'Futebol'})
+        self.assertEqual(response.context['modo_reserva'], 'assumir')
+
+    def test_reserva_paga_nao_pode_ser_assumida(self):
+        self._preparar_horario_privado()
+        self._reservar('pago', 'pix')
+        outro = Usuario.objects.create_user(
+            email='outro@example.com', nome='Outro', cidade='Franca', password='senha-segura-123'
+        )
+        self.client.force_login(outro)
+
+        self.assertFalse(self._estado_exibido()['pode_assumir'])
+
+    def _criar_divisoes(self):
+        self._preparar_horario_privado()
+        self.quadra.quantidade_quadras = 2
+        self.quadra.esporte = 'Futevolei, Basquete'
+        self.quadra.save(update_fields=['quantidade_quadras', 'esporte'])
+        DivisaoQuadra.objects.create(
+            quadra=self.quadra, numero=1, nome='Quadra de Areia', superficie='areia', esportes='Futevolei',
+        )
+        DivisaoQuadra.objects.create(
+            quadra=self.quadra, numero=2, nome='Ginásio', superficie='madeira', esportes='Basquete',
+        )
+
+    def test_abas_mostram_nome_piso_e_esportes_de_cada_divisao(self):
+        self._criar_divisoes()
+
+        response = self.client.get(reverse('detalhes_quadra', args=[self.quadra.id]))
+
+        self.assertContains(response, 'data-numero-quadra="1" data-esportes="Futevolei"')
+        self.assertContains(response, 'data-numero-quadra="2" data-esportes="Basquete"')
+        self.assertContains(response, 'Quadra de Areia')
+        self.assertContains(response, 'Piso de madeira')
+
+    def test_esporte_de_outra_divisao_e_recusado(self):
+        self._criar_divisoes()
+
+        response = self.client.get(reverse('reservar', args=[self.horario.id]), {'esporte': 'Basquete'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ReservaJogador.objects.exists())
+
+        recusa = self.client.post(reverse('finalizar_pix'), {
+            'modo_reserva': 'nova',
+            'horario_id': self.horario.id,
+            'esporte_selecionado': 'Basquete',
+        })
+
+        self.assertEqual(recusa.status_code, 302)
+        self.assertFalse(ReservaJogador.objects.exists())
+
+    def test_esporte_da_divisao_e_aceito_e_confirmacao_mostra_o_nome_dela(self):
+        self._criar_divisoes()
+
+        response = self.client.get(reverse('reservar', args=[self.horario.id]), {'esporte': 'Futevolei'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Quadra de Areia')
+        self.assertContains(response, 'Areia')
+
+    def test_seed_cria_complexo_em_banco_existente_uma_vez_so(self):
+        call_command('seed_data')
+        call_command('seed_data')
+
+        complexo = Quadra.objects.get(nome='Complexo Esportivo Franca')
+        self.assertEqual(complexo.divisoes.count(), 3)
+        self.assertEqual(complexo.divisao(3).lista_esportes, ['Futebol'])
+        self.assertEqual(
+            Horario.objects.filter(quadra=complexo, numero_quadra=2).count(), 7 * 15,
+        )
+
+    def test_pagina_nao_desenha_todos_os_horarios_no_html(self):
+        response = self.client.get(reverse('detalhes_quadra', args=[self.quadra.id]))
+
+        self.assertContains(response, 'Carregando horários...')
+        self.assertNotContains(response, 'card-horario')
+
+    def test_quadra_sem_horarios_mostra_mensagem_em_vez_de_carregar(self):
+        quadra = Quadra.objects.create(nome='Sem agenda', cidade='Franca', esporte='Futebol')
+
+        response = self.client.get(reverse('detalhes_quadra', args=[quadra.id]))
+
+        self.assertContains(response, 'Nenhum horário disponível no momento.')
+        self.assertNotContains(response, 'Carregando horários...')
 
     def test_reserva_publica_funciona_com_csrf_apos_abrir_detalhes(self):
         client = Client(enforce_csrf_checks=True)
@@ -458,18 +580,16 @@ class DetalhesQuadraTests(TestCase):
 
         self.assertContains(response, 'Confirmar participação na quadra pública')
         self.assertContains(response, 'somente quem confirmou participação pelo DGA Sports')
-        self.assertContains(response, 'Outro Jogador')
-        self.assertContains(response, 'Você está nesta partida')
-        self.assertContains(response, 'Ver resumo da partida')
         self.assertContains(response, 'Quem vai jogar')
-        self.assertContains(response, 'data-e-voce="true"')
         self.assertNotContains(response, 'PIX pelo site')
         self.assertEqual(ReservaJogador.objects.count(), 1)
 
         horarios = self.client.get(
             reverse('api_horarios', args=[quadra.id, horario.data.isoformat()])
         ).json()['horarios']
+        self.assertEqual(horarios[0]['jogadores'][0]['nome'], 'Outro Jogador')
         self.assertTrue(horarios[0]['jogadores'][0]['eh_usuario'])
+        self.assertEqual(horarios[0]['usuario_na_partida'], 1)
 
     def test_participacao_publica_recusa_horario_encerrado(self):
         quadra = Quadra.objects.create(nome='Praça Esportiva', cidade='Franca', esporte='Futebol')

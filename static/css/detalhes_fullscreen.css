@@ -158,9 +158,17 @@ body {
 
 /* --- Grade de Horários --- */
 .schedule-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Todas as linhas com a mesma altura, para os cards não ficarem desalinhados. */
+.lista-horarios {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    grid-auto-rows: 1fr;
+    gap: 1rem;
 }
 
 .card-horario {
@@ -328,7 +336,6 @@ body {
 @media (max-width: 768px) {
     body { padding: 1rem; }
     .page-title { font-size: 1.5rem; }
-    .schedule-grid { grid-template-columns: 1fr; }
 }
 
 body.light-theme {
@@ -377,22 +384,16 @@ body.light-theme .page-header .back-button:hover {
     border-radius: 999px;
 }
 
-.schedule-grid {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
-    align-items: stretch;
-}
-
 .card-horario {
     display: flex;
     min-width: 0;
-    min-height: 258px;
     flex-direction: column;
-    padding: 1.25rem;
+    gap: 0.5rem;
+    padding: 1.1rem;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
 .card-horario--reservado {
-    min-height: 0;
     border-color: rgba(112, 209, 85, 0.42);
     background:
         linear-gradient(145deg, rgba(112, 209, 85, 0.07), transparent 58%),
@@ -410,13 +411,9 @@ body.light-theme .page-header .back-button:hover {
 }
 
 .time-slot-time {
-    margin-bottom: 0.75rem;
-    font-size: clamp(1.15rem, 2vw, 1.4rem);
+    margin-bottom: 0;
+    font-size: clamp(1.15rem, 2vw, 1.35rem);
     letter-spacing: -0.02em;
-}
-
-.card-horario--reservado .time-slot-time {
-    margin-bottom: 0.35rem;
 }
 
 .status-partida {
@@ -424,7 +421,7 @@ body.light-theme .page-header .back-button:hover {
     width: fit-content;
     align-items: center;
     gap: 0.45rem;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0;
     padding: 0.28rem 0.6rem;
     border: 1px solid rgba(112, 209, 85, 0.24);
     border-radius: 999px;
@@ -446,13 +443,9 @@ body.light-theme .page-header .back-button:hover {
     box-shadow: 0 0 8px var(--primary-green);
 }
 
-.card-horario--reservado .vagas {
-    margin-top: 0.2rem;
-}
-
 .btn-detalhes-partida {
     min-height: 40px;
-    margin: 0.1rem 0 0.5rem;
+    margin: 0;
     border: 1px solid var(--border-color);
     background: var(--hover-bg);
     color: var(--primary-green);
@@ -471,18 +464,44 @@ body.light-theme .page-header .back-button:hover {
     font-weight: 600;
 }
 
+.escolha-esporte {
+    margin-bottom: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--dark-card-bg);
+}
+
+.escolha-esporte--alerta {
+    border-color: #f6c344;
+}
+
+.escolha-esporte-aviso {
+    margin-top: 0.5rem;
+    color: #f6c344;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+body.light-theme .escolha-esporte-aviso {
+    color: #92400e;
+}
+
 .seletor-esporte-reserva {
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-start;
     gap: 0.5rem;
-    margin: 0 0 0.65rem;
+    margin: 0;
     padding: 0;
+    background: transparent;
     border-radius: 10px;
 }
 
 .btn-esporte-opcao {
     display: inline-flex;
     min-height: 38px;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
@@ -496,6 +515,11 @@ body.light-theme .page-header .back-button:hover {
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-esporte-opcao span {
+    margin: 0;
+    font-size: 1rem;
 }
 
 .btn-esporte-opcao:hover {
@@ -524,7 +548,13 @@ body.light-theme .page-header .back-button:hover {
 
 .vagas {
     margin-top: auto;
-    padding-top: 0.4rem;
+    margin-bottom: 0;
+    padding-top: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.card-horario .esporte-travado {
+    font-size: 0.9rem;
 }
 
 .esporte-travado:empty {
@@ -747,7 +777,8 @@ body.light-theme .page-header .back-button:hover {
     --aura-texto: #68d391;
 }
 
-.card-horario--pendente {
+.card-horario--pendente,
+.card-horario--assumivel {
     --aura: 246, 196, 68;
     --aura-texto: #f6c344;
 }
@@ -758,11 +789,13 @@ body.light-theme .page-header .back-button:hover {
 }
 
 body.light-theme .card-horario--pago { --aura-texto: #15803d; }
-body.light-theme .card-horario--pendente { --aura-texto: #92400e; }
+body.light-theme .card-horario--pendente,
+body.light-theme .card-horario--assumivel { --aura-texto: #92400e; }
 body.light-theme .card-horario--bloqueado { --aura-texto: #b91c1c; }
 
 .card-horario--pago,
 .card-horario--pendente,
+.card-horario--assumivel,
 .card-horario--bloqueado {
     border-color: rgba(var(--aura), 0.75);
     background:
@@ -773,37 +806,53 @@ body.light-theme .card-horario--bloqueado { --aura-texto: #b91c1c; }
 
 .card-horario--pago:hover,
 .card-horario--pendente:hover,
+.card-horario--assumivel:hover,
 .card-horario--bloqueado:hover {
     border-color: rgb(var(--aura));
     box-shadow: 0 0 0 1px rgba(var(--aura), 0.5), 0 0 30px rgba(var(--aura), 0.45);
 }
 
 .card-horario--pago .status-partida,
-.card-horario--pendente .status-partida {
+.card-horario--pendente .status-partida,
+.card-horario--assumivel .status-partida {
     border-color: rgba(var(--aura), 0.35);
     background: rgba(var(--aura), 0.12);
     color: var(--aura-texto);
 }
 
 .card-horario--pago .status-partida-ponto,
-.card-horario--pendente .status-partida-ponto {
+.card-horario--pendente .status-partida-ponto,
+.card-horario--assumivel .status-partida-ponto {
     background: rgb(var(--aura));
     box-shadow: 0 0 8px rgb(var(--aura));
 }
 
 .card-horario--pago .btn-detalhes-partida,
-.card-horario--pendente .btn-detalhes-partida {
+.card-horario--pendente .btn-detalhes-partida,
+.card-horario--assumivel .btn-detalhes-partida {
     color: var(--aura-texto);
 }
 
-.card-horario--pago .barra-vagas::-webkit-progress-value,
-.card-horario--pendente .barra-vagas::-webkit-progress-value {
-    background: rgb(var(--aura));
+/* Reserva de outra pessoa: ocupado, sem cor de pagamento. */
+.card-horario--ocupado {
+    border-color: var(--border-color);
+    background: var(--dark-card-bg);
 }
 
-.card-horario--pago .barra-vagas::-moz-progress-bar,
-.card-horario--pendente .barra-vagas::-moz-progress-bar {
-    background: rgb(var(--aura));
+.card-horario--ocupado:hover {
+    transform: none;
+    border-color: var(--border-color);
+}
+
+.card-horario--ocupado .status-partida {
+    border-color: var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.card-horario--ocupado .status-partida-ponto {
+    background: var(--text-secondary);
+    box-shadow: none;
 }
 
 .card-horario--bloqueado .status-indisponivel {
@@ -811,36 +860,106 @@ body.light-theme .card-horario--bloqueado { --aura-texto: #b91c1c; }
     color: var(--aura-texto);
 }
 
-/* Horários sem ação disponível: card enxuto, sem espaço vazio. */
-.card-horario--compacto {
-    min-height: 0;
-    align-self: start;
-    flex-flow: row wrap;
+.card-horario--bloqueado:hover {
+    transform: none;
+}
+
+.tab-quadra {
+    display: inline-flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.35rem 0.75rem;
-    padding: 0.85rem 1.25rem;
+    line-height: 1.25;
+}
+
+.tab-quadra small {
+    font-size: 0.7rem;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.status-livre {
+    width: fit-content;
+    padding: 0.28rem 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.horario-aviso {
+    margin-top: auto;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.acoes-horario {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+}
+
+.acoes-horario .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 42px;
+    margin: 0;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+.acoes-horario .btn-entrar,
+.acoes-horario .btn-sair {
+    flex-grow: 2;
+}
+
+.sem-horarios,
+.loading-message {
+    padding: 1.5rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Horários que já passaram ficam recolhidos para não esconder os disponíveis. */
+.horarios-encerrados summary {
+    width: fit-content;
+    padding: 0.35rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.horarios-encerrados summary:hover {
+    color: var(--text-primary);
+}
+
+.lista-encerrados {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+}
+
+.card-horario--compacto {
+    padding: 0.6rem 0.75rem;
+    box-shadow: none;
+    opacity: 0.65;
 }
 
 .card-horario--compacto .time-slot-time {
-    margin: 0;
-    font-size: 1rem;
-}
-
-.card-horario--compacto .status-encerrado,
-.card-horario--compacto .status-indisponivel {
-    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
 }
 
 .card-horario--compacto:hover {
     transform: none;
-}
-
-.card-horario--encerrado.card-horario--compacto,
-.card-horario--encerrado.card-horario--compacto:hover {
     border-color: var(--border-color);
     box-shadow: none;
-    opacity: 0.7;
 }
 
 .reviews-card {
@@ -1011,15 +1130,6 @@ body.light-theme .card-horario--bloqueado { --aura-texto: #b91c1c; }
     .tab-quadra {
         padding: 0.45rem 0.75rem;
         font-size: 0.82rem;
-    }
-
-    .schedule-grid {
-        grid-template-columns: 1fr;
-        gap: 0.85rem;
-    }
-
-    .card-horario {
-        min-height: 0;
     }
 
     .reviews-heading {

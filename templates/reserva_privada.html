@@ -300,8 +300,14 @@
                     <h3>Resumo da Reserva</h3>
                     <div class="resumo-linha">
                         <strong>Quadra:</strong>
-                        <span>{{ reserva.quadra.nome }} · Quadra {{ reserva.quadra.numero_quadra }}</span>
+                        <span>{{ reserva.quadra.nome }} · {{ reserva.quadra.nome_divisao }}</span>
                     </div>
+                    {% if reserva.quadra.superficie %}
+                    <div class="resumo-linha">
+                        <strong>Piso:</strong>
+                        <span>{{ reserva.quadra.superficie }}</span>
+                    </div>
+                    {% endif %}
                     <div class="resumo-linha">
                         <strong>Local:</strong>
                         <span>{{ reserva.quadra.cidade }}{% if reserva.quadra.estado %}/{{ reserva.quadra.estado }}{% endif %}</span>

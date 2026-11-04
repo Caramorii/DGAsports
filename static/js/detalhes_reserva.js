@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let quadraSelecionada = botoesQuadra.some(botao => botao.dataset.numeroQuadra === quadraDaUrl)
         ? quadraDaUrl
         : botoesQuadra[0]?.dataset.numeroQuadra || null;
+    const seletorEsporte = document.getElementById('escolha-esporte');
+    const avisoEsporte = document.getElementById('escolha-esporte-aviso');
+    let esportesAtuais = esportes;
+    let esporteSelecionado = '';
     let horariosCarregados = [];
     let requisicaoHorarios = 0;
 
@@ -37,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         quadraSelecionada = botao.dataset.numeroQuadra;
         botoesQuadra.forEach(item => item.classList.toggle('active', item === botao));
         atualizarUrlEstado();
+        atualizarEsportes();
         renderizarHorarios(horariosCarregados);
     }));
 
@@ -53,31 +58,93 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function iconeEsporte(esporte) {
         const nome = esporte.toLocaleLowerCase('pt-BR');
-        if (nome.includes('futebol')) return '⚽';
+        if (nome.includes('futebol') || nome.includes('futsal')) return '⚽';
         if (nome.includes('basquete')) return '🏀';
         if (nome.includes('vôlei') || nome.includes('volei')) return '🏐';
-        if (nome.includes('tênis') || nome.includes('tenis')) return '🎾';
+        if (nome.includes('tênis') || nome.includes('tenis') || nome.includes('tennis')) return '🎾';
         return '🎯';
     }
 
-    function botoesEsporte(esporteReservado, indisponivel) {
-        if (esporteReservado || indisponivel) return '';
-        return `<p class="select-label">Escolha o esporte:</p><div class="seletor-esporte-reserva">${esportes.map(esporte =>
-            `<button type="button" class="btn-esporte-opcao" data-esporte="${escapeHtml(esporte)}" aria-pressed="false"><span aria-hidden="true">${iconeEsporte(esporte)}</span>${escapeHtml(esporte)}</button>`
-        ).join('')}</div>`;
+    const emReais = valor => `R$ ${Number(valor).toFixed(2).replace('.', ',')}`;
+
+    function atualizarEsportes() {
+        const abaAtiva = botoesQuadra.find(botao => botao.dataset.numeroQuadra === quadraSelecionada);
+        esportesAtuais = abaAtiva ? (abaAtiva.dataset.esportes || '').split('|').filter(Boolean) : esportes;
+        if (!esportesAtuais.includes(esporteSelecionado)) {
+            esporteSelecionado = esportesAtuais.length === 1 ? esportesAtuais[0] : '';
+        }
+        seletorEsporte.querySelector('.seletor-esporte-reserva').innerHTML = esportesAtuais.map(esporte => {
+            const selecionado = esporte === esporteSelecionado;
+            return `<button type="button" class="btn-esporte-opcao${selecionado ? ' selected' : ''}" data-esporte="${escapeHtml(esporte)}" aria-pressed="${selecionado}"><span aria-hidden="true">${iconeEsporte(esporte)}</span>${escapeHtml(esporte)}</button>`;
+        }).join('');
+        seletorEsporte.hidden = esportesAtuais.length < 2;
+    }
+
+    function pedirEsporte() {
+        avisoEsporte.hidden = false;
+        seletorEsporte.classList.add('escolha-esporte--alerta');
+        seletorEsporte.scrollIntoView({behavior: 'smooth', block: 'center'});
     }
 
     function botaoHorario(horario) {
-        if (horario.usuario_na_partida) return '<button type="button" class="btn btn-sair">Cancelar participação</button>';
-        if (horario.passou) return '<button type="button" class="btn btn-entrar" disabled>Horário encerrado</button>';
-        if (horario.indisponivel) return '<button type="button" class="btn btn-entrar" disabled>Indisponível</button>';
+        if (horario.passou || horario.indisponivel) return '';
+        if (horario.usuario_na_partida) return '<button type="button" class="btn btn-sair" aria-label="Cancelar participação">Cancelar</button>';
+        if (horario.pode_assumir) return `<button type="button" class="btn btn-entrar">Assumir · ${emReais(horario.preco)}</button>`;
         if (horario.jogadores_atuais >= horario.max_jogadores) {
-            return '<button type="button" class="btn btn-entrar" data-lotado="true" disabled>Horário lotado</button>';
+            return horario.jogadores_atuais ? '' : '<button type="button" class="btn btn-entrar" disabled>Horário lotado</button>';
         }
-        const texto = tipoQuadra === 'privada'
-            ? `Revisar reserva · R$ ${Number(horario.preco).toFixed(2)}`
-            : 'Ver aviso e participar';
-        return `<button type="button" class="btn btn-entrar" ${horario.esporte_reservado ? '' : 'disabled'}>${texto}</button>`;
+        if (tipoQuadra !== 'privada') return '<button type="button" class="btn btn-entrar">Participar</button>';
+        const verbo = horario.jogadores_atuais ? 'Entrar' : 'Reservar';
+        return `<button type="button" class="btn btn-entrar">${verbo} · ${emReais(horario.preco)}</button>`;
+    }
+
+    function statusHorario(horario, reservado) {
+        if (reservado) {
+            const texto = {
+                pago: 'Sua reserva · Pago',
+                pendente: 'Sua reserva · Pagar no local',
+                assumivel: 'Reservado sem pagamento',
+                ocupado: horario.jogadores_atuais < horario.max_jogadores ? 'Partida com vagas' : 'Reservado por outra pessoa',
+            }[horario.estado] || (horario.usuario_na_partida ? 'Você está nesta partida' : 'Partida reservada');
+            return `<div class="status-partida${horario.usuario_na_partida ? ' status-partida--sua' : ''}"><span class="status-partida-ponto"></span>${texto}</div>`;
+        }
+        if (horario.estado === 'bloqueado') return '<p class="status-indisponivel">Indisponível</p>';
+        if (horario.estado === 'encerrado') return '';
+        return '<p class="status-livre">Disponível</p>';
+    }
+
+    function infoHorario(horario, esporte) {
+        if (horario.estado === 'bloqueado') return '<p class="horario-aviso">O proprietário tirou este horário do ar.</p>';
+        const esporteExibido = esporte || esporteSelecionado;
+        const rotulo = esporteExibido
+            ? `<span aria-hidden="true">${iconeEsporte(esporteExibido)}</span> ${escapeHtml(esporteExibido)}`
+            : 'Escolha o esporte';
+        const mostrarContagem = esporte || tipoQuadra !== 'privada';
+        return `<div class="vagas"><span class="esporte-travado">${rotulo}</span>${mostrarContagem ? `<span class="contagem">${horario.jogadores_atuais} / ${horario.max_jogadores}</span>` : ''}</div>`;
+    }
+
+    function cartaoHorario(horario) {
+        const esporte = horario.esporte_reservado || '';
+        const reservado = Boolean(esporte && horario.jogadores_atuais);
+        const compacto = horario.passou && !reservado;
+        const classes = [
+            'card-horario', `card-horario--${horario.estado}`,
+            compacto && 'card-horario--compacto',
+            reservado && 'card-horario--reservado',
+            horario.usuario_na_partida && 'card-horario--minha-partida',
+        ].filter(Boolean).join(' ');
+        const botao = botaoHorario(horario);
+        const resumo = reservado
+            ? `<button type="button" class="btn btn-detalhes-partida">${botao ? 'Resumo' : 'Ver resumo da partida'}</button>`
+            : '';
+        const acoes = botao || resumo ? `<div class="acoes-horario">${botao}${resumo}</div>` : '';
+        return `<article class="${classes}" data-horario-id="${horario.id}" data-data="${horario.data || ''}" data-hora="${escapeHtml(horario.hora_texto)}" data-numero-quadra="${horario.numero_quadra}" data-esporte-reservado="${escapeHtml(esporte)}" data-preco="${horario.preco}" data-passou="${horario.passou}" data-max-jogadores="${horario.max_jogadores}" data-jogadores-atuais="${horario.jogadores_atuais}" data-responsavel-nome="${escapeHtml(horario.responsavel_nome)}" data-meu-status="${horario.meu_status}" data-meu-metodo="${horario.meu_metodo}" data-responsavel-id="${horario.responsavel_reserva_id || ''}" data-aceita-convidados="${horario.aceita_convidados}">
+                <div class="time-slot-time">${escapeHtml(horario.hora_texto)}</div>
+                ${statusHorario(horario, reservado)}
+                ${compacto ? '' : infoHorario(horario, esporte)}
+                <ul class="participantes-horario" hidden>${(horario.jogadores || []).map(jogador => `<li data-id="${jogador.id}" data-e-voce="${jogador.eh_usuario}" data-status="${jogador.status}">${escapeHtml(jogador.nome)}</li>`).join('')}</ul>
+                ${acoes}
+            </article>`;
     }
 
     function dataFormatada(data) {
@@ -97,26 +164,20 @@ document.addEventListener('DOMContentLoaded', () => {
             ? horarios.filter(horario => String(horario.numero_quadra) === String(quadraSelecionada))
             : horarios;
         if (!horariosVisiveis.length) {
-            grid.innerHTML = '<p class="loading-message">Nenhum horário disponível para esta data.</p>';
+            grid.innerHTML = '<p class="sem-horarios">Nenhum horário disponível para esta data.</p>';
             return;
         }
-        grid.innerHTML = horariosVisiveis.map(horario => {
-            const esporte = horario.esporte_reservado || '';
-            const reservado = Boolean(esporte && horario.jogadores_atuais);
-            const rotuloPagamento = {pago: ' · Pago', pendente: ' · Pagar no local'}[horario.estado] || '';
-            return `<article class="card-horario card-horario--${horario.estado}${horario.compacto ? ' card-horario--compacto' : ''}${reservado ? ' card-horario--reservado' : ''}${horario.usuario_na_partida ? ' card-horario--minha-partida' : ''}" data-horario-id="${horario.id}" data-data="${horario.data || ''}" data-hora="${escapeHtml(horario.hora_texto)}" data-numero-quadra="${horario.numero_quadra}" data-esporte-reservado="${escapeHtml(esporte)}" data-preco="${horario.preco}" data-passou="${horario.passou}" data-max-jogadores="${horario.max_jogadores}" data-jogadores-atuais="${horario.jogadores_atuais}" data-responsavel-nome="${escapeHtml(horario.responsavel_nome)}" data-responsavel-status="${horario.responsavel_status}" data-responsavel-metodo="${horario.responsavel_metodo}" data-responsavel-id="${horario.responsavel_reserva_id || ''}" data-aceita-convidados="${horario.aceita_convidados}">
-                <div class="time-slot-time">${tipoQuadra === 'privada' ? `Quadra ${horario.numero_quadra} · ` : ''}${escapeHtml(horario.hora_texto)}</div>
-                ${reservado ? `<div class="status-partida${horario.usuario_na_partida ? ' status-partida--sua' : ''}"><span class="status-partida-ponto"></span>${horario.usuario_na_partida ? 'Você está nesta partida' : 'Partida reservada'}${rotuloPagamento}</div>` : ''}
-                ${horario.estado === 'encerrado' ? '<p class="status-encerrado">Horário encerrado</p>' : ''}
-                ${horario.estado === 'bloqueado' ? '<p class="status-indisponivel">Indisponível pelo proprietário</p>' : ''}
-                ${botoesEsporte(esporte, horario.passou || horario.indisponivel || horario.jogadores_atuais >= horario.max_jogadores)}
-                ${horario.compacto ? '' : `<div class="vagas"><span class="esporte-travado">${escapeHtml(esporte)}</span><span class="contagem">${horario.jogadores_atuais} / ${horario.max_jogadores}</span></div>
-                <progress class="barra-vagas" value="${horario.jogadores_atuais}" max="${horario.max_jogadores}"></progress>
-                <ul class="participantes-horario" hidden>${(horario.jogadores || []).map(jogador => `<li data-id="${jogador.id}" data-e-voce="${jogador.eh_usuario}" data-status="${jogador.status}">${escapeHtml(jogador.nome)}</li>`).join('')}</ul>
-                ${reservado ? '<button type="button" class="btn btn-detalhes-partida">Ver resumo da partida</button>' : ''}
-                ${botaoHorario(horario)}`}
-            </article>`;
-        }).join('');
+        const encerradosAbertos = Boolean(grid.querySelector('.horarios-encerrados')?.open);
+        const ativos = horariosVisiveis.filter(horario => !horario.passou);
+        const encerrados = horariosVisiveis.filter(horario => horario.passou);
+        const principal = ativos.length
+            ? `<div class="lista-horarios">${ativos.map(cartaoHorario).join('')}</div>`
+            : '<p class="sem-horarios">Não há mais horários disponíveis nesta data. Escolha outro dia acima.</p>';
+        const rotuloEncerrados = `${encerrados.length} ${encerrados.length === 1 ? 'horário encerrado' : 'horários encerrados'}`;
+        const secaoEncerrados = encerrados.length
+            ? `<details class="horarios-encerrados"${encerradosAbertos ? ' open' : ''}><summary>${rotuloEncerrados}</summary><div class="lista-encerrados">${encerrados.map(cartaoHorario).join('')}</div></details>`
+            : '';
+        grid.innerHTML = principal + secaoEncerrados;
     }
 
     const dialogoDetalhes = document.getElementById('detalhes-partida');
@@ -135,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('detalhes-partida-titulo').textContent =
             card.dataset.passou === 'true' ? 'Resumo da partida' : 'Partida reservada';
         document.getElementById('detalhes-partida-quadra').textContent =
-            `${document.querySelector('.page-title')?.textContent.trim() || 'Quadra'}${tipoQuadra === 'privada' ? ` · Quadra ${numeroQuadra}` : ''}`;
+            `${document.querySelector('.page-title')?.textContent.trim() || 'Quadra'}${tipoQuadra === 'privada' ? ` · ${document.querySelector('.tab-quadra.active .tab-quadra-nome')?.textContent.trim() || `Quadra ${numeroQuadra}`}` : ''}`;
         document.getElementById('detalhes-partida-data').textContent =
             `${dia} · ${card.dataset.hora || card.querySelector('.time-slot-time')?.textContent.trim() || ''}`;
         document.getElementById('detalhes-partida-esporte').textContent =
@@ -149,10 +210,10 @@ document.addEventListener('DOMContentLoaded', () => {
             `R$ ${Number(card.dataset.preco || 0).toFixed(2).replace('.', ',')}`;
 
         const status = document.getElementById('detalhes-partida-status');
-        if (tipoQuadra === 'privada' && card.dataset.responsavelStatus) {
-            status.textContent = card.dataset.responsavelStatus === 'pago'
+        if (tipoQuadra === 'privada' && card.dataset.meuStatus) {
+            status.textContent = card.dataset.meuStatus === 'pago'
                 ? 'Pagamento confirmado'
-                : card.dataset.responsavelMetodo === 'caixa'
+                : card.dataset.meuMetodo === 'caixa'
                     ? 'Pagamento combinado para ser feito na quadra'
                     : 'Pagamento pendente';
             status.hidden = false;
@@ -253,28 +314,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    grid.addEventListener('click', async event => {
+    seletorEsporte.addEventListener('click', event => {
         const opcao = event.target.closest('.btn-esporte-opcao');
-        if (opcao) {
-            const card = opcao.closest('.card-horario');
-            card.querySelectorAll('.btn-esporte-opcao').forEach(item => {
-                item.classList.remove('selected');
-                item.setAttribute('aria-pressed', 'false');
-            });
-            opcao.classList.add('selected');
-            opcao.setAttribute('aria-pressed', 'true');
-            card.dataset.esporteSelecionado = opcao.dataset.esporte;
-            const botao = card.querySelector('.btn-entrar');
-            if (botao && botao.dataset.lotado !== 'true') botao.disabled = false;
-            return;
-        }
+        if (!opcao) return;
+        esporteSelecionado = opcao.dataset.esporte;
+        seletorEsporte.querySelectorAll('.btn-esporte-opcao').forEach(item => {
+            const selecionado = item === opcao;
+            item.classList.toggle('selected', selecionado);
+            item.setAttribute('aria-pressed', String(selecionado));
+        });
+        avisoEsporte.hidden = true;
+        seletorEsporte.classList.remove('escolha-esporte--alerta');
+        renderizarHorarios(horariosCarregados);
+    });
+
+    atualizarEsportes();
+
+    grid.addEventListener('click', async event => {
         const botao = event.target.closest('.btn-entrar, .btn-sair');
         if (!botao || botao.disabled) return;
         const card = botao.closest('.card-horario');
         const horarioId = card.dataset.horarioId;
-        const esporte = card.dataset.esporteSelecionado || card.dataset.esporteReservado;
+        const esporte = card.dataset.esporteReservado || esporteSelecionado;
         if (botao.classList.contains('btn-entrar')) {
-            if (!esporte) return alert('Escolha uma modalidade antes de continuar.');
+            if (!esporte) return pedirEsporte();
             if (tipoQuadra === 'privada') {
                 const parametros = new URLSearchParams({
                     esporte,

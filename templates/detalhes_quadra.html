@@ -20,7 +20,7 @@
     ></script>
     <link
       rel="stylesheet"
-      href="{% static 'css/detalhes_fullscreen.css' %}?v=20261104-1"
+      href="{% static 'css/detalhes_fullscreen.css' %}?v=20261104-4"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -80,98 +80,22 @@
 
         {% if quadra.tipo == 'privada' and quadra.quantidade_quadras > 1 %}
         <div class="tabs-quadras" aria-label="Escolha a quadra">
-          {% for numero in numeros_quadras %}<button type="button" class="tab-quadra {% if numero|stringformat:'s' == numero_quadra_selecionada %}active{% endif %}" data-numero-quadra="{{ numero }}">Quadra {{ numero }}</button>{% endfor %}
+          {% for item in quadras_do_local %}<button type="button" class="tab-quadra {% if item.numero|stringformat:'s' == numero_quadra_selecionada %}active{% endif %}" data-numero-quadra="{{ item.numero }}" data-esportes="{{ item.esportes|join:'|' }}"><span class="tab-quadra-nome">{{ item.nome }}</span>{% if item.superficie %}<small>{{ item.superficie }}</small>{% endif %}</button>{% endfor %}
         </div>
         {% endif %}
 
+        <section id="escolha-esporte" class="escolha-esporte" aria-labelledby="escolha-esporte-titulo" hidden>
+          <p id="escolha-esporte-titulo" class="select-label">Qual esporte você vai jogar?</p>
+          <div class="seletor-esporte-reserva"></div>
+          <p id="escolha-esporte-aviso" class="escolha-esporte-aviso" role="alert" hidden>Escolha um esporte para continuar.</p>
+        </section>
+
         <div class="schedule-grid">
-          {% for horario in quadra.horarios %}
-          <div
-            class="card-horario card-horario--{{ horario.estado }} {% if horario.compacto %}card-horario--compacto{% endif %} {% if horario.esporte_reservado %}card-horario--reservado{% endif %} {% if horario.usuario_na_partida %}card-horario--minha-partida{% endif %}"
-            data-horario-id="{{ horario.id }}"
-            data-data="{{ horario.data }}"
-            data-hora="{{ horario.hora_texto }}"
-            data-numero-quadra="{{ horario.numero_quadra }}"
-            data-esporte-reservado="{{ horario.esporte_reservado|default:'' }}"
-            data-passou="{{ horario.passou|yesno:'true,false' }}"
-            data-max-jogadores="{{ horario.max_jogadores }}"
-            data-jogadores-atuais="{{ horario.jogadores_atuais }}"
-            data-preco="{{ horario.preco }}"
-            data-responsavel-nome="{{ horario.responsavel_nome }}"
-            data-responsavel-status="{{ horario.responsavel_status }}"
-            data-responsavel-metodo="{{ horario.responsavel_metodo }}"
-            data-responsavel-id="{{ horario.responsavel_reserva_id|default:'' }}"
-            data-aceita-convidados="{{ horario.aceita_convidados|yesno:'true,false' }}"
-          >
-            <div class="time-slot-time">{% if quadra.tipo == 'privada' %}Quadra {{ horario.numero_quadra }} · {% endif %}{{ horario.hora_texto }}</div>
-            {% if horario.esporte_reservado %}
-            <div class="status-partida {% if horario.usuario_na_partida %}status-partida--sua{% endif %}">
-              <span class="status-partida-ponto"></span>
-              {% if horario.usuario_na_partida %}Você está nesta partida{% else %}Partida reservada{% endif %}{% if horario.estado == 'pago' %} · Pago{% elif horario.estado == 'pendente' %} · Pagar no local{% endif %}
-            </div>
-            {% endif %}
-            {% if horario.estado == 'encerrado' %}<p class="status-encerrado">Horário encerrado</p>{% elif horario.estado == 'bloqueado' %}<p class="status-indisponivel">Indisponível pelo proprietário</p>{% endif %}
-
-            {% if not horario.esporte_reservado and not horario.usuario_na_partida and not horario.indisponivel and not horario.passou %}
-            <p class="select-label">Escolha o esporte:</p>
-            <div class="seletor-esporte-reserva">
-              {% for esp in quadra.lista_esportes %}
-              <button type="button" class="btn-esporte-opcao" data-esporte="{{ esp }}" aria-pressed="false">
-                <span>
-                  {% if 'Futebol' in esp %}⚽{% elif 'Basquete' in esp %}🏀{% elif 'Vôlei' in esp or 'Volei' in esp %}🏐{% elif 'Tênis' in esp or 'Tenis' in esp %}🎾{% else %}🎯{% endif %}
-                </span>
-                {{ esp }}
-              </button>
-              {% endfor %}
-            </div>
-            {% endif %}
-
-            {% if not horario.compacto %}
-            <div class="vagas">
-              <span class="esporte-travado">
-                {% if horario.esporte_reservado %}
-                  {% if 'Futebol' in horario.esporte_reservado %}⚽{% elif 'Basquete' in horario.esporte_reservado %}🏀{% elif 'Vôlei' in horario.esporte_reservado or 'Volei' in horario.esporte_reservado %}🏐{% elif 'Tênis' in horario.esporte_reservado %}🎾{% endif %}
-                  {{ horario.esporte_reservado }}
-                {% endif %}
-              </span>
-              <span class="contagem">{{ horario.jogadores_atuais }} / {{ horario.max_jogadores }}</span>
-            </div>
-
-            <progress
-              class="barra-vagas"
-              value="{{ horario.jogadores_atuais }}"
-              max="{{ horario.max_jogadores }}"
-            ></progress>
-            <ul class="participantes-horario" hidden>
-              {% for jogador in horario.jogadores %}
-              <li data-id="{{ jogador.id }}" data-e-voce="{{ jogador.eh_usuario|yesno:'true,false' }}" data-status="{{ jogador.status }}">{{ jogador.nome }}</li>
-              {% endfor %}
-            </ul>
-
-            {% if horario.esporte_reservado and horario.jogadores_atuais %}
-            <button type="button" class="btn btn-detalhes-partida">Ver resumo da partida</button>
-            {% endif %}
-
-            {% if horario.usuario_na_partida %}
-            <button class="btn btn-sair">Sair da Partida</button>
-            {% elif horario.passou %}
-            <button class="btn btn-entrar" disabled>Horário encerrado</button>
-            {% elif horario.indisponivel %}
-            <button class="btn btn-entrar" disabled>Indisponível</button>
-            {% else %}
-            <button class="btn btn-entrar" {% if not horario.esporte_reservado or horario.indisponivel %}disabled{% endif %}>
-              {% if horario.indisponivel %}Indisponível{% elif horario.esporte_reservado %}
-                {% if quadra.tipo == 'privada' %}Revisar reserva · R$ {{ horario.preco }}{% else %}Ver aviso e participar{% endif %}
-              {% else %}
-                {% if quadra.tipo == 'privada' %}Revisar reserva · R$ {{ horario.preco }}{% else %}Escolher esporte{% endif %}
-              {% endif %}
-            </button>
-            {% endif %}
-            {% endif %}
-          </div>
-          {% empty %}
-          <p>Nenhum horário disponível no momento.</p>
-          {% endfor %}
+          {% if quadra.datas_disponiveis %}
+          <p class="loading-message">Carregando horários...</p>
+          {% else %}
+          <p class="sem-horarios">Nenhum horário disponível no momento.</p>
+          {% endif %}
         </div>
 
         <section class="info-card reviews-card" aria-labelledby="reviews-title">
@@ -319,6 +243,6 @@
       </dialog>
     </div>
 
-    <script src="{% static 'js/detalhes_reserva.js' %}?v=20261104-1"></script>
+    <script src="{% static 'js/detalhes_reserva.js' %}?v=20261104-4"></script>
   </body>
 </html>

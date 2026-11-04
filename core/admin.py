@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .models import (
     Avaliacao,
+    DivisaoQuadra,
     Horario,
     PerfilSocial,
     Post,
@@ -49,8 +50,14 @@ class UsuarioAdmin(BaseUserAdmin):
     )
 
 
+class DivisaoQuadraInline(admin.TabularInline):
+    model = DivisaoQuadra
+    extra = 0
+
+
 @admin.register(Quadra)
 class QuadraAdmin(admin.ModelAdmin):
+    inlines = [DivisaoQuadraInline]
     list_display = (
         "nome",
         "cidade",

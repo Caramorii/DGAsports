@@ -78,6 +78,39 @@ class Quadra(models.Model):
             return [e.strip() for e in self.esporte.split(',')]
         return []
 
+    def divisao(self, numero):
+        return next((item for item in self.divisoes.all() if item.numero == numero), None)
+
+
+class DivisaoQuadra(models.Model):
+    """Quadra física de um local, com piso e esportes próprios."""
+    SUPERFICIE_CHOICES = [
+        ('areia', 'Areia'),
+        ('madeira', 'Piso de madeira'),
+        ('sintetico', 'Grama sintética'),
+        ('cimento', 'Cimento'),
+    ]
+
+    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='divisoes')
+    numero = models.PositiveSmallIntegerField()
+    nome = models.CharField(max_length=100)
+    superficie = models.CharField(max_length=20, choices=SUPERFICIE_CHOICES)
+    esportes = models.CharField(max_length=200)
+
+    class Meta:
+        db_table = 'divisoes_quadras'
+        verbose_name = 'Divisão de quadra'
+        verbose_name_plural = 'Divisões de quadra'
+        ordering = ['numero']
+        constraints = [models.UniqueConstraint(fields=['quadra', 'numero'], name='divisao_unica_por_numero')]
+
+    def __str__(self):
+        return f"{self.quadra.nome} - {self.nome}"
+
+    @property
+    def lista_esportes(self):
+        return [e.strip() for e in self.esportes.split(',') if e.strip()]
+
 
 class Horario(models.Model):
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE, related_name='horarios')
@@ -101,6 +134,15 @@ class Horario(models.Model):
 
     def __str__(self):
         return f"{self.quadra.nome} - {self.data} {self.hora_texto}"
+
+    @property
+    def divisao(self):
+        return self.quadra.divisao(self.numero_quadra)
+
+    @property
+    def esportes_permitidos(self):
+        divisao = self.divisao
+        return divisao.lista_esportes if divisao else self.quadra.lista_esportes
 
     @property
     def jogadores_atuais(self):
