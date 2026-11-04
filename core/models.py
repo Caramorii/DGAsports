@@ -117,6 +117,9 @@ class ReservaJogador(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
     METODO_PAGAMENTO_CHOICES = [
         ('sistema', 'Pago pelo sistema'),
+        ('pix', 'PIX pelo site'),
+        ('credito', 'Cartão de crédito'),
+        ('debito', 'Cartão de débito'),
         ('caixa', 'Pagar no caixa'),
     ]
     metodo_pagamento = models.CharField(max_length=10, choices=METODO_PAGAMENTO_CHOICES, default='caixa')

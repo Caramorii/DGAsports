@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -119,8 +119,48 @@
         }
         .form-pagamento .metodo-pagamento:has(input:checked) {
             border-color: var(--primary-green);
-            background: #3c4a60;
+            background: rgba(112, 209, 85, 0.12);
         }
+        .metodo-titulo { font-weight: 700; }
+        .metodo-detalhe {
+            display: block;
+            margin: 6px 0 0 24px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .metodo-detalhe.alerta { color: #f6ad55; }
+        body.light-theme .metodo-detalhe.alerta { color: #b45309; }
+        .resumo-metodo { margin-top: 16px; color: var(--text-secondary); }
+
+        /* Sobre a quadra */
+        .quadra-info {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .quadra-info img {
+            width: 140px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .quadra-info strong { color: var(--text-primary); }
+
+        /* Avisos */
+        .avisos-reserva {
+            margin-top: 24px;
+            padding: 16px 16px 16px 34px;
+            background: var(--dark-bg);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .avisos-reserva li + li { margin-top: 6px; }
         .btn {
             width: 100%;
             padding: 15px;
@@ -143,7 +183,8 @@
             align-self: start; /* Impede que estique */
         }
         .resumo-card h3 { font-size: 1.5rem; margin-bottom: 20px; }
-        .resumo-linha { display: flex; justify-content: space-between; margin-bottom: 15px; color: var(--text-secondary); }
+        .resumo-linha { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 15px; color: var(--text-secondary); }
+        .resumo-linha span { text-align: right; }
         .resumo-linha strong { color: var(--text-primary); }
         .resumo-linha.total { font-size: 1.2rem; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); }
         .resumo-linha.total span { color: var(--primary-green); font-weight: 700; }
@@ -153,6 +194,8 @@
             .reserva-grid {
                 grid-template-columns: 1fr; /* Colunas empilhadas */
             }
+            .quadra-info { flex-direction: column; }
+            .quadra-info img { width: 100%; height: 160px; }
         }
     </style>
 </head>
@@ -185,7 +228,19 @@
                         {% endif %}
                     </ul>
 
-                    <h2>2. Forma de pagamento</h2>
+                    <h2>2. Sobre a quadra</h2>
+                    <div class="quadra-info">
+                        {% if reserva.quadra.imagem %}
+                        <img src="{% static reserva.quadra.imagem %}" alt="Foto da {{ reserva.quadra.nome }}">
+                        {% endif %}
+                        <div>
+                            {% if reserva.quadra.descricao %}<p>{{ reserva.quadra.descricao }}</p>{% endif %}
+                            {% if reserva.quadra.localizacao %}<p><strong>Endereço:</strong> {{ reserva.quadra.localizacao }}</p>{% endif %}
+                            {% if reserva.quadra.situacao %}<p><strong>Condição:</strong> {{ reserva.quadra.situacao }}</p>{% endif %}
+                        </div>
+                    </div>
+
+                    <h2>3. Forma de pagamento</h2>
                     
                     <form action="{% url 'confirmar_reserva' %}" method="POST" class="form-pagamento">
 {% csrf_token %}
@@ -198,14 +253,32 @@
                         <input type="hidden" name="esporte_selecionado" value="{{ esporte_selecionado }}">
                         
                         <label class="metodo-pagamento">
-                            <input type="radio" name="metodo" value="pix" id="radio-pix" checked>
-                            PIX pelo site
+                            <input type="radio" name="metodo" value="pix" checked
+                                   data-rotulo="PIX pelo site" data-botao="Continuar para pagamento PIX">
+                            <span class="metodo-titulo">PIX pelo site</span>
+                            <span class="metodo-detalhe">Reserva garantida assim que o pagamento for confirmado.</span>
+                        </label>
+
+                        <label class="metodo-pagamento">
+                            <input type="radio" name="metodo" value="credito"
+                                   data-rotulo="Cartão de crédito" data-botao="Continuar para cartão de crédito">
+                            <span class="metodo-titulo">Cartão de crédito</span>
+                            <span class="metodo-detalhe">Reserva garantida assim que o pagamento for confirmado.</span>
+                        </label>
+
+                        <label class="metodo-pagamento">
+                            <input type="radio" name="metodo" value="debito"
+                                   data-rotulo="Cartão de débito" data-botao="Continuar para cartão de débito">
+                            <span class="metodo-titulo">Cartão de débito</span>
+                            <span class="metodo-detalhe">Reserva garantida assim que o pagamento for confirmado.</span>
                         </label>
 
                         {% if modo_reserva == 'nova' %}
                         <label class="metodo-pagamento">
-                            <input type="radio" name="metodo" value="caixa" id="radio-caixa">
-                            Pagar na quadra
+                            <input type="radio" name="metodo" value="caixa"
+                                   data-rotulo="Pagar na quadra" data-botao="Confirmar reserva para pagar na quadra">
+                            <span class="metodo-titulo">Pagar na quadra</span>
+                            <span class="metodo-detalhe alerta">Reserva provisória: outra pessoa pode assumir o horário se pagar pelo site antes de você.</span>
                         </label>
                         {% else %}
                         <p>Para entrar nesta partida, o pagamento pelo site é necessário.</p>
@@ -216,6 +289,11 @@
                             Continuar para pagamento PIX
                         </button>
                     </form>
+
+                    <ul class="avisos-reserva">
+                        <li>Você pode cancelar em "Minhas reservas" até a data da partida.</li>
+                        <li>Pagamentos pelo site estão em modo de demonstração: nenhuma cobrança real é feita.</li>
+                    </ul>
                 </div>
                 
                 <aside class="resumo-card">
@@ -226,7 +304,7 @@
                     </div>
                     <div class="resumo-linha">
                         <strong>Local:</strong>
-                        <span>{{ reserva.quadra.cidade }}</span>
+                        <span>{{ reserva.quadra.cidade }}{% if reserva.quadra.estado %}/{{ reserva.quadra.estado }}{% endif %}</span>
                     </div>
                     <div class="resumo-linha">
                         <strong>Data:</strong>
@@ -235,6 +313,10 @@
                     <div class="resumo-linha">
                         <strong>Horário:</strong>
                         <span>{{ reserva.horario.hora }}</span>
+                    </div>
+                    <div class="resumo-linha">
+                        <strong>Tipo:</strong>
+                        <span>{% if modo_reserva == 'grupo' %}Entrada em partida{% elif modo_reserva == 'assumir' %}Assumir reserva em aberto{% elif modo_reserva == 'quitar_caixa' %}Pagamento da sua reserva{% else %}Nova reserva{% endif %}</span>
                     </div>
 
                     <div class="resumo-linha">
@@ -259,19 +341,15 @@
     <script>
         (function() { const theme = localStorage.getItem('theme'); if (theme === 'light') { document.body.classList.add('light-theme'); } })();
         document.addEventListener('DOMContentLoaded', () => {
-            const radioPix = document.getElementById('radio-pix');
-            const radioCaixa = document.getElementById('radio-caixa');
+            const opcoes = document.querySelectorAll('input[name="metodo"]');
             const metodoSelecionado = document.getElementById('metodo-selecionado');
             const botaoConfirmar = document.getElementById('confirmar-reserva');
             const atualizarMetodo = () => {
-                const pagarNaQuadra = radioCaixa?.checked;
-                metodoSelecionado.textContent = pagarNaQuadra ? 'Pagar na quadra' : 'PIX pelo site';
-                botaoConfirmar.textContent = pagarNaQuadra
-                    ? 'Confirmar reserva para pagar na quadra'
-                    : 'Continuar para pagamento PIX';
+                const escolhida = document.querySelector('input[name="metodo"]:checked');
+                metodoSelecionado.textContent = escolhida.dataset.rotulo;
+                botaoConfirmar.textContent = escolhida.dataset.botao;
             };
-            radioPix.addEventListener('change', atualizarMetodo);
-            radioCaixa?.addEventListener('change', atualizarMetodo);
+            opcoes.forEach(opcao => opcao.addEventListener('change', atualizarMetodo));
             atualizarMetodo();
         });
     </script>

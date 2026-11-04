@@ -694,6 +694,10 @@ def reservar(request, horario_id):
         'quadra': {
             'nome': horario.quadra.nome,
             'cidade': horario.quadra.cidade,
+            'estado': horario.quadra.estado,
+            'localizacao': horario.quadra.localizacao,
+            'descricao': horario.quadra.descricao,
+            'situacao': horario.quadra.situacao,
             'imagem': horario.quadra.foto,
             'numero_quadra': horario.numero_quadra,
         },
@@ -758,7 +762,7 @@ def _modo_reserva(horario, usuario):
 
 
 def _concluir_reserva_privada(usuario, horario_id, esporte, modo, forma_pagamento,
-                               max_jogadores=None, aceita_convidados=False):
+                               max_jogadores=None, aceita_convidados=False, metodo_sistema='sistema'):
     with transaction.atomic():
         horario = Horario.objects.select_for_update().select_related('quadra').get(pk=horario_id)
         if horario.quadra.tipo != 'privada':
@@ -778,7 +782,7 @@ def _concluir_reserva_privada(usuario, horario_id, esporte, modo, forma_pagament
             if not pago:
                 raise ValueError('Para garantir este horário, pague pelo sistema.')
             reserva.status = 'pago'
-            reserva.metodo_pagamento = 'sistema'
+            reserva.metodo_pagamento = metodo_sistema
             reserva.pago_em = timezone.now()
             reserva.save(update_fields=['status', 'metodo_pagamento', 'pago_em'])
             return horario
@@ -790,7 +794,7 @@ def _concluir_reserva_privada(usuario, horario_id, esporte, modo, forma_pagament
                 raise ValueError('Esta partida não tem mais vagas disponíveis.')
             ReservaJogador.objects.create(
                 usuario=usuario, horario=horario, status='pago',
-                metodo_pagamento='sistema', pago_em=timezone.now(),
+                metodo_pagamento=metodo_sistema, pago_em=timezone.now(),
             )
             if not horario.responsavel_reserva_id and reservas:
                 horario.responsavel_reserva = reservas[0].usuario
@@ -829,7 +833,7 @@ def _concluir_reserva_privada(usuario, horario_id, esporte, modo, forma_pagament
             pago_em = None
         elif forma_pagamento == 'sistema':
             status = 'pago'
-            metodo = 'sistema'
+            metodo = metodo_sistema
             pago_em = timezone.now()
         else:
             raise ValueError('Selecione uma forma de pagamento válida.')
@@ -868,6 +872,13 @@ def registrar_reserva(usuario, horario_id, esporte):
         return horario
 
 
+METODOS_PAGAMENTO_SITE = {
+    'pix': 'PIX',
+    'credito': 'cartão de crédito',
+    'debito': 'cartão de débito',
+}
+
+
 @login_required(login_url='login')
 @require_POST
 def confirmar_reserva(request):
@@ -893,11 +904,14 @@ def confirmar_reserva(request):
             messages.error(request, str(erro))
             return redirect(_url_detalhes_horario(horario))
 
-    if metodo == 'pix':
+    if metodo in METODOS_PAGAMENTO_SITE:
         if modo == 'indisponivel':
             messages.error(request, 'Este horário já está reservado e não aceita mais participantes.')
             return redirect(_url_detalhes_horario(horario))
-        return render(request, 'pagamento_pix.html', {
+        template = 'pagamento_pix.html' if metodo == 'pix' else 'pagamento_cartao.html'
+        return render(request, template, {
+            'metodo': metodo,
+            'metodo_rotulo': METODOS_PAGAMENTO_SITE[metodo],
             'horario_id': horario_id,
             'esporte_selecionado': esporte,
             'modo_reserva': modo,
@@ -909,9 +923,8 @@ def confirmar_reserva(request):
             'voltar_url': _url_detalhes_horario(horario),
         })
 
-    if metodo != 'pix':
-        messages.error(request, 'Escolha pagar pelo sistema ou no caixa da quadra.')
-        return redirect(_url_detalhes_horario(horario))
+    messages.error(request, 'Selecione uma forma de pagamento válida.')
+    return redirect(_url_detalhes_horario(horario))
 
 
 @login_required(login_url='login')
@@ -920,16 +933,20 @@ def finalizar_pix(request):
     horario_id = request.POST.get('horario_id')
     esporte = request.POST.get('esporte_selecionado')
     modo = request.POST.get('modo_reserva')
+    metodo = request.POST.get('metodo', 'pix')
     horario = get_object_or_404(Horario.objects.select_related('quadra'), pk=horario_id)
     if horario.quadra.tipo != 'privada':
         messages.error(request, 'Este pagamento de demonstração só vale para quadras particulares.')
+        return redirect(_url_detalhes_horario(horario))
+    if metodo not in METODOS_PAGAMENTO_SITE:
+        messages.error(request, 'Selecione uma forma de pagamento válida.')
         return redirect(_url_detalhes_horario(horario))
     max_jogadores = request.POST.get('max_jogadores')
     aceita_convidados = request.POST.get('aceita_convidados') == 'on'
     try:
         _concluir_reserva_privada(
             request.user, horario_id, esporte, modo, 'sistema',
-            max_jogadores, aceita_convidados,
+            max_jogadores, aceita_convidados, metodo_sistema=metodo,
         )
         messages.success(request, 'Pagamento confirmado em modo de demonstração. Reserva garantida.')
     except (Horario.DoesNotExist, ValueError, IntegrityError) as erro:

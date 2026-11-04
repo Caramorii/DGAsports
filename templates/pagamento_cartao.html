@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento com cartão</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #70d155;
+            --secondary-green: #1ab480;
+            --dark-bg: #1A202C;
+            --dark-card-bg: #2D3748;
+            --text-primary: #e0e6f0;
+            --text-secondary: #a0aec0;
+            --border-color: rgba(112, 209, 85, 0.2);
+            --font-main: 'Inter', sans-serif;
+        }
+        body.light-theme {
+            --primary-green: #007BFF;
+            --secondary-green: #00C6A7;
+            --dark-bg: #f8f9fa;
+            --dark-card-bg: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #e2e8f0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .cartao-container {
+            background: var(--dark-card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .cartao-container h1 {
+            color: var(--primary-green);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        .cartao-container p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .cartao-container .valor {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .btn-confirmar {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .back-to-schedule {
+            display: inline-block;
+            margin-bottom: 18px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-to-schedule:hover { color: var(--primary-green); }
+    </style>
+</head>
+<body>
+    <div class="cartao-container">
+        <a class="back-to-schedule" href="{{ voltar_url }}">← Voltar aos horários</a>
+        <h1>Pagamento com {{ metodo_rotulo }}</h1>
+        <p>{{ quadra.nome }} · {{ horario.data|date:"d/m/Y" }} · {{ horario.hora_texto }}</p>
+        <p class="valor">R$ {{ valor|floatformat:2 }}</p>
+        <p>Modo de demonstração: nenhum dado de cartão é solicitado e nenhuma cobrança real é feita.</p>
+
+        <form action="{% url 'finalizar_pix' %}" method="POST">
+{% csrf_token %}
+            <input type="hidden" name="metodo" value="{{ metodo }}">
+            <input type="hidden" name="horario_id" value="{{ horario_id }}">
+            <input type="hidden" name="esporte_selecionado" value="{{ esporte_selecionado }}">
+            <input type="hidden" name="modo_reserva" value="{{ modo_reserva }}">
+            <input type="hidden" name="max_jogadores" value="{{ max_jogadores }}">
+            {% if aceita_convidados %}
+            <input type="hidden" name="aceita_convidados" value="on">
+            {% endif %}
+            <button type="submit" class="btn-confirmar">Simular pagamento e confirmar reserva</button>
+        </form>
+    </div>
+    <script>(function() { const theme = localStorage.getItem('theme'); if (theme === 'light') { document.body.classList.add('light-theme'); } })();</script>
+</body>
+</html>

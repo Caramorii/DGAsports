@@ -15,8 +15,8 @@ class SeedDataTests(TestCase):
 
         quadra = Quadra.objects.get(nome='Quadra Amazonas')
         self.assertEqual(quadra.tipo, 'privada')
-        self.assertEqual(Quadra.objects.filter(cidade='Franca').count(), 2)
-        self.assertEqual(Quadra.objects.filter(cidade='Morro Agudo').count(), 1)
+        self.assertEqual(Quadra.objects.filter(cidade='Franca').count(), 5)
+        self.assertEqual(Quadra.objects.filter(cidade='Morro Agudo').count(), 3)
 
 
 class ReservaPartidaTests(TestCase):
@@ -139,6 +139,75 @@ class ReservaPartidaTests(TestCase):
 
         self.assertRedirects(confirmacao, reverse('minhas_reservas'))
         self.assertTrue(ReservaJogador.objects.filter(usuario=self.usuario, horario=self.horario).exists())
+
+    def _preparar_horario_privado(self):
+        self.quadra.tipo = 'privada'
+        self.quadra.localizacao = 'Rua das Palmeiras, 250'
+        self.quadra.descricao = 'Quadra coberta'
+        self.quadra.save(update_fields=['tipo', 'localizacao', 'descricao'])
+        self.client.force_login(self.usuario)
+
+    def test_confirmacao_privada_mostra_formas_de_pagamento_e_dados_da_quadra(self):
+        self._preparar_horario_privado()
+
+        response = self.client.get(reverse('reservar', args=[self.horario.id]), {'esporte': 'Futebol'})
+
+        self.assertContains(response, 'value="credito"')
+        self.assertContains(response, 'value="debito"')
+        self.assertContains(response, 'Reserva provisória')
+        self.assertContains(response, 'Rua das Palmeiras, 250')
+        self.assertContains(response, 'Quadra coberta')
+
+    def test_pagamento_com_cartao_registra_metodo_escolhido(self):
+        self._preparar_horario_privado()
+
+        for metodo, rotulo in (('credito', 'cartão de crédito'), ('debito', 'cartão de débito')):
+            with self.subTest(metodo=metodo):
+                dados = {
+                    'metodo': metodo,
+                    'modo_reserva': 'nova',
+                    'horario_id': self.horario.id,
+                    'esporte_selecionado': 'Futebol',
+                }
+                pagina = self.client.post(reverse('confirmar_reserva'), dados)
+                self.assertContains(pagina, rotulo)
+                self.assertContains(pagina, f'name="metodo" value="{metodo}"')
+
+                confirmacao = self.client.post(reverse('finalizar_pix'), dados)
+
+                self.assertRedirects(confirmacao, reverse('minhas_reservas'))
+                reserva = ReservaJogador.objects.get(usuario=self.usuario, horario=self.horario)
+                self.assertEqual(reserva.metodo_pagamento, metodo)
+                self.assertEqual(reserva.status, 'pago')
+                self.assertIsNotNone(reserva.pago_em)
+                self.client.post(reverse('cancelar_reserva', args=[reserva.id]))
+
+    def test_pagamento_pix_registra_metodo_pix(self):
+        self._preparar_horario_privado()
+
+        self.client.post(reverse('finalizar_pix'), {
+            'modo_reserva': 'nova',
+            'horario_id': self.horario.id,
+            'esporte_selecionado': 'Futebol',
+        })
+
+        reserva = ReservaJogador.objects.get(usuario=self.usuario, horario=self.horario)
+        self.assertEqual(reserva.metodo_pagamento, 'pix')
+
+    def test_forma_de_pagamento_invalida_nao_cria_reserva(self):
+        self._preparar_horario_privado()
+        dados = {
+            'metodo': 'boleto',
+            'modo_reserva': 'nova',
+            'horario_id': self.horario.id,
+            'esporte_selecionado': 'Futebol',
+        }
+
+        for rota in ('confirmar_reserva', 'finalizar_pix'):
+            with self.subTest(rota=rota):
+                response = self.client.post(reverse(rota), dados)
+                self.assertEqual(response.status_code, 302)
+                self.assertFalse(ReservaJogador.objects.exists())
 
     def test_reserva_publica_funciona_com_csrf_apos_abrir_detalhes(self):
         client = Client(enforce_csrf_checks=True)
