@@ -741,6 +741,108 @@ body.light-theme .page-header .back-button:hover {
     font-weight: 600;
 }
 
+/* --- Estados do horário --- */
+.card-horario--pago {
+    --aura: 56, 193, 114;
+    --aura-texto: #68d391;
+}
+
+.card-horario--pendente {
+    --aura: 246, 196, 68;
+    --aura-texto: #f6c344;
+}
+
+.card-horario--bloqueado {
+    --aura: 245, 101, 101;
+    --aura-texto: #feb2b2;
+}
+
+body.light-theme .card-horario--pago { --aura-texto: #15803d; }
+body.light-theme .card-horario--pendente { --aura-texto: #92400e; }
+body.light-theme .card-horario--bloqueado { --aura-texto: #b91c1c; }
+
+.card-horario--pago,
+.card-horario--pendente,
+.card-horario--bloqueado {
+    border-color: rgba(var(--aura), 0.75);
+    background:
+        linear-gradient(145deg, rgba(var(--aura), 0.09), transparent 58%),
+        var(--dark-card-bg);
+    box-shadow: 0 0 0 1px rgba(var(--aura), 0.35), 0 0 22px rgba(var(--aura), 0.32);
+}
+
+.card-horario--pago:hover,
+.card-horario--pendente:hover,
+.card-horario--bloqueado:hover {
+    border-color: rgb(var(--aura));
+    box-shadow: 0 0 0 1px rgba(var(--aura), 0.5), 0 0 30px rgba(var(--aura), 0.45);
+}
+
+.card-horario--pago .status-partida,
+.card-horario--pendente .status-partida {
+    border-color: rgba(var(--aura), 0.35);
+    background: rgba(var(--aura), 0.12);
+    color: var(--aura-texto);
+}
+
+.card-horario--pago .status-partida-ponto,
+.card-horario--pendente .status-partida-ponto {
+    background: rgb(var(--aura));
+    box-shadow: 0 0 8px rgb(var(--aura));
+}
+
+.card-horario--pago .btn-detalhes-partida,
+.card-horario--pendente .btn-detalhes-partida {
+    color: var(--aura-texto);
+}
+
+.card-horario--pago .barra-vagas::-webkit-progress-value,
+.card-horario--pendente .barra-vagas::-webkit-progress-value {
+    background: rgb(var(--aura));
+}
+
+.card-horario--pago .barra-vagas::-moz-progress-bar,
+.card-horario--pendente .barra-vagas::-moz-progress-bar {
+    background: rgb(var(--aura));
+}
+
+.card-horario--bloqueado .status-indisponivel {
+    background: rgba(var(--aura), 0.14);
+    color: var(--aura-texto);
+}
+
+/* Horários sem ação disponível: card enxuto, sem espaço vazio. */
+.card-horario--compacto {
+    min-height: 0;
+    align-self: start;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem 0.75rem;
+    padding: 0.85rem 1.25rem;
+}
+
+.card-horario--compacto .time-slot-time {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.card-horario--compacto .status-encerrado,
+.card-horario--compacto .status-indisponivel {
+    margin: 0;
+}
+
+.card-horario--compacto:hover {
+    transform: none;
+}
+
+.card-horario--encerrado.card-horario--compacto,
+.card-horario--encerrado.card-horario--compacto:hover {
+    border-color: var(--border-color);
+    box-shadow: none;
+    opacity: 0.7;
+}
+
 .reviews-card {
     margin-top: 1.75rem;
     padding: clamp(1.25rem, 3vw, 2rem);

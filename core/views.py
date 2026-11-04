@@ -273,14 +273,27 @@ def api_grupos_quadra(request, quadra_id):
     return JsonResponse({'status': 'sucesso', 'total': len(resultados), 'grupos': resultados})
 
 
+def _estado_horario(horario, responsavel):
+    if horario.indisponivel:
+        return 'bloqueado'
+    if _horario_passou(horario):
+        return 'encerrado'
+    if horario.quadra.tipo == 'privada' and responsavel:
+        return 'pago' if responsavel.status == 'pago' else 'pendente'
+    return 'livre'
+
+
 def _horario_para_cliente(horario, usuario_id=None):
     reservas = list(horario.reservas.all())
     responsavel = next(
         (reserva for reserva in reservas if reserva.usuario_id == horario.responsavel_reserva_id),
         reservas[0] if reservas else None,
     )
+    estado = _estado_horario(horario, responsavel)
     return {
         'id': horario.id,
+        'estado': estado,
+        'compacto': estado in {'bloqueado', 'encerrado'} and not reservas,
         'numero_quadra': horario.numero_quadra,
         'data': horario.data.isoformat() if hasattr(horario.data, 'isoformat') else str(horario.data),
         'hora_texto': horario.hora_texto,

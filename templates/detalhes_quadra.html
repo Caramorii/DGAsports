@@ -20,7 +20,7 @@
     ></script>
     <link
       rel="stylesheet"
-      href="{% static 'css/detalhes_fullscreen.css' %}"
+      href="{% static 'css/detalhes_fullscreen.css' %}?v=20261104-1"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -87,7 +87,7 @@
         <div class="schedule-grid">
           {% for horario in quadra.horarios %}
           <div
-            class="card-horario {% if horario.esporte_reservado %}card-horario--reservado{% endif %} {% if horario.usuario_na_partida %}card-horario--minha-partida{% endif %}"
+            class="card-horario card-horario--{{ horario.estado }} {% if horario.compacto %}card-horario--compacto{% endif %} {% if horario.esporte_reservado %}card-horario--reservado{% endif %} {% if horario.usuario_na_partida %}card-horario--minha-partida{% endif %}"
             data-horario-id="{{ horario.id }}"
             data-data="{{ horario.data }}"
             data-hora="{{ horario.hora_texto }}"
@@ -107,10 +107,10 @@
             {% if horario.esporte_reservado %}
             <div class="status-partida {% if horario.usuario_na_partida %}status-partida--sua{% endif %}">
               <span class="status-partida-ponto"></span>
-              {% if horario.usuario_na_partida %}Você está nesta partida{% else %}Partida reservada{% endif %}
+              {% if horario.usuario_na_partida %}Você está nesta partida{% else %}Partida reservada{% endif %}{% if horario.estado == 'pago' %} · Pago{% elif horario.estado == 'pendente' %} · Pagar no local{% endif %}
             </div>
             {% endif %}
-            {% if horario.passou %}<p class="status-encerrado">Horário encerrado</p>{% elif horario.indisponivel %}<p class="status-indisponivel">Indisponível pelo proprietário</p>{% endif %}
+            {% if horario.estado == 'encerrado' %}<p class="status-encerrado">Horário encerrado</p>{% elif horario.estado == 'bloqueado' %}<p class="status-indisponivel">Indisponível pelo proprietário</p>{% endif %}
 
             {% if not horario.esporte_reservado and not horario.usuario_na_partida and not horario.indisponivel and not horario.passou %}
             <p class="select-label">Escolha o esporte:</p>
@@ -126,6 +126,7 @@
             </div>
             {% endif %}
 
+            {% if not horario.compacto %}
             <div class="vagas">
               <span class="esporte-travado">
                 {% if horario.esporte_reservado %}
@@ -165,6 +166,7 @@
                 {% if quadra.tipo == 'privada' %}Revisar reserva · R$ {{ horario.preco }}{% else %}Escolher esporte{% endif %}
               {% endif %}
             </button>
+            {% endif %}
             {% endif %}
           </div>
           {% empty %}
@@ -317,6 +319,6 @@
       </dialog>
     </div>
 
-    <script src="{% static 'js/detalhes_reserva.js' %}?v=20261102-3"></script>
+    <script src="{% static 'js/detalhes_reserva.js' %}?v=20261104-1"></script>
   </body>
 </html>

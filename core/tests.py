@@ -209,6 +209,82 @@ class ReservaPartidaTests(TestCase):
                 self.assertEqual(response.status_code, 302)
                 self.assertFalse(ReservaJogador.objects.exists())
 
+    def _estado_exibido(self):
+        response = self.client.get(reverse('detalhes_quadra', args=[self.quadra.id]))
+        horario = response.context['quadra']['horarios'][0]
+        return response, horario
+
+    def _reservar(self, status, metodo):
+        ReservaJogador.objects.create(
+            usuario=self.usuario, horario=self.horario, status=status, metodo_pagamento=metodo,
+        )
+        self.horario.esporte_reservado = 'Futebol'
+        self.horario.responsavel_reserva = self.usuario
+        self.horario.save(update_fields=['esporte_reservado', 'responsavel_reserva'])
+
+    def test_horario_reservado_e_pago_fica_com_estado_pago(self):
+        self._preparar_horario_privado()
+        self._reservar('pago', 'pix')
+
+        response, horario = self._estado_exibido()
+
+        self.assertEqual(horario['estado'], 'pago')
+        self.assertContains(response, 'card-horario--pago')
+        self.assertContains(response, ' · Pago')
+
+    def test_horario_para_pagar_no_local_fica_com_estado_pendente(self):
+        self._preparar_horario_privado()
+        self._reservar('pendente', 'caixa')
+
+        response, horario = self._estado_exibido()
+
+        self.assertEqual(horario['estado'], 'pendente')
+        self.assertContains(response, 'card-horario--pendente')
+        self.assertContains(response, ' · Pagar no local')
+
+    def test_horario_bloqueado_pelo_dono_fica_compacto(self):
+        self._preparar_horario_privado()
+        self.horario.indisponivel = True
+        self.horario.save(update_fields=['indisponivel'])
+
+        response, horario = self._estado_exibido()
+
+        self.assertEqual(horario['estado'], 'bloqueado')
+        self.assertTrue(horario['compacto'])
+        self.assertContains(response, 'card-horario--compacto')
+        self.assertNotContains(response, 'class="barra-vagas"')
+
+    def test_horario_encerrado_sem_reserva_fica_compacto(self):
+        self._preparar_horario_privado()
+        self.horario.data = timezone.localdate() - timedelta(days=1)
+        self.horario.save(update_fields=['data'])
+
+        _, horario = self._estado_exibido()
+
+        self.assertEqual(horario['estado'], 'encerrado')
+        self.assertTrue(horario['compacto'])
+
+    def test_horario_encerrado_com_reserva_mantem_resumo_da_partida(self):
+        self._preparar_horario_privado()
+        self._reservar('pago', 'pix')
+        self.horario.data = timezone.localdate() - timedelta(days=1)
+        self.horario.save(update_fields=['data'])
+
+        response, horario = self._estado_exibido()
+
+        self.assertEqual(horario['estado'], 'encerrado')
+        self.assertFalse(horario['compacto'])
+        self.assertContains(response, 'Ver resumo da partida')
+
+    def test_quadra_publica_com_participante_nao_mostra_pagamento(self):
+        self.client.force_login(self.usuario)
+        self._reservar('pendente', 'caixa')
+
+        response, horario = self._estado_exibido()
+
+        self.assertEqual(horario['estado'], 'livre')
+        self.assertNotContains(response, 'Pagar no local')
+
     def test_reserva_publica_funciona_com_csrf_apos_abrir_detalhes(self):
         client = Client(enforce_csrf_checks=True)
         client.force_login(self.usuario)
