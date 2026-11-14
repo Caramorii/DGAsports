@@ -291,13 +291,14 @@ header nav a:hover {
 
 .search-form {
     background-color: var(--card-bg);
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    /* Campos lado a lado; o botão ocupa a linha de baixo inteira (ver button[type="submit"]) */
+    grid-template-columns: 1.4fr 1fr 1fr;
     gap: 10px;
     padding: 10px;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    max-width: 800px;
+    max-width: 960px;
     margin: 0 auto;
     animation: fadeInUp 0.8s ease-out 0.4s backwards;
     z-index: 1;
@@ -312,7 +313,7 @@ header nav a:hover {
     background-color: var(--dark-bg-start);
     border-radius: 8px;
     padding: 0 15px;
-    min-width: 250px;
+    min-width: 0;
     position: relative; /* Necessário para o botão de geolocalização */
 }
 
@@ -383,15 +384,21 @@ header nav a:hover {
 }
 
 .search-form button[type="submit"] {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     background-color: var(--primary-green);
     color: var(--text-dark);
     font-weight: bold;
+    font-size: 1rem;
+    font-family: inherit;
     border: none;
     padding: 15px 30px;
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    flex-shrink: 0;
 }
 
 .search-form button[type="submit"]:hover {
@@ -754,7 +761,7 @@ h3::after {
         gap: 2rem;
     }
     .search-form {
-        flex-direction: column;
+        grid-template-columns: 1fr;
         gap: 1rem;
     }
     h3 {
