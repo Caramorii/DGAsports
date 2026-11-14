@@ -23,6 +23,36 @@ class SeedDataTests(TestCase):
         self.assertEqual(Quadra.objects.filter(cidade='Morro Agudo').count(), 3)
 
 
+class GerarHorariosTests(TestCase):
+    def test_repete_grade_mais_recente_sem_duplicar_nem_copiar_reserva(self):
+        quadra = Quadra.objects.create(
+            nome='Quadra Teste', localizacao='Rua A', cidade='Franca', estado='SP', esporte='Futebol', tipo='privada'
+        )
+        responsavel = Usuario.objects.create_user(
+            email='dono@example.com', nome='Dono', cidade='Franca', password='senha-segura-123'
+        )
+        antigo = date.today() - timedelta(days=10)
+        Horario.objects.create(quadra=quadra, data=antigo, hora_texto='18:00 - 19:00', preco=20)
+        Horario.objects.create(quadra=quadra, data=antigo, hora_texto='19:00 - 20:00', preco=25)
+        Horario.objects.create(quadra=quadra, data=date.today(), hora_texto='18:00 - 19:00', preco=99)
+        Horario.objects.create(
+            quadra=quadra, data=date.today(), hora_texto='19:00 - 20:00', preco=25,
+            max_jogadores=1, responsavel_reserva=responsavel, visibilidade='privada',
+        )
+
+        call_command('gerar_horarios', dias=3, stdout=open(os.devnull, 'w'))
+        call_command('gerar_horarios', dias=3, stdout=open(os.devnull, 'w'))
+
+        futuros = Horario.objects.filter(quadra=quadra, data__gte=date.today())
+        self.assertEqual(futuros.count(), 6)
+        amanha = futuros.filter(data=date.today() + timedelta(days=1))
+        self.assertEqual(amanha.get(hora_texto='18:00 - 19:00').preco, 99)
+        reservado = amanha.get(hora_texto='19:00 - 20:00')
+        self.assertIsNone(reservado.responsavel_reserva)
+        self.assertEqual(reservado.max_jogadores, 12)
+        self.assertEqual(reservado.visibilidade, 'publica')
+
+
 class ReservaPartidaTests(TestCase):
     def setUp(self):
         self.usuario = Usuario.objects.create_user(
