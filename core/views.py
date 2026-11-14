@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -1383,7 +1384,13 @@ def minhas_reservas(request):
     reservas = ReservaJogador.objects.filter(usuario=request.user).select_related('horario__quadra').order_by(
         'horario__data', 'horario__hora_texto'
     )
-    return render(request, 'minhas_reservas.html', {'reservas': reservas, 'hoje': date.today()})
+    # "Voltar" leva à quadra da reserva mais recente, que é a que o usuário acabou de fazer.
+    ultima_reserva = ReservaJogador.objects.filter(usuario=request.user).order_by('-id').first()
+    voltar_url = (reverse('detalhes_quadra', args=[ultima_reserva.horario.quadra_id])
+                  if ultima_reserva else reverse('explorar'))
+    return render(request, 'minhas_reservas.html', {
+        'reservas': reservas, 'hoje': date.today(), 'voltar_url': voltar_url,
+    })
 
 
 @login_required(login_url='login')

@@ -6,11 +6,15 @@
   <title>Minhas reservas | DGA Sports</title>
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
   <style>
-    main{max-width:900px;margin:3rem auto;padding:0 1rem}.topo{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:2rem}.card{background:var(--dark-card-bg);border:1px solid var(--border-color);border-radius:14px;padding:1.25rem;margin:.8rem 0;display:flex;justify-content:space-between;gap:1rem;align-items:center}.meta{color:var(--text-secondary)}.badge{display:inline-block;padding:.2rem .6rem;border-radius:99px;background:var(--hover-bg);color:var(--primary-green);font-weight:700}.btn{border:0;border-radius:8px;padding:.7rem 1rem;font-weight:700;cursor:pointer}.cancelar{background:#d64b4b;color:white}.link{color:var(--primary-green);font-weight:700;text-decoration:none}@media(max-width:600px){.card,.topo{align-items:flex-start;flex-direction:column}}
+    main{max-width:900px;margin:3rem auto;padding:0 1rem}.topo{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:2rem}.card{background:var(--dark-card-bg);border:1px solid var(--border-color);border-radius:14px;padding:1.25rem;margin:.8rem 0;display:flex;justify-content:space-between;gap:1rem;align-items:center}.meta{color:var(--text-secondary)}.badge{display:inline-block;padding:.2rem .6rem;border-radius:99px;background:var(--hover-bg);color:var(--primary-green);font-weight:700}.btn{border:0;border-radius:8px;padding:.7rem 1rem;font-weight:700;cursor:pointer}.cancelar{background:#d64b4b;color:white}.link{color:var(--primary-green);font-weight:700;text-decoration:none}.navegacao{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.5rem}.btn-nav{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--border-color);border-radius:8px;padding:.55rem .9rem;color:var(--text-secondary);font-weight:700;text-decoration:none;transition:color .2s,border-color .2s}.btn-nav:hover{color:var(--primary-green);border-color:var(--primary-green)}@media(max-width:600px){.card,.topo{align-items:flex-start;flex-direction:column}}
   </style>
 </head>
 <body>
 <main>
+  <nav class="navegacao" aria-label="Navegação">
+    <a class="btn-nav" href="{{ voltar_url }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>Voltar</a>
+    <a class="btn-nav" href="{% url 'home' %}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>Página inicial</a>
+  </nav>
   <div class="topo"><div><h1>Minhas reservas</h1><p class="meta">Acompanhe seus próximos jogos e gerencie suas vagas.</p></div><a class="link" href="{% url 'explorar' %}">Encontrar uma quadra</a></div>
   {% if messages %}{% for message in messages %}<p class="badge">{{ message }}</p>{% endfor %}{% endif %}
   {% for reserva in reservas %}

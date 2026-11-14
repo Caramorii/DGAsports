@@ -174,6 +174,10 @@ class ReservaPartidaTests(TestCase):
         self.assertRedirects(confirmacao, reverse('minhas_reservas'))
         self.assertTrue(ReservaJogador.objects.filter(usuario=self.usuario, horario=self.horario).exists())
 
+        pagina = self.client.get(reverse('minhas_reservas'))
+        self.assertContains(pagina, f'href="{reverse("detalhes_quadra", args=[self.quadra.id])}"><svg')
+        self.assertContains(pagina, f'href="{reverse("home")}"><svg')
+
     def _preparar_horario_privado(self):
         self.quadra.tipo = 'privada'
         self.quadra.localizacao = 'Rua das Palmeiras, 250'
