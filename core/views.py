@@ -987,6 +987,15 @@ METODOS_PAGAMENTO_SITE = {
 }
 
 
+def _qr_code_data_uri(conteudo):
+    """Gera um QR Code PNG embutido como data URI (vazio se a lib não estiver instalada)."""
+    if not qrcode:
+        return ''
+    buffer = io.BytesIO()
+    qrcode.make(conteudo).save(buffer, format='PNG')
+    return 'data:image/png;base64,' + base64.b64encode(buffer.getvalue()).decode('ascii')
+
+
 @login_required(login_url='login')
 @require_POST
 def confirmar_reserva(request):
@@ -1019,7 +1028,15 @@ def confirmar_reserva(request):
             messages.error(request, 'Este horário já está reservado e não aceita mais participantes.')
             return redirect(_url_detalhes_horario(horario))
         template = 'pagamento_pix.html' if metodo == 'pix' else 'pagamento_cartao.html'
+        contexto_pix = {}
+        if metodo == 'pix':
+            chave_pix = str(uuid.uuid4())
+            contexto_pix = {
+                'chave_pix': chave_pix,
+                'qr_code_data_uri': _qr_code_data_uri(chave_pix),
+            }
         return render(request, template, {
+            **contexto_pix,
             'metodo': metodo,
             'metodo_rotulo': METODOS_PAGAMENTO_SITE[metodo],
             'horario_id': horario_id,

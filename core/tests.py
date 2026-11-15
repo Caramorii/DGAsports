@@ -165,6 +165,8 @@ class ReservaPartidaTests(TestCase):
 
         self.assertEqual(pagamento.status_code, 200)
         self.assertContains(pagamento, 'name="modo_reserva" value="nova"')
+        self.assertTrue(pagamento.context['qr_code_data_uri'].startswith('data:image/png;base64,'))
+        self.assertContains(pagamento, f'value="{pagamento.context["chave_pix"]}"')
         confirmacao = self.client.post(reverse('finalizar_pix'), {
             'modo_reserva': 'nova',
             'horario_id': self.horario.id,

@@ -122,9 +122,13 @@
         <h1>Pague com PIX para confirmar</h1>
         <p>Escaneie o QR Code ou use a chave "Copia e Cola" no seu app de pagamentos.</p>
 
+        {% if qr_code_data_uri %}
         <div class="qr-code">
             <img src="{{ qr_code_data_uri }}" alt="QR Code PIX">
         </div>
+        {% else %}
+        <p>QR Code indisponível no momento. Use a chave "Copia e Cola" abaixo.</p>
+        {% endif %}
 
         <div class="copia-cola">
             <input type="text" class="copia-cola-input" value="{{ chave_pix }}" readonly>
